@@ -1,188 +1,246 @@
 # Spec: Wi-Fi skin
 
-Source of truth: `docs/DESIGN-V1.md` section "Wi-Fi" and the V1 canvas. This file says how to build it in Rainmeter. Status: investigated, not built.
-
-Shared conventions: follow `specs/foundation-settings.md` when it lands. Until then this spec uses what the repo already does: `Theme.inc`, `User.inc`, `Styles.inc`, `Fade.inc` included in that order; every size times `#Scale#`; ASCII-only files with CRLF; settings live in `User.inc`; header comment block in the .ini. If the foundation spec renames variables or changes the include order, it wins.
+Source of truth: `docs/DESIGN-V1.md` section "Wi-Fi" and the V1 canvas. Conventions: `specs/foundation-settings.md` (template, tokens, styles, settings keys). This file says how the Wi-Fi skin is built on top of that. Status: built (branch claude/project-thread-2b42b3). Sections below describe the build; PC checks in section 9.
 
 ## 1. Verdict
 
-Everything in the design can be done in Rainmeter with built-in measures plus one Lua script. No third-party plugin is needed.
+Everything in the design can be done with bundled Rainmeter measures plus one Lua script. No extra plugin.
 
 | Feature | Route | Confidence |
 |---|---|---|
-| Network name | `Measure=WiFiStatus`, `WiFiInfoType=SSID` | High, but see Location privacy (section 7) |
+| Network name | `Measure=WiFiStatus`, `WiFiInfoType=SSID` | High, but see Location privacy (section 8) |
 | Signal arcs | `WiFiStatus`, `WiFiInfoType=Quality` (0-100) | High |
-| No internet | `Measure=SysInfo`, `SysInfoType=INTERNET_CONNECTIVITY` (1 / -1, uses Windows NCSI like the taskbar) | High |
-| Ethernet | `SysInfo` `ADAPTER_TYPE` (6 Ethernet, 71 Wireless) + `ADAPTER_STATE` with `SysInfoData=Best` (prefers wired) | High |
-| Not connected / Wi-Fi off | `ADAPTER_STATE` not 1 and no Ethernet | High |
+| No internet | `Measure=SysInfo`, `SysInfoType=INTERNET_CONNECTIVITY` (1 / -1, Windows NCSI, same as the taskbar) | High |
+| Ethernet | `SysInfo` `ADAPTER_TYPE` (6 Ethernet, 71 Wireless) + `ADAPTER_STATE`, `SysInfoData=Best` (prefers wired) | High |
+| Not connected / Wi-Fi off | `ADAPTER_STATE` not 1 and nothing wired | High |
 | Airplane mode | `Measure=Registry` on `HKLM\SYSTEM\CurrentControlSet\Control\RadioManagement\SystemRadioState` | Medium, verify on PC |
-| Speed test | `RunCommand` runs Ookla `speedtest.exe`, output redirected to a file; Lua polls the file for live progress and the result | Medium, verify live progress on PC |
+| Speed test | `RunCommand` runs Ookla `speedtest.exe` with output redirected to a file; Lua polls the file for live speed and the result | Medium, verify live progress on PC |
 | Click opens settings | `["ms-settings:network-wifi"]` | High |
 
-Nothing in the design is blocked. Two risks have fallbacks: live speed during the test (falls back to `TESTING` with no number) and the SSID being blank on Windows 11 24H2 when Location is off (falls back to the profile name or `WI-FI`).
+Nothing is blocked. Two risks have fallbacks: live speed during the test (falls back to `TESTING` with no number) and a blank SSID on Windows 11 24H2 with Location off (falls back to `WI-FI`).
 
-## 2. Files
-
-```
-WiFi/WiFi.ini
-@Resources/Scripts/WiFi.lua
-@Resources/Icons/wifi-1.png  wifi-2.png  wifi-3.png
-@Resources/Icons/wifi-no-internet.png
-@Resources/Icons/globe-disconnected.png
-@Resources/Icons/ethernet.png
-@Resources/Icons/airplane.png
-```
-
-Icons: render from `docs/icons/*.svg` with headless Chromium, same pipeline as the existing icons (white, transparent, 2x of `#IconSize#`). `wifi-1/2/3.png` are `wifi.svg` with 1, 2 or 3 arcs at full alpha and the rest at 22% (the dot is always lit). `wifi-no-internet.png` is `wifi-no-internet-badge.svg` (orange badge baked in). Pre-rendering the three arc levels keeps one image meter and matches the other skins; a Shape meter with per-arc alpha is the alternative if crisper scaling is wanted later.
-
-The speed test output goes to `%TEMP%` (section 5), so nothing new goes in the repo or `.gitignore`.
-
-## 3. Layout
+## 2. Files (all SKIN THREAD)
 
 ```
-[icon]  Network name              rest: icon + name (name at WifiNameAlpha)
-        SPEED TEST                hover only (sReveal, SizeXS, accent on its own hover)
+WiFi\WiFi.ini
+WiFi\Defaults.inc
+Settings\WiFi.ini                       fills the foundation stub
+@Resources\Scripts\WiFi.lua
+docs\icons\wifi-1.svg, wifi-2.svg       new: 1 and 2 arcs lit, others at 22% opacity
+@Resources\Icons\wifi-1.png, wifi-2.png rendered by tools/render-icons.py
 ```
 
-- `Icon`: image meter, `sIconFade`, X=0, Y=0, 24x24 at Scale 1.
-- `Name`: string, `sText`, LeftCenter at `(IconSize+IconGap)*Scale`, vertically centred on the icon. FontColor alpha = `WifiNameAlpha + (AlphaHover - WifiNameAlpha) * Reveal`, so it is ~50% at rest and full on hover. `ClipString=1`, `W=#WifiNameW#` (default 170) so long SSIDs end in an ellipsis.
-- `Link`: string, `sReveal`, under the name. Text `SPEED TEST`. Hidden (alpha 0) at rest via Reveal. Hover on the link itself turns it accent.
-- In state text (NO INTERNET, NOT CONNECTED, ETHERNET, AIRPLANE MODE) the `Name` meter shows that text. Orange (`#Warn#`) for NO INTERNET and NOT CONNECTED, normal ink for ETHERNET and AIRPLANE MODE.
-- While a test runs or a result is showing, the `Link` line shows the test text and stays visible at rest (same pattern as Volume keeping `%` visible while muted: alpha = `AlphaHover * Max(Reveal, Testing)`).
-- Spaced caps: follow whatever the foundation spec sets for letter spacing; the strings above are the content.
+Icons used, all `@Resources\Icons\<name>.png` (foundation renders the existing SVGs; this thread only adds the two new arc levels with the same renderer):
 
-## 4. State logic
+| State | Icon |
+|---|---|
+| Wi-Fi, 3 / 2 / 1 arcs | `wifi.png` / `wifi-2.png` / `wifi-1.png` |
+| Wi-Fi, no internet | `wifi-no-internet-badge.png` (orange badge baked in, so no tint) |
+| Not connected, or wired with no internet | `globe-disconnected.png` (badge baked in) |
+| Ethernet | `ethernet.png` |
+| Airplane mode | `airplane.png` |
 
-Measures (all `UpdateDivider=2` on a `Update=1000` skin, so state refreshes every 2 s):
+## 3. Skin template
+
+`WiFi.ini` is the section 2 template from the foundation spec, copied exactly with `<Skin>` = `WiFi`, `Update=1000`. Header comment:
+
+```
+; Control-Plaine | WiFi
+; What it shows: Wi-Fi icon (lit arcs = signal) and network name; taskbar-style states for
+;   no internet, not connected, Ethernet and airplane mode. Hover for a manual speed test.
+; Designed for: Windows 10/11 networking, Ookla Speedtest CLI (speedtest.exe) for the test.
+; Adjust: WiFiClick, WiFiSpeedtestPath, WiFiNameRest (Settings > WI-FI).
+```
+
+Skin-local variables (not settings, between `@include5` and `@include6`):
+
+```ini
+; which wireless interface WiFiStatus reads (0 = first)
+WiFiInterface=0
+NameW=170
+; ms the speed test result stays up
+ResultHold=15000
+; 1 while a test runs or its result is showing
+Testing=0
+NameAlpha=(#WiFiNameRest#*2.55)
+```
+
+No self-hiding: the skin is always visible (only Core's full-screen hide applies).
+
+## 4. Settings
+
+`WiFi\Defaults.inc` (keys as agreed in foundation section 7.6):
+
+```ini
+[Variables]
+; settings = Windows Wi-Fi settings; anything else is run as given (a URI or a program path)
+WiFiClick=settings
+; winget puts a speedtest.exe link here; Lua expands %VARS% itself before io.open
+WiFiSpeedtestPath=%LOCALAPPDATA%\Microsoft\WinGet\Links\speedtest.exe
+; network name brightness at rest, percent (30-90)
+WiFiNameRest=50
+```
+
+`Settings\WiFi.ini` rows (foundation Controls.inc styles, Targets `WiFi`):
+
+| Row | Control | Call |
+|---|---|---|
+| CLICK OPENS / What clicking the icon or name opens | Choice: `WI-FI SETTINGS` (`settings`) / `CUSTOM` (path box, InputText) | `Set('WiFiClick','settings','WiFi')`, `EditPath('WiFiClick','WiFi')` |
+| SPEEDTEST / Path to Ookla speedtest.exe | Path box | `EditPath('WiFiSpeedtestPath','WiFi')` |
+| NAME AT REST / How bright the network name is when you are not hovering | Value box 30-90, step 5, `%` | `Step('WiFiNameRest',5,30,90,'WiFi')` |
+
+Install: speedtest.exe is **not installed** on Vishnu's PC (probe 2026-10-10). `tools/install.ps1` (integration owns it) should run `winget install --id Ookla.Speedtest.CLI -e --accept-source-agreements --accept-package-agreements` when `speedtest.exe` isn't found, which puts a link at the default path above. If winget is missing it skips with a message; the skin then shows `INSTALL SPEEDTEST` (section 7). `--accept-license --accept-gdpr` covers the CLI's own first-run prompt.
+
+## 5. Layout
+
+```
+[icon]  NETWORK NAME              rest: icon + name
+        SPEED TEST                hover only, accent underline
+```
+
+- `Icon`: image, `MeterStyle=sIconFade`, `X=(0-#IconPad#)*#Scale#`, `Y=(0-#IconPad#)*#Scale#`, `ImageTint=#Ink#`. Alpha AlphaDetail to AlphaHover by Reveal (the style does this).
+- `Name`: string, `MeterStyle=sValue`, `FontSize=(#SizeValueS#*#Scale#)`, LeftCenter at `X=((#IconSize#+10)*#Scale#)`, `Y=(#IconSize#/2*#Scale#)`. FontColor alpha overridden to `(#NameAlpha#+(#AlphaHover#-#NameAlpha#)*#Reveal#)` so it is 50% at rest, full on hover. `ClipString=1`, `W=(#NameW#*#Scale#)` so long SSIDs end in an ellipsis. StringCase=Upper comes from the style.
+- `Link`: string, `MeterStyle=sLink`, `Text=Speed test`, under the name (`Y=(4*#Scale#)R`, same X). `LinkLine`: `MeterStyle=sLinkLine` under it.
+- State text in `Name`: `NO INTERNET` and `NOT CONNECTED` use `MeterStyle=sValue | sWarn`; `ETHERNET` and `AIRPLANE MODE` stay ink.
+- While a test runs or the result is showing (`Testing=1`), `Link` shows the test text and stays visible at rest: alpha `(#AlphaHover#*Max(#Reveal#,#Testing#))`, underline hidden. Live speed uses `sAccent`; the result is ink; failure is `sWarn`.
+- Hit areas: `Icon` and `Name` each carry the click action; a `sHit` backing behind icon + name keeps the gap between them clickable.
+
+## 6. State logic
+
+Measures (`UpdateDivider=2`, so state refreshes every 2 s):
 
 ```ini
 [mSSID]
 Measure=WiFiStatus
 WiFiInfoType=SSID
-WiFiIntfID=#WifiInterface#
+WiFiIntfID=#WiFiInterface#
+UpdateDivider=2
 
 [mQuality]
 Measure=WiFiStatus
 WiFiInfoType=Quality
-WiFiIntfID=#WifiInterface#
+WiFiIntfID=#WiFiInterface#
+UpdateDivider=2
 
 [mType]
 Measure=SysInfo
 SysInfoType=ADAPTER_TYPE
 SysInfoData=Best
 DynamicVariables=1
+UpdateDivider=2
 
 [mState]
 Measure=SysInfo
 SysInfoType=ADAPTER_STATE
 SysInfoData=Best
 DynamicVariables=1
+UpdateDivider=2
 
 [mInternet]
 Measure=SysInfo
 SysInfoType=INTERNET_CONNECTIVITY
+UpdateDivider=2
 
 [mAirplane]
 Measure=Registry
 RegHKey=HKEY_LOCAL_MACHINE
 RegKey=SYSTEM\CurrentControlSet\Control\RadioManagement\SystemRadioState
+UpdateDivider=2
 ; empty RegValue reads the (Default) value: 1 = airplane mode on
+
+[mWiFi]
+Measure=Script
+ScriptFile=#@#Scripts\WiFi.lua
+UpdateDivider=2
 ```
 
-`WiFi.lua` `Update()` picks one state, in this order (same priority as the taskbar):
+`WiFi.lua` `Update()` picks one state, same priority as the taskbar:
 
 1. Best adapter is Ethernet (`mType`=6) and connected (`mState`=1):
    - internet ok: `ethernet.png`, `ETHERNET`.
-   - no internet: `globe-disconnected.png`, `NO INTERNET` (orange). The taskbar shows the globe for wired-without-internet; the design doesn't cover this case, so this copies the taskbar.
+   - no internet: `globe-disconnected.png`, `NO INTERNET` (warn). The design doesn't cover this; the taskbar shows the globe, so we copy it.
 2. Best adapter is Wireless (`mType`=71) and connected:
-   - no internet: `wifi-no-internet.png`, `NO INTERNET` (orange).
-   - internet ok: `wifi-N.png` with N = 3 if quality >= 67, 2 if >= 34, else 1. Name = SSID.
-   - SSID text contains `connecting...` or `authorizing...`: show the SSID dim, no change in icon (WiFiStatus appends these while joining).
+   - no internet: `wifi-no-internet-badge.png`, `NO INTERNET` (warn).
+   - internet ok: arcs from quality, 3 if >= 67, 2 if >= 34, else 1. Name = SSID.
+   - SSID ending in `connecting...` / `authorizing...` (WiFiStatus adds these while joining): show it as is, keep the last icon.
 3. Nothing connected and airplane mode on: `airplane.png`, `AIRPLANE MODE`.
-4. Otherwise: `globe-disconnected.png`, `NOT CONNECTED` (orange).
+4. Otherwise: `globe-disconnected.png`, `NOT CONNECTED` (warn).
 
-Airplane mode is checked after a live connection on purpose: with airplane on and Wi-Fi switched back on, Windows shows the Wi-Fi icon, and so does this skin.
+Airplane mode is checked after a live connection on purpose: with airplane on and Wi-Fi turned back on, Windows shows the Wi-Fi icon, and so does the skin.
 
-Lua only calls `!SetOption` and redraws when the state or bar count actually changes, to avoid redrawing every tick.
+Lua only sends `!SetOption` and `!Redraw` when the state or arc count changes.
 
-SSID blank while connected over Wi-Fi (Location off, see section 7): show `WI-FI` as the name and full arcs if quality is also 0. Optional fallback if Vishnu wants the real name without enabling Location: a RunCommand running `powershell -NoProfile -Command "(Get-NetConnectionProfile -InterfaceAlias '<alias>').Name"` every 30 s; the profile name is usually the SSID and doesn't need Location. Not built unless needed.
+SSID blank while connected over Wi-Fi (Location off): name shows `WI-FI`, arcs from quality, or 3 arcs if quality is also 0. Optional fallback if Vishnu won't turn Location on: a RunCommand every 30 s running `powershell -NoProfile -Command "(Get-NetConnectionProfile -InterfaceAlias '<alias>').Name"`; the profile name is usually the SSID and doesn't need Location. Not built unless needed.
 
-## 5. Speed test
+## 7. Speed test
 
-Ookla CLI (`speedtest.exe`, the official one from speedtest.net/apps/cli, not the Python `speedtest-cli`).
-
-Run measure:
+Ookla CLI (`speedtest.exe` from speedtest.net/apps/cli, not the Python `speedtest-cli`).
 
 ```ini
 [mSpeedRun]
 Measure=Plugin
 Plugin=RunCommand
 ; cmd redirect so the file fills while the test runs (RunCommand only hands over stdout at the end)
-Parameter=""#SpeedtestPath#" --format=jsonl --progress=yes --accept-license --accept-gdpr > "%TEMP%\ControlPlaine-speedtest.jsonl" 2>&1"
+Parameter=""#WiFiSpeedtestPath#" --format=json --progress=yes --accept-license --accept-gdpr > "%TEMP%\ControlPlaine-speedtest.json" 2>&1"
 State=Hide
 Timeout=120000
 FinishAction=[!CommandMeasure mWiFi "Finished()"]
 DynamicVariables=1
+
+[mSpeedPoll]
+Measure=Plugin
+Plugin=ActionTimer
+ActionList1=Repeat Poll,250,480
+Poll=[!CommandMeasure mWiFi "Poll()"]
 ```
 
-Flow, all in `WiFi.lua`:
+Flow, in `WiFi.lua`:
 
-- Click `SPEED TEST`: `Start()` deletes the old file, sets `Testing=1`, shows `TESTING`, starts `[!CommandMeasure mSpeedRun "Run"]`, and sets the skin's update to fast polling (an ActionTimer repeating `[!UpdateMeasure mWiFi]` every 250 ms while testing, so the rest of the skin stays at 1 s). Clicks while a test is running do nothing. Never started automatically.
-- Poll: read the file with `io.open(os.getenv('TEMP') .. '\\ControlPlaine-speedtest.jsonl')`, take the last complete line, match with Lua patterns (no JSON library needed):
+- Click `SPEED TEST`: `Start()` checks the exe exists (`io.open`), deletes the old output file, sets `Testing=1`, shows `TESTING`, runs `[!CommandMeasure mSpeedRun "Run"]` and `[!CommandMeasure mSpeedPoll "Execute 1"]`. Clicks while testing do nothing. Never automatic.
+- `Poll()`: open `os.getenv('TEMP') .. '\\ControlPlaine-speedtest.json'`, take the last complete line, match with Lua patterns:
   - `"type":"ping"` -> `TESTING`
-  - `"type":"download"` -> `TESTING  386 MBPS` using `"bandwidth":(%d+)`
-  - `"type":"upload"` -> same, upload bandwidth. Design shows one live number; download then upload both use the same line.
-  - Mbps = bandwidth * 8 / 1e6, rounded to an integer. Ookla's `bandwidth` is bytes per second (verify, section 7).
-  - Live text in `#Accent#`.
-- `Finished()`: find the `"type":"result"` line; pull `download.bandwidth`, `upload.bandwidth`, `ping.latency`. Show `412 / 38 MBPS   PING 9 MS` in ink. Hold for `#SpeedResultHold#` ms (default 15000) or until the next mouse-leave after that, then clear `Testing` and go back to rest.
-- Failure (no result line, `"type":"log"` with `"level":"error"`, timeout, file missing, or `mSpeedRun` number >= 100): show `TEST FAILED` in orange for the hold time. If `#SpeedtestPath#` doesn't exist, show `SPEEDTEST NOT FOUND` and do nothing else.
-- Refresh or unload during a test: `State=Hide` makes Rainmeter kill speedtest.exe automatically.
-- No window flashes: `State=Hide` hides the cmd window and speedtest runs inside it.
+  - `"type":"download"` or `"type":"upload"` -> `TESTING  386 MBPS` from `"bandwidth":(%d+)`
+  - Mbps = bandwidth x 8 / 1e6, rounded. Ookla's `bandwidth` is bytes per second (verify).
+- `Finished()`: stop `mSpeedPoll`, find the `"type":"result"` line, pull `download.bandwidth`, `upload.bandwidth`, `ping.latency`, show `412 / 38 MBPS   PING 9 MS`. After `ResultHold` ms (an ActionTimer `Wait`), set `Testing=0` and return to rest.
+- Failures show in warn for `ResultHold`: exe missing -> the link itself reads `INSTALL SPEEDTEST` at hover (checked on refresh and before each run), and clicking it opens `https://www.speedtest.net/apps/cli` instead of starting a test; no result line, an error log line, timeout, or `mSpeedRun` >= 100 -> `TEST FAILED`.
+- Refresh or unload during a test: `State=Hide` makes Rainmeter kill speedtest.exe. No console window flashes.
+- Fallback if progress lines only appear at the end (stdout buffered when redirected): `TESTING` with an animated three dots, then the result. Same parser.
 
-Fallback if live progress doesn't appear (stdout buffered when redirected): show `TESTING` with a three-dot ActionTimer animation, then the result. Same parser, no other change.
-
-Lua parsing sketch:
+Parsing sketch (ASCII only):
 
 ```lua
-local function mbps(s, key)  -- key = 'download' or 'upload'
+local function mbps(s, key)
   local b = s:match('"' .. key .. '":{[^}]-"bandwidth":(%d+)')
   return b and math.floor(tonumber(b) * 8 / 1e6 + 0.5)
 end
 local ping = s:match('"ping":{[^}]-"latency":([%d%.]+)')
 ```
 
-## 6. Click and settings
+## 8. Click
 
-- Icon and name: `LeftMouseUpAction=["#WifiClick#"]`. The `Link` meter has its own action so clicking `SPEED TEST` doesn't also open settings.
-- Right-click menu: open Settings (per foundation spec) plus `Run speed test`.
+- Icon and name: `LeftMouseUpAction=[!CommandMeasure mWiFi "Open()"]`; Lua runs `["ms-settings:network-wifi"]` when `WiFiClick=settings`, else `["<WiFiClick>"]`.
+- `Link` has its own action, so clicking `SPEED TEST` doesn't open settings.
+- Right-click: the template's "Control-Plaine settings" opens `Settings\WiFi.ini`. Add `ContextTitle2=Run speed test` / `ContextAction2=[!CommandMeasure mWiFi "Start()"]`.
 
-`User.example.inc` additions (Settings tab WI-FI shows these):
+## 9. Check on Vishnu's PC
 
-```ini
-; Wi-Fi: what clicking the icon or name opens.
-WifiClick=ms-settings:network-wifi
-; Wi-Fi: Ookla speedtest.exe (speedtest.net/apps/cli).
-SpeedtestPath=%LOCALAPPDATA%\Programs\Ookla\speedtest.exe
-; Wi-Fi: network name brightness at rest (0-255, 128 is about 50%).
-WifiNameAlpha=128
-```
+Probe results (2026-10-10, `Control-Plaine-probes.md`): Windows 11 25H2 build 26200, Rainmeter 4.5.26.
 
-Internal, not in Settings: `WifiInterface=0`, `WifiNameW=170`, `SpeedResultHold=15000`.
+| # | Check | State |
+|---|---|---|
+| 1 | Location for desktop apps (needed by WiFiStatus on 24H2+) | Done: on |
+| 2 | `WiFiIntfID=0` | Done: one WLAN adapter (Realtek 8852CE), 0 is right. Confirm the skin shows `Airtel_Puzzles` once built. |
+| 3 | `SystemRadioState` (Default) | Half done: reads 0 with airplane off. **Vishnu:** turn airplane mode on once and confirm it reads 1. If not, fall back to a PowerShell radio check. |
+| 4 | Ethernet vs Wi-Fi | Done: Ethernet disconnected, no Hyper-V/VPN adapters, only a disconnected Bluetooth PAN, so `Best` picks Wi-Fi. Ethernet state can't be seen live until he plugs in. |
+| 5 | No-internet badge timing | **Vishnu:** with the router WAN down, the skin shows NO INTERNET when the taskbar does. |
+| 6 | speedtest.exe | Not installed. After install, run once by hand: `speedtest.exe --format=json --progress=yes --accept-license --accept-gdpr > t.jsonl` and confirm (a) download/upload lines with `bandwidth` appear during the run, (b) `bandwidth` x 8 / 1e6 matches the human-readable Mbps, (c) the `result` field names match section 7. The build thread can do this through Remote Control. |
+| 7 | No console flash when a test starts | After install |
+| 8 | Rainmeter specifics the build relies on | `#*Var*#` escapes in `!SetOption` (Lua keeps colour options live), `SKIN:Bang('["url"]')` opening the Ookla page when the exe is missing, and `call "..." > "..."` through RunCommand's default `cmd /U /C`. |
 
-Install note: the CLI is a zip, not an installer. Suggest Vishnu unzip it to `%LOCALAPPDATA%\Programs\Ookla\` (no admin), or `winget install Ookla.Speedtest.CLI`, then set the path to wherever it landed. `--accept-license --accept-gdpr` covers the first-run prompt.
+Verified in the cloud (2026-10-10): `WiFi.lua` run under Lua 5.1 with a mocked Rainmeter API for every state and a full speed test (progress, result, error). Ookla's JSON shape (one object per line with `--format=json --progress=yes`, `type` ping/download/upload/result/log, `bandwidth` in bytes/s, `ping.latency` in ms) confirmed from the `speedtest-net` npm wrapper's source and docs, which drive the same binary with `-f json -p`. speedtest.net itself is blocked from the cloud, so the real binary still needs check 6.
 
-## 7. Check on Vishnu's PC before calling it done
+## 10. Out of scope
 
-1. **Location privacy (Windows 11 24H2+):** WiFiStatus returns nothing unless Settings > Privacy & security > Location > "Let desktop apps access your location" is on. Check his Windows build and that toggle. If he doesn't want it on, the name falls back to `WI-FI` (or the PowerShell profile-name fallback in section 4).
-2. **WiFiIntfID:** confirm `0` returns his SSID; if blank with Location on, try 1, 2.
-3. **Airplane registry value:** read `HKLM\SYSTEM\CurrentControlSet\Control\RadioManagement\SystemRadioState` (Default) with airplane mode off and on; expect 0 / 1. If it doesn't flip, fall back to "Wi-Fi adapter present but `ADAPTER_STATUS` is -1/-2 and Bluetooth off" or a small PowerShell radio check, and note it.
-4. **Ethernet:** if the PC has a wired port, plug in and confirm `ADAPTER_TYPE`=6 wins over Wi-Fi with `SysInfoData=Best`. Also check that virtual adapters (Hyper-V, VPN, VirtualBox) don't get picked as "Best"; if they do, set `SysInfoData` to the real adapter aliases instead.
-5. **No internet:** with Wi-Fi connected but the router's WAN unplugged (or a DNS block), confirm `INTERNET_CONNECTIVITY` goes to -1 at the same time the taskbar shows the badge.
-6. **speedtest.exe:** installed and its path. Run once by hand: `speedtest.exe --format=jsonl --progress=yes --accept-license --accept-gdpr > test.jsonl` and confirm (a) progress lines with `"type":"download"` and `"bandwidth"` appear while it runs, not only at the end, (b) `bandwidth` is bytes/s (result x8/1e6 should match the human-readable output), (c) the `result` line field names match section 5.
-7. **No console flash** when the test starts from the skin.
-
-## 8. Out of scope
-
-- Automatic or scheduled speed tests (design says manual only).
-- Network list / switching networks from the skin (click opens Windows settings instead).
+- Automatic or scheduled speed tests (design: manual only).
+- Network list or switching networks (click opens Windows settings).
 - VPN state.
