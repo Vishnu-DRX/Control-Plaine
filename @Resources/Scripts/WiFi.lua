@@ -8,6 +8,10 @@ local OUT_NAME = 'ControlPlaine-speedtest.json'
 -- Tried in order when WiFiSpeedtestPath is empty or not found.
 local FALLBACKS = {
 	'%LOCALAPPDATA%\\Microsoft\\WinGet\\Links\\speedtest.exe',
+	-- winget only makes the Links entry when it may create symlinks (Developer
+	-- Mode); otherwise it adds the package folder to PATH, which Rainmeter
+	-- doesn't see until it restarts.
+	'%LOCALAPPDATA%\\Microsoft\\WinGet\\Packages\\Ookla.Speedtest.CLI_Microsoft.Winget.Source_8wekyb3d8bbwe\\speedtest.exe',
 	'%LOCALAPPDATA%\\Programs\\Ookla\\speedtest.exe',
 	'%ProgramFiles%\\Ookla\\Speedtest CLI\\speedtest.exe',
 }

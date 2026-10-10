@@ -19,6 +19,10 @@ Ink=255,255,255
 Warn=255,170,60
 Dark=18,20,24
 Shadow=0,0,0,115
+; Text shadows follow their text: shadow alpha = text alpha x ShadowK, so a
+; label faded to 0 leaves no dark outline (like CSS opacity on the canvas).
+ShadowRGB=0,0,0
+ShadowK=0.45
 
 ; ---- Alpha (0-255) that do not follow settings ----
 ; Ring tracks, hairlines (18%).

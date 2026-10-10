@@ -142,8 +142,11 @@ local function paint()
 	if slot then place('Label', iconCentre(slot)) end
 
 	-- Link row: CANCEL under the scheduled icon, SCHEDULE under any other (not lock).
+	-- CANCEL stays visible at rest, like the countdown above it.
+	local linkKeep = 0
 	if focus and focus == sched.action then
 		linkKey = focus
+		linkKeep = 1
 		SKIN:Bang('!SetOption', 'Link', 'Text', 'CANCEL')
 	elseif focus and focus ~= 'lock' then
 		linkKey = focus
@@ -151,6 +154,7 @@ local function paint()
 	else
 		linkKey = nil
 	end
+	SKIN:Bang('!SetVariable', 'LinkKeep', linkKeep)
 	if linkKey and slotOf(linkKey) then
 		SKIN:Bang('!ShowMeter', 'Link')
 		SKIN:Bang('!ShowMeter', 'LinkLine')
@@ -201,7 +205,10 @@ function Done()
 	running = nil
 	if not step then return end
 	SKIN:Bang('!UpdateMeasure', step.measure)
-	local code = math.floor(SKIN:GetMeasure(step.measure):GetValue())
+	-- RunCommand's number value is 1 once the program ends, whatever its exit
+	-- code, so both commands print the code and we read it from the output.
+	local out = SKIN:GetMeasure(step.measure):GetStringValue() or ''
+	local code = tonumber(out:match('(%-?%d+)%s*$')) or -1
 	local good = false
 	for _, c in ipairs(step.ok) do
 		if c == code then good = true end

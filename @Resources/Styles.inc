@@ -15,12 +15,12 @@
 FontFace=#FontFace#
 StringCase=Upper
 StringEffect=Shadow
-FontEffectColor=#Shadow#
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDisplay#*#Scale#)
 FontWeight=#WeightDisplay#
 FontColor=#Ink#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
 Group=Reveal
 
 ; Values: volume %, track title, uptime (20px, 300).
@@ -28,12 +28,12 @@ Group=Reveal
 FontFace=#FontFace#
 StringCase=Upper
 StringEffect=Shadow
-FontEffectColor=#Shadow#
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeValue#*#Scale#)
 FontWeight=#WeightValue#
 FontColor=#Ink#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
 Group=Reveal
 
 ; Titles: RECYCLE BIN, date line (12.5px, 600).
@@ -41,12 +41,12 @@ Group=Reveal
 FontFace=#FontFace#
 StringCase=Upper
 StringEffect=Shadow
-FontEffectColor=#Shadow#
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeTitle#*#Scale#)
 FontWeight=#WeightTitle#
 FontColor=#Ink#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
 Group=Reveal
 
 ; Details: device name, counts, labels (9.5px, 600).
@@ -54,12 +54,12 @@ Group=Reveal
 FontFace=#FontFace#
 StringCase=Upper
 StringEffect=Shadow
-FontEffectColor=#Shadow#
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDetail#*#Scale#)
 FontWeight=#WeightDetail#
 FontColor=#Ink#,(#AlphaDetail#+(#AlphaHover#-#AlphaDetail#)*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaDetail#+(#AlphaHover#-#AlphaDetail#)*#Reveal#)*#ShadowK#)
 Group=Reveal
 
 ; Detail text that only shows while hovered.
@@ -67,12 +67,12 @@ Group=Reveal
 FontFace=#FontFace#
 StringCase=Upper
 StringEffect=Shadow
-FontEffectColor=#Shadow#
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDetail#*#Scale#)
 FontWeight=#WeightDetail#
 FontColor=#Ink#,(#AlphaHover#*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaHover#*#Reveal#)*#ShadowK#)
 Group=Reveal
 
 ; Action links (OPEN, EMPTY, SCHEDULE, SET, CANCEL), shown on hover.
@@ -81,12 +81,12 @@ Group=Reveal
 FontFace=#FontFace#
 StringCase=Upper
 StringEffect=Shadow
-FontEffectColor=#Shadow#
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDetail#*#Scale#)
 FontWeight=#WeightDetail#
 FontColor=#Ink#,(#AlphaHover#*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaHover#*#Reveal#)*#ShadowK#)
 SolidColor=0,0,0,1
 MouseActionCursor=1
 Group=Reveal
@@ -106,10 +106,12 @@ Group=Reveal
 ; Colour modifiers, used after a text or icon style. They restate the alpha.
 [sWarn]
 FontColor=#Warn#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
 ImageTint=#Warn#
 
 [sAccent]
 FontColor=#Accent#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
+FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
 ImageTint=#Accent#
 
 ; Icons. PNGs are IconBox squares with IconPad of margin (holding the shadow),
@@ -161,5 +163,6 @@ DynamicVariables=1
 FontFace=#FontUI#
 FontSize=(#SizeM#*#Scale#)
 FontColor=#Ink#,#AlphaHover#
+FontEffectColor=#ShadowRGB#,(#AlphaHover#*#ShadowK#)
 AntiAlias=1
 DynamicVariables=1

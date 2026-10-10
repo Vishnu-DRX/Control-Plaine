@@ -50,23 +50,38 @@ if (-not (Test-Path $fullDll)) {
 # 2b. MediaPlayer.dll for the Media skin (i2002/RainmeterMediaPlayer v1.4, GPL-3.0,
 #     64-bit). Not committed; downloaded into Rainmeter's own Plugins folder.
 $mediaDll = Join-Path $plugins 'MediaPlayer.dll'
+# An earlier installer saved the .rmskin package itself as MediaPlayer.dll
+# (Rainmeter then logs "Unable to load ... error 193"). Replace anything that
+# is not a real DLL (a DLL starts with "MZ").
+if ((Test-Path $mediaDll) -and
+    (-join [char[]](Get-Content $mediaDll -Encoding Byte -TotalCount 2)) -ne 'MZ') {
+    Remove-Item $mediaDll
+    Write-Host "Removed a broken MediaPlayer.dll."
+}
 if (-not (Test-Path $mediaDll)) {
     try {
         New-Item -ItemType Directory -Force -Path $plugins | Out-Null
         $release = Invoke-RestMethod 'https://api.github.com/repos/i2002/RainmeterMediaPlayer/releases/tags/v1.4' -Headers @{ 'User-Agent' = 'Control-Plaine' }
-        # Prefer a 64-bit static build; accept a bare DLL or a zip holding one.
+        # v1.4 ships two .rmskin packages (plain and static). An .rmskin is a zip
+        # with a footer; the plugin is in Plugins\64bit. Prefer the static build.
         $asset = $release.assets | Sort-Object {
             $n = $_.name.ToLower()
-            -(([int]($n -match '64')) * 4 + ([int]($n -match 'static')) * 2 + ([int]($n -match '\.(dll|zip)$')))
+            -(([int]($n -match 'static')) * 2 + ([int]($n -match '\.(dll|zip|rmskin)$')))
         } | Select-Object -First 1
         $tmp = Join-Path $env:TEMP $asset.name
         Invoke-WebRequest $asset.browser_download_url -OutFile $tmp -UseBasicParsing
-        if ($asset.name -like '*.zip') {
+        if ($asset.name -match '\.(zip|rmskin)$') {
+            # Expand-Archive only accepts a .zip extension.
+            $zip = [IO.Path]::ChangeExtension($tmp, '.zip')
+            if ($zip -ne $tmp) { Copy-Item $tmp $zip -Force }
             $dir = Join-Path $env:TEMP 'ControlPlaine-MediaPlayer'
-            Expand-Archive $tmp $dir -Force
+            Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+            Expand-Archive $zip $dir -Force
             $dll = Get-ChildItem $dir -Recurse -Filter 'MediaPlayer.dll' |
-                Sort-Object { -(([int]($_.FullName -match '64')) * 2 + [int]($_.FullName -match 'static')) } |
+                Where-Object { $_.FullName -notmatch '32bit' } |
+                Sort-Object { -[int]($_.FullName -match '64') } |
                 Select-Object -First 1
+            if (-not $dll) { throw "no 64-bit MediaPlayer.dll in $($asset.name)" }
             Copy-Item $dll.FullName $mediaDll
         } else {
             Copy-Item $tmp $mediaDll
