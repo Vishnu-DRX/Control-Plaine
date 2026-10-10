@@ -14,6 +14,16 @@ A minimal Rainmeter suite. Quiet at rest, detail on hover, one shared design sys
 
 ## Install
 
+Quick way, from the repo folder in PowerShell:
+
+```
+powershell -ExecutionPolicy Bypass -File tools\install.ps1
+```
+
+It links the repo into your Skins folder, creates `User.inc`, saves your current desktop as a backup layout, and loads the Control-Plaine layout.
+
+By hand:
+
 1. Put this folder at `Documents\Rainmeter\Skins\Control-Plaine` (clone or copy).
 2. Copy `@Resources\User.example.inc` to `@Resources\User.inc` and set your paths.
 3. In Rainmeter: Manage > Layouts, load **Control-Plaine** (copy `Layouts\Control-Plaine` into `%APPDATA%\Rainmeter\Layouts` first), or load each skin from Manage > Skins.
@@ -38,3 +48,7 @@ Rules:
 6. Personal paths go in `User.inc`, never in a skin.
 
 Icons are line icons based on [Lucide](https://lucide.dev) (ISC licence), rendered white at 96 px and tinted in Rainmeter.
+
+## Checks
+
+`python tools/lint.py` checks that every skin includes the shared files, has no hardcoded user paths, stays ASCII, and only uses icons that exist. It runs on every push and pull request.
