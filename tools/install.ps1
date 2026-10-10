@@ -77,6 +77,16 @@ if (-not (Test-Path $mediaDll)) {
     }
 }
 
+# 2c. Ookla Speedtest CLI for the Wi-Fi skin's SPEED TEST link.
+if (-not (Get-Command speedtest.exe -ErrorAction SilentlyContinue) -and
+    -not (Test-Path (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\speedtest.exe'))) {
+    if (Get-Command winget.exe -ErrorAction SilentlyContinue) {
+        winget install --id Ookla.Speedtest.CLI -e --accept-source-agreements --accept-package-agreements
+    } else {
+        Write-Host "speedtest.exe not found and winget is missing. Install the Ookla Speedtest CLI and set its path in Settings > WI-FI."
+    }
+}
+
 # 3. Back up the current desktop as a layout, then install the Control-Plaine layout.
 $stamp = Get-Date -Format 'yyyy-MM-dd'
 $backup = Join-Path $layouts "Before Control-Plaine $stamp"
