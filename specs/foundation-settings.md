@@ -370,8 +370,8 @@ Nothing in the foundation or the Settings skin is blocked.
 
 ## 10. Check on Vishnu's PC before calling the foundation done
 
-1. Rainmeter version is 4.5.x (About), and `ActionTimer`, `InputText`, `RunCommand` are in `C:\Program Files\Rainmeter\Plugins` (bundled).
-2. IsFullScreen 3.0 from @Vault loads (no log error), returns 1 in a full-screen game and borderless-full-screen video, 0 on the desktop.
+1. Done (PC probe): Rainmeter 4.5.26, ActionTimer/InputText/RunCommand bundled. Segoe UI Variable installed. Accent `0xFF9B9E00` gives 0,158,155 (`#009E9B`).
+2. PC probe: IsFullScreen is only in @Vault, not in `%APPDATA%\Rainmeter\Plugins`; `install.ps1` copies the 64-bit DLL there. Then check it loads (no log error), returns 1 in a full-screen game and borderless-full-screen video, 0 on the desktop.
 3. `HKCU\Software\Microsoft\Windows\DWM\AccentColor` exists and the computed R,G,B matches his cyan.
 4. Windows 11 with **Segoe UI Variable** installed (else set `FontFace=Segoe UI`), and FontWeight 300/600 render distinctly.
 5. Display scaling per monitor (which monitor the skins sit on, at what %), to pick the default `Scale`.

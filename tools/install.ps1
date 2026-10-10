@@ -30,9 +30,25 @@ foreach ($name in 'User.inc', 'State.inc') {
     }
 }
 
+# 2a. IsFullScreen.dll (hide skins while a full-screen app is in front). A copy
+#     ships in Skins\@Vault from an earlier .rmskin; Rainmeter loads plugins
+#     from %APPDATA%\Rainmeter\Plugins, so copy the 64-bit build there.
+$plugins = Join-Path $env:APPDATA 'Rainmeter\Plugins'
+$fullDll = Join-Path $plugins 'IsFullScreen.dll'
+if (-not (Test-Path $fullDll)) {
+    $vault = Get-ChildItem (Join-Path $skins '@Vault\Plugins\IsFullScreen') -Recurse -Filter 'IsFullScreen.dll' -ErrorAction SilentlyContinue |
+        Where-Object { $_.DirectoryName -like '*64bit*' } | Sort-Object FullName -Descending | Select-Object -First 1
+    if ($vault) {
+        New-Item -ItemType Directory -Force -Path $plugins | Out-Null
+        Copy-Item $vault.FullName $fullDll
+        Write-Host "Installed IsFullScreen.dll. Restart Rainmeter so it loads the new plugin."
+    } else {
+        Write-Host "IsFullScreen.dll not found. Install the IsFullScreen plugin (64-bit) into $plugins, or turn off Hide in full screen."
+    }
+}
+
 # 2b. MediaPlayer.dll for the Media skin (i2002/RainmeterMediaPlayer v1.4, GPL-3.0,
 #     64-bit). Not committed; downloaded into Rainmeter's own Plugins folder.
-$plugins = Join-Path $env:APPDATA 'Rainmeter\Plugins'
 $mediaDll = Join-Path $plugins 'MediaPlayer.dll'
 if (-not (Test-Path $mediaDll)) {
     try {
