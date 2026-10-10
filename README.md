@@ -20,12 +20,12 @@ Quick way, from the repo folder in PowerShell:
 powershell -ExecutionPolicy Bypass -File tools\install.ps1
 ```
 
-It links the repo into your Skins folder, creates `User.inc`, saves your current desktop as a backup layout, and loads the Control-Plaine layout.
+It links the repo into your Skins folder, creates `User.inc` and `State.inc`, downloads the MediaPlayer plugin for the Media skin, saves your current desktop as a backup layout, and loads the Control-Plaine layout.
 
 By hand:
 
 1. Put this folder at `Documents\Rainmeter\Skins\Control-Plaine` (clone or copy).
-2. Copy `@Resources\User.example.inc` to `@Resources\User.inc` and set your paths.
+2. Create empty `@Resources\User.inc` and `@Resources\State.inc` (the installer does this). Change settings from any skin's right-click menu > Control-Plaine settings.
 3. In Rainmeter: Manage > Layouts, load **Control-Plaine** (copy `Layouts\Control-Plaine` into `%APPDATA%\Rainmeter\Layouts` first), or load each skin from Manage > Skins.
 
 Day-Date uses the Anurati font for the day name; install it in Windows if it is not already.
