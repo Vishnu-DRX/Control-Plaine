@@ -9,3 +9,5 @@ VolumeStep=2
 VolumeScrollUnmutes=1
 ; Ring thickness in px.
 VolumeRingStroke=5
+; What the speaker icon opens: ms-settings:apps-volume (Windows mixer) or sndvol.exe (classic).
+VolumeMixer=ms-settings:apps-volume
