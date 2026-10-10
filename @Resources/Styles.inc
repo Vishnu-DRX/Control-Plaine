@@ -4,8 +4,9 @@
 ;
 ; Text: upper case, Segoe UI, with the suite's hard shadow (Rainmeter shadows
 ; cannot blur). Tracking goes on the meter, because it depends on alignment:
-;   InlineSetting=CharacterSpacing | (#TrackDetail#*#Scale#) | (#TrackDetail#*#Scale#)
+;   left/centred:  InlineSetting=CharacterSpacing | 0 | (#TrackDetail#*#Scale#)
 ;   right-aligned: InlineSetting=CharacterSpacing | (#TrackDetail#*#Scale#) | 0
+; One side only: setting both doubles the gap between letters.
 ; Alpha goes from the rest level to AlphaHover as #Reveal# goes 0 -> 1
 ; (the styles put meters in Group=Reveal, which mFade updates).
 

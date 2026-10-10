@@ -4,8 +4,10 @@
 ; Values that depend on settings (rest alphas, accent) are set in Core.inc.
 ;
 ; Font sizes are points (Rainmeter FontSize is pt): pt = px * 0.75.
-; Tracking is px at scale 1 (CharacterSpacing is in DIPs). Use it as
-; leading and trailing for left/centred text, trailing 0 for right-aligned text.
+; Tracking is px at scale 1 (CharacterSpacing is in DIPs). Apply it on one
+; side only, or the gap between letters doubles:
+;   left-aligned or centred: CharacterSpacing | 0 | t
+;   right-aligned:           CharacterSpacing | t | 0
 ; Multiply every size by #Scale#.
 
 [Variables]
