@@ -1,37 +1,88 @@
-; Control-Plaine design tokens.
-; Every skin includes this file. Change a value here, refresh all, and the whole suite follows.
+; Control-Plaine design tokens (Design V1).
+; These are the suite's design system, not user settings. User settings live in
+; Defaults.inc (general), <Skin>\Defaults.inc (per skin) and User.inc (overrides).
+; Values that depend on settings (rest alphas, accent) are set in Core.inc.
+;
+; Font sizes are points (Rainmeter FontSize is pt): pt = px * 0.75.
+; Tracking is px at scale 1 (CharacterSpacing is in DIPs). Use it as
+; leading and trailing for left/centred text, trailing 0 for right-aligned text.
+; Multiply every size by #Scale#.
 
 [Variables]
-; ---- Colour (R,G,B; alpha comes from the levels below) ----
-Ink=255,255,255
-Accent=0,250,200
-Warn=255,170,60
+Version=2.0.0
+RepoURL=https://github.com/Vishnu-DRX/Control-Plaine
 
-; ---- Alpha levels (0-255) ----
-; Rest: how things look when you are not touching them.
-AlphaRest=110
-; Hover: brightened state and revealed detail.
-AlphaHover=235
-; Faint: tracks, dividers, hints.
-AlphaFaint=45
+; ---- Colour (R,G,B) ----
+Ink=255,255,255
+Warn=255,170,60
+Dark=18,20,24
+Shadow=0,0,0,115
+
+; ---- Alpha (0-255) that do not follow settings ----
+; Ring tracks, hairlines (18%).
+AlphaTrack=46
+; Hover (98%).
+AlphaHover=250
+; Disabled or unselected (45%).
+AlphaOff=115
 
 ; ---- Type ----
+; Win10 or a PC without Segoe UI Variable: set FontFace=Segoe UI in User.inc.
+FontFace=Segoe UI Variable Display
+; Display: 52px, Day-Date day name.
+SizeDisplay=39
+WeightDisplay=400
+TrackDisplay=15.6
+; Value: 20px (S = 18px, L = 22px). Volume %, track title, uptime.
+SizeValue=15
+SizeValueS=13.5
+SizeValueL=16.5
+WeightValue=300
+TrackValue=1.8
+; Title: 12.5px. RECYCLE BIN, date line.
+SizeTitle=9.5
+WeightTitle=600
+TrackTitle=5
+; Detail: 9.5px. Device name, counts, labels, links.
+SizeDetail=7.25
+WeightDetail=600
+TrackDetail=2.4
+
+; ---- Shapes ----
+RingRadius=22
+RingStroke=5
+; Ring look; a skin may override RingColor / RingWidth in its own [Variables].
+RingColor=#Accent#
+RingWidth=#RingStroke#
+RingTrack=Fill Color 0,0,0,0 | StrokeWidth (#RingWidth#*#Scale#) | Stroke Color #Ink#,#AlphaTrack#
+RingFill=Fill Color 0,0,0,0 | StrokeWidth (#RingWidth#*#Scale#) | Stroke Color #RingColor#,255 | StrokeStartCap Round | StrokeEndCap Round
+; Visual icon size; every icon PNG is a IconBox square with IconPad of
+; transparent margin around the icon (it holds the baked shadow).
+IconSize=24
+IconPad=4
+IconBox=32
+; Gap between link text and its 1px underline.
+LinkGap=2
+
+; ---- Motion (ms) ----
+; A fade is FadeSteps steps of FadeStep ms (12 x 15 = 180 ms).
+FadeStep=15
+FadeSteps=12
+; Wait before revealed detail hides after the mouse leaves.
+HideDelay=500
+
+; ---- Legacy v1 names ----
+; Still used by the v1 skins until each is rebuilt. Do not use in new code.
 FontUI=Segoe UI
-FontDisplay=Anurati
+FontDisplay=Segoe UI
 SizeXS=9
 SizeS=10
 SizeM=12
 SizeXL=46
-
-; ---- Layout ----
-; Global size multiplier for the whole suite.
-Scale=1
-IconSize=24
 IconGap=10
-
-; ---- Motion (ms) ----
-; A fade is FadeSteps steps of FadeStep ms (10 x 15 = 150 ms).
-FadeStep=15
-FadeSteps=10
-; Wait before revealed detail hides after the mouse leaves.
-HideDelay=500
+AlphaFaint=45
+; Core.inc replaces these from the user's settings.
+AlphaRest=153
+AlphaDetail=153
+AlphaValue=204
+Accent=0,229,255

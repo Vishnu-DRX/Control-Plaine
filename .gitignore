@@ -1,3 +1,4 @@
 # Personal settings stay on the PC.
 @Resources/User.inc
+@Resources/State.inc
 *.bak
