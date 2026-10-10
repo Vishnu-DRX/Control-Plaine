@@ -1,152 +1,182 @@
 # Spec: Day-Date, Recycle Bin and Playnite skins
 
-Investigation output for the V1 build. Source of truth for behaviour and look: `docs/DESIGN-V1.md` and the V1 canvas boards `DayDate`, `RecycleBin`, `Playnite`, `Type`. This file says **how** to build each skin in Rainmeter, what differs from v1.0.0 in the repo, and what must be checked on Vishnu's PC.
-
-Shared conventions (User.inc keys, Theme tokens, accent from the registry, full-screen hide, right-click menu, Settings refresh) belong to `specs/foundation-settings.md`. It did not exist when this was written; where this spec names a key or token that the foundation spec defines differently, the foundation spec wins. Format follows `specs/power-uptime.md`.
+Investigation output for the V1 build. Look and behaviour: `docs/DESIGN-V1.md` and the V1 canvas boards `DayDate`, `RecycleBin`, `Playnite`. Conventions: `specs/foundation-settings.md` (template, tokens, styles, keys, Settings pages); this spec follows it and only says what is specific to these three skins. Where they disagree, the foundation spec wins.
 
 ## Verdict
 
-All three are achievable with stock Rainmeter: Time measures, the bundled RecycleManager plugin, ActionTimer (already in `Fade.inc`), and one small Lua script for the Recycle Bin text. No third-party plugin.
+All three are achievable with stock Rainmeter: Time measures, the bundled RecycleManager plugin, the shared Core.inc fade, and one small Lua script for the Recycle Bin. No third-party plugin, nothing blocked.
 
-Nothing is impossible. Three things change or need a decision:
+Three things the build must handle:
 
-1. **The Playnite controller PNG is not in the repo.** `@Resources/Icons/gamepad.png` is a Lucide render, not the old white controller. Copy `Skins\Playnite launcher\white-controller-icon.png` (764x511, mirrored at `/mnt/project-files/Rainmeter/Skins/Playnite launcher/`) to `@Resources/Icons/playnite-controller.png` and delete `gamepad.png`.
-2. **Recycle Bin needs two trash icons, not one.** The canvas draws the empty state without the two inner lines. Render `docs/icons/trash.svg` as `trash-full.png` and a copy without `M10 11v6M14 11v6` as `trash-empty.png`; drop `bin-empty.png` / `bin-full.png`.
-3. **"FILES" is really items.** RecycleManager counts top-level items, so a deleted folder with 500 files counts as 1. The label stays `FILES` as designed; this is noted in the skin header.
+1. **Playnite's controller PNG is not in the repo.** Foundation 6 says `gamepad.png` is "Playnite's original art". It is not: it is a 96x96 Lucide render from v1.0.0. The original is `Skins\Playnite launcher\white-controller-icon.png` (764x511, mirrored at `/mnt/project-files/Rainmeter/Skins/Playnite launcher/`). This thread **adds** it as `@Resources/Icons/playnite-controller.png` (skin threads may add icons). Integration can delete `gamepad.png`.
+2. **Recycle Bin needs an empty-bin icon.** The canvas draws the empty state as the trash without its two inner lines. This thread adds `docs/icons/trash-empty.svg` (trash.svg minus `M10 11v6M14 11v6`) and renders it with `tools/render-icons.py` to `@Resources/Icons/trash-empty.png`. Full state uses foundation's `trash.png`.
+3. **"FILES" is really items.** RecycleManager counts top-level items, so a deleted folder counts as 1. The label stays `FILES` as designed; the header comment says so.
 
-## Shared notes for these three skins (for the foundation spec to confirm)
+## Common to all three
 
-- **Font size is in points.** Rainmeter `FontSize` is pt, the design is px at 96 DPI: `FontSize = px * 0.75 * #Scale#`. So 52 px is `39`, 13 px is `9.75`, 9 px is `6.75`. Verify by eye against the canvas at 100%.
-- **Tracking.** `InlineSetting=CharacterSpacing | 0 | T` with `T = em * px * #Scale#` (0.30em at 52 px is 15.6). It adds T after the last letter too, so right-aligned text shifts T left. Shift the meter's X right by T, exactly as the canvas does with `margin-right: -0.3em`.
-- **Weights.** `FontWeight=300/400/600`. Segoe UI and Segoe UI Variable have no 500 (Medium). Map design "Medium 500" to a token (`WeightMedium`) and pick 400 or 600 on the PC by eye; default 600.
-- **Text shadow.** `InlineSetting2=Shadow | 0 | (1*#Scale#) | (3*#Scale#) | 0,0,0,115` on every String meter. Icons: no runtime shadow in Rainmeter; bake a soft shadow into the PNG at render time, or skip (design says all icons, so bake it).
-- **Brightness tokens.** Values 80% (204), details/icons 60% (153), hover 95 to 100% (242 to 255). Every alpha is `Rest + (Hover - Rest) * #Reveal#` driven by `Fade.inc`.
-- **Nothing moves on hover.** Revealed meters are always laid out and only fade (alpha 0 at rest), so `DynamicWindowSize` never changes the skin size on hover. Keep that pattern.
-- **Hit area.** A background `Meter=Image` with `SolidColor=0,0,0,1` sized to the skin, first in the file, so the whole box (not just glyph pixels) counts as hover.
-- **Right-click.** `ContextTitle=Control-Plaine settings`, `ContextAction=[!ActivateConfig "Control-Plaine\Settings"]` (foundation decides the exact bang, for example opening a tab).
-- **Theme.inc today still has `FontDisplay=Anurati` and `Accent=0,250,200`.** The design says Segoe UI only and the Windows accent. Foundation owns that change; these skins just use `#FontUI#` / `#FontDisplay#` / `#Accent#`.
+- Exact skin template from foundation 2, `Version=2.0.0`, `ContextAction` opening `DayDate.ini` / `RecycleBin.ini` / `Playnite.ini`.
+- Each skin gets `<Skin>\Defaults.inc` with its keys (below) and fills its stub `Settings\<Skin>.ini` page using Controls.inc styles and `Settings.lua` calls. Settings Targets = the skin's own folder name.
+- Text uses the shared styles (`sDisplay`, `sTitle`, `sDetail`, `sReveal`, `sLink`, `sLinkLine`, `sHit`). Shadow comes from the styles (`StringEffect=Shadow`); no per-skin shadow.
+- Right-aligned text uses CharacterSpacing trailing `0` (foundation 3), so all right edges line up without X shifts.
+- A `sHit` backing meter first in each skin covers the whole box so gaps count as hover. Revealed meters always stay laid out at alpha 0, so the skin size never changes on hover.
+- No `!Show`/`!Hide`; none of these skins self-hide.
 
 ## Day-Date
 
 ### Files
-- `DayDate/DayDate.ini` (rewrite). No script.
+- `DayDate/DayDate.ini` (rewrite), `DayDate/Defaults.inc`, `Settings/DayDate.ini` (page). No script.
 
 ### Layout (canvas board DayDate)
 ```
-                 SATURDAY        Display  400  52 px  0.30em  80% rest / 100% hover
-        10  OCTOBER  2026        Title    500  13 px  0.45em  80% / 95%
-      8:21 PM     WEEK 41        Detail   500   9 px  0.30em  0% / 65%   (hover only)
+                 SATURDAY        sDisplay   (52 px, 400, 0.30em)  AlphaValue -> Hover
+        10  OCTOBER  2026        sTitle     (13 px design; token is 12.5 px)
+      8:21 PM     WEEK 41        sReveal    (Detail type), alpha 0 -> Hover
 ```
-Gaps: 10 px day to date, 10 + 4 px date to detail. All lines share one right edge (or left edge when aligned left).
+Gaps at scale 1: 10 px day to date, 14 px date to detail.
+
+Note: the canvas date line is 13 px with 0.45em tracking; the `sTitle` token is 12.5 px / 5 px tracking. Use the token (difference is not visible); do not add a local override.
 
 ### Measures
-- `mDay`: `Measure=Time`, `Format=%A`. Uppercase via `StringCase=Upper`.
-- `mDate`: `Format=%#d  %B  %Y` (two spaces each, as designed).
-- `mTime`: `Format=#TimeFormat#`. Settings writes `%#I:%M %p` (12 h) or `%H:%M` (24 h).
-- `mWeek`: `Format=%V` (ISO week). If `%V` renders empty or literally on the PC, fall back to a 10-line Lua ISO-week calculation; see check 2.
-- Skin `Update=1000` is fine (cheap). The detail line is 9 px, so seconds are not shown.
+- `mDay` `Format=%A`, `mDate` `Format=%#d  %B  %Y` (two spaces each). Uppercase from the styles.
+- `mTime12` `Format=%#I:%M %p`, `mTime24` `Format=%H:%M`, `mWeek` `Format=%V`.
+- The detail meter uses `MeasureName=mTime#DayDateClock#`, so `DayDateClock` 12 or 24 picks the measure with no script.
 
-### Fixed edge so the skin does not shift each day
-`MONDAY` and `WEDNESDAY` differ by ~150 px. If the right edge followed the text, the skin would jump every midnight. Instead:
-- `[RefWidth]` hidden String meter in the Display style with `Text=#DayRef#` (default `WEDNESDAY`, the widest English day). Hidden meters still report `[RefWidth:W]`.
-- All three lines: `X=(#DDAnchor# * ([RefWidth:W] + T))` where `T` is that line's trailing tracking, `StringAlign=#DDAlign#`, `DynamicVariables=1`.
-- `DDAlign=Right` with `DDAnchor=1`, or `DDAlign=Left` with `DDAnchor=0` (left needs no tracking shift). Settings writes both keys together.
-- Background hit meter: `W=([RefWidth:W])`, height to the bottom of the detail line.
+### Week on/off
+Two detail meters on the same spot:
+- `[DetailWeek]` `MeasureName=mTime#DayDateClock#`, `MeasureName2=mWeek`, `Text=%1     WEEK %2`, `Hidden=(1-#DayDateWeek#)`.
+- `[DetailTime]` same time measure, `Text=%1`, `Hidden=#DayDateWeek#`.
 
-### Hover
-- Existing `Fade.inc` + `sReveal` pattern. Day and date use `#Reveal#` to go from 80% to 100%/95%; detail goes 0 to 65%.
-- Week hidden setting: `DDShowWeek=0` swaps the detail `Text` from `%1     WEEK %2` to `%1` (two `Text` variables, chosen by Settings writing `DDDetailText`). Rainmeter has no string `if` in options, so Settings writes the finished text rather than a flag. Alternative: two meters and `Hidden=(1-#DDShowWeek#)` with `DynamicVariables=1`; either is fine.
+### Fixed edge and alignment
+`MONDAY` vs `WEDNESDAY` differ by about 150 px, so the right edge must not follow the text or the skin jumps at midnight.
+- `[RefDay]` `MeterStyle=sDisplay`, `Text=#DayRef#` (skin-local `DayRef=WEDNESDAY`), `Hidden=1`. Hidden meters still report `[RefDay:W]`.
+- Skin-local `AnchorRight=1`, `AnchorLeft=0`.
+- Every text meter: `StringAlign=#DayDateAlign#`, `X=([#Anchor[#DayDateAlign]]*[RefDay:W])`, `DynamicVariables=1` (nested-variable syntax, Rainmeter 4.1+). Key values are `right` / `left`.
+- Tracking follows foundation: trailing 0 when right-aligned, trailing = tracking when left. If Styles.inc does not already switch this, override locally with `InlineSetting=CharacterSpacing | t | ([#Trail[#DayDateAlign]]*t)`, skin-local `Trailright=0`, `Trailleft=1`.
+- `sHit` backing: `W=[RefDay:W]`, `H` to the bottom of the detail line.
 
-### Settings (User.inc keys, names to match the foundation spec)
-- `TimeFormat=%#I:%M %p` (already in User.example.inc; 24 h writes `%H:%M`)
-- `DDShowWeek=1`
-- `DDAlign=Right`, `DDAnchor=1`
-- `DayRef=WEDNESDAY` stays a skin variable (only change for another language).
+### Defaults.inc
+```ini
+[Variables]
+; 12 or 24
+DayDateClock=12
+; 1 shows WEEK nn on hover
+DayDateWeek=1
+; right or left
+DayDateAlign=right
+```
+
+### Settings page
+CLOCK choice `12 H` / `24 H`; WEEK NUMBER toggle; ALIGN choice `LEFT` / `RIGHT`.
 
 ### Change from v1.0.0
-Font Anurati to Segoe UI 400; sizes and tracking to the design; `Right=805` constant replaced by the reference-width edge; Settings keys added; text shadow added; brightness tokens.
+Anurati to Segoe UI; design sizes and tracking; constant `Right=805` replaced by the reference-width edge; `TimeFormat` replaced by `DayDateClock`; week and align settings; foundation template and styles.
 
 ## Recycle Bin
 
 ### Files
-- `RecycleBin/RecycleBin.ini` (rewrite).
-- `@Resources/Scripts/RecycleBin.lua` (new, formats the detail line and switches state).
-- `@Resources/Icons/trash-full.png`, `trash-empty.png` (see Verdict 2; 1x/2x/3x like the other icons, displayed at 36 px x Scale).
+- `RecycleBin/RecycleBin.ini` (rewrite), `RecycleBin/Defaults.inc`, `Settings/RecycleBin.ini` (page).
+- `@Resources/Scripts/RecycleBin.lua` (new).
+- `docs/icons/trash-empty.svg` + rendered `@Resources/Icons/trash-empty.png` (Verdict 2).
 
 ### Layout (canvas board RecycleBin)
 ```
-     RECYCLE BIN   [trash]    Title  500  12 px  0.35em  80% / 95%
-35 FILES   3.2 GB  [ icon ]   Detail 500   9 px  0.25em  60% / 80%
-      OPEN   EMPTY            Link   600   9 px  0.30em  0% / 90%, 1 px accent underline (hover only)
+     RECYCLE BIN   [trash]    sTitle   AlphaValue -> Hover
+35 FILES   3.2 GB             sDetail  AlphaDetail -> Hover
+      OPEN   EMPTY            sLink + sLinkLine (accent underline), hover only
 ```
-- Text column right-aligned at `X=[RefText:W]`. `[RefText]` is a hidden Detail-style meter with `Text=0000 FILES   000.0 GB`, so the column (and the icon) never moves as numbers change. Use `Max([RefText:W],[Title:W])`.
-- Icon at `X=(Max([RefText:W],[Title:W]) + 14*#Scale#)`, 36 px x Scale, vertically centred on the title + detail block only (not the links), so revealing links moves nothing.
-- Links: OPEN and EMPTY right-aligned under the detail line, 16 px apart, 4 px below. Underline is a `Meter=Shape` `Rectangle 0,0,W,1` per link with `Fill Color #Accent#,(255*#Reveal#*0.9)`, `W=([OpenLink:W] - T)`, 2 px under the text.
+- Text column right-aligned at `X=[RefText:W]`. `[RefText]` is a hidden `sDetail` meter with `Text=0000 FILES   000.0 GB`; the column is `Max([RefText:W],[Title:W])` wide so the icon never moves as numbers change.
+- Icon: 36 px visual on the canvas, so `W=H=(48*#Scale#)` (PNG box = visual / 0.75), placed `14*#Scale#` right of the column minus the baked pad (`6*#Scale#`), vertically centred on the title + detail lines only (not the links). `ImageTint=#Ink#`, `ImageAlpha` AlphaDetail -> Hover.
+- Links right-aligned under the detail line, 16 px apart, 4 px below. Each has an `sLinkLine` underline.
 
 ### Data
-- `mCount`: `Measure=Plugin`, `Plugin=RecycleManager`, `RecycleType=Count`, `Drives=ALL`, `UpdateDivider=3`.
-- `mSize`: same with `RecycleType=Size` (bytes).
-- `mScript`: `Measure=Script`, `ScriptFile=#@#Scripts\RecycleBin.lua`, same divider. No `IfCondition`s (they only fire on change, the bug Uptime hit).
+- `mCount` `Measure=Plugin`, `Plugin=RecycleManager`, `RecycleType=Count`, `Drives=ALL`, `UpdateDivider=3`.
+- `mSize` same with `RecycleType=Size` (bytes).
+- `mScript` `Measure=Script`, `ScriptFile=#@#Scripts\RecycleBin.lua`, `UpdateDivider=3`. No IfConditions (they only fire on change).
 
-`RecycleBin.lua` `Update()` every run:
-- `n = count`, `b = size`.
-- `n == 0`: detail `EMPTY`, icon `trash-empty.png`, hide EMPTY link meters (`!HideMeter`), keep OPEN.
-- `n > 0`: detail `N FILES` (`1 FILE` when 1), plus `   ` and the size when `RBShowSize=1`. Size: 1024-based, units `B KB MB GB TB`, one decimal under 100 (`3.2 GB`, `48.6 MB`), none from 100 (`412 MB`). Icon `trash-full.png`, show EMPTY link.
-- Sets text with `!SetOption Detail Text "..."` and redraws only when the string or state changed.
+`RecycleBin.lua`:
+- `Update()` every run. `n == 0`: detail `EMPTY`, icon `trash-empty.png`, hide EMPTY link + its underline (`!HideMeter`), keep OPEN. `n > 0`: `N FILES` (`1 FILE`), plus `   ` and the size when `RecycleBinShowSize=1`; icon `trash.png`; show EMPTY. Size is 1024-based, units `B KB MB GB TB`, one decimal under 100 (`3.2 GB`), none from 100 (`412 MB`). Sets meters only when the string or state changed, then `!UpdateMeterGroup` and `!Redraw`.
+- `Empty()`: `!CommandMeasure mCount "EmptyBin"` when `RecycleBinConfirm=1` (Windows confirm dialog), `"EmptyBinSilent"` when 0; then updates mCount, mSize and mScript so the line flips to EMPTY at once.
 
 ### Actions
-- OPEN: `[!CommandMeasure mCount "OpenBin"]`.
-- EMPTY: `[!CommandMeasure mCount "#RBEmptyCmd#"]`. Settings writes `RBEmptyCmd=EmptyBin` (Windows asks to confirm, the default) or `EmptyBinSilent`. Then `[!UpdateMeasure mCount][!UpdateMeasure mSize][!UpdateMeasure mScript]` so the line flips to EMPTY without waiting for the poll.
-- Clicking the icon also opens the bin (v1.0.0 behaviour kept; costs nothing, not on the canvas).
+- OPEN and the icon: `[!CommandMeasure mCount "OpenBin"]` (icon click kept from v1.0.0).
+- EMPTY: `[!CommandMeasure mScript "Empty()"]`.
 
-### Settings
-- `RBShowSize=1`
-- `RBEmptyCmd=EmptyBin` (Settings shows it as "ask before emptying" on/off)
+### Defaults.inc
+```ini
+[Variables]
+; 1 adds the total size after the count
+RecycleBinShowSize=1
+; 1 = Windows asks before emptying
+RecycleBinConfirm=1
+```
+
+### Settings page
+SHOW SIZE toggle; ASK BEFORE EMPTYING toggle.
 
 ### Change from v1.0.0
-v1.0.0 hides count/size until hover and has no title. V1 shows `RECYCLE BIN` and the count/size always, links on hover, new icons, Lua text instead of IfConditions, accent underlines.
+Title and count/size always visible, links on hover, new icons, Lua instead of IfConditions, accent underlines, foundation template.
 
 ## Playnite
 
 ### Files
-- `Playnite/Playnite.ini` (rewrite).
-- `@Resources/Icons/playnite-controller.png` (copied original, see Verdict 1).
+- `Playnite/Playnite.ini` (rewrite), `Playnite/Defaults.inc`, `Settings/Playnite.ini` (page).
+- `@Resources/Icons/playnite-controller.png` (Verdict 1, copied unchanged).
 
 ### Layout (canvas board Playnite)
 ```
-[controller]  PLAYNITE        icon 49x34 px, 60% rest / 100% hover; label Link style 600 9 px 0.30em, 0% / 85%
+[controller]  PLAYNITE        icon 49x34 px; label sLink type without underline, hover only
 ```
-- Icon: `W=(49*#Scale#)`, `H=(34*#Scale#)`, `PreserveAspectRatio=1`. Source is 764 px wide, so it stays sharp at 250%.
-- Label: `X=(14*#Scale#)R`, vertically centred on the icon (`StringAlign=LeftCenter`), alpha 0 at rest.
-- Hit meter covers icon + label, so hovering the empty label area still counts.
+- Icon: `W=(49*#Scale#)`, `H=(34*#Scale#)`, `PreserveAspectRatio=1`, `ImageAlpha` AlphaDetail -> Hover. Source is 764 px wide, sharp up to 300%. No baked shadow (original art); accepted.
+- Label `X=(14*#Scale#)R`, `StringAlign=LeftCenter` on the icon's middle, `sReveal` alpha (85% canvas, use the token).
+- `sHit` covers icon + label.
 
 ### Action
-- Icon and label: `LeftMouseUpAction=["#PlaynitePath#" #PlayniteArgs#]`.
-- `PlayniteArgs=--hidesplashscreen` when skip splash is on, empty when off. (Old skin used deprecated `!Execute`; drop it.)
+- Icon and label: `LeftMouseUpAction=["#PlaynitePath#" [#SplashArg[#PlayniteSkipSplash]]]` with skin-local `SplashArg1=--hidesplashscreen`, `SplashArg0=` and `DynamicVariables=1` on the meter.
 
-### Settings
-- `PlaynitePath` (already in User.inc). Settings sets it with InputText.
-- `PlayniteSkipSplash=1`, which Settings turns into `PlayniteArgs`.
+### Defaults.inc
+```ini
+[Variables]
+PlaynitePath=%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe
+; 1 starts Playnite without its splash screen
+PlayniteSkipSplash=1
+```
+Default `PlayniteSkipSplash=1` (foundation table says 0) to keep what Vishnu's current skin does. Vishnu's `User.inc` already holds his full `PlaynitePath`.
+
+### Settings page
+PLAYNITE PATH path box; SKIP SPLASH SCREEN toggle.
 
 ### Change from v1.0.0
-Original controller PNG instead of Lucide gamepad, label `PLAYNITE` in caps with tracking, design brightness tokens, args variable.
+Original controller art instead of the Lucide gamepad, `PLAYNITE` label, skip-splash setting, foundation template.
 
-## Skin header comments (all three)
-- Day-Date: what it shows, the three settings, that `DayRef` is the widest day name for the fixed edge (change it for another language).
-- Recycle Bin: counts are top-level items across all drives (RecycleManager), the two settings, EMPTY uses Windows' own confirm unless `EmptyBinSilent`.
-- Playnite: designed for Playnite (playnite.link); repoint `PlaynitePath`/`PlayniteArgs` to launch any other app.
+## Header comments
+- Day-Date: what it shows; the three settings; `DayRef` is the widest day name used for the fixed edge (change it for another language).
+- Recycle Bin: counts top-level items on all drives (RecycleManager); the two settings.
+- Playnite: designed for Playnite (playnite.link); point `PlaynitePath` at any other exe to launch something else.
 
 ## Limits
-1. Day names in other languages can be wider than `WEDNESDAY`; the user changes `DayRef`.
-2. Recycle Bin count is items, not files (see Verdict 3).
-3. Icon shadow is baked into the PNG, so it does not scale its blur with `Scale` exactly. Not visible in practice.
+1. Day names in other languages can be wider than `WEDNESDAY`; change `DayRef`.
+2. Recycle Bin count is items, not files.
+3. Playnite icon has no shadow (original PNG).
+
+## PC probe results (2026-10-11, `/mnt/project-files/Control-Plaine-probes.md`)
+- Rainmeter 4.5.26, Segoe UI Variable installed: nested variables, FontWeight and the foundation styles are all available.
+- Playnite exe confirmed at `C:\Users\Vishnu A\AppData\Local\Playnite\Playnite.DesktopApp.exe` (the `%LOCALAPPDATA%` default resolves to it; Vishnu's User.inc already holds it).
+- Original icon confirmed: `Skins\Playnite launcher\white-controller-icon.png`, 764x511.
+- Still open (visual): checks 1 to 7 below.
 
 ## Check on Vishnu's PC before calling these done
-1. Font sizes at `px * 0.75` match the canvas at 100% scale, and `FontWeight=600` vs `400` for the "Medium" lines (pick by eye; report to foundation).
-2. `Format=%V` shows `41` on 10 Oct 2026 (Rainmeter's Time measure uses the CRT's `wcsftime`, which supports it, and v1.0.0 already uses it; confirm it renders).
-3. Day-Date right edge stays put across a day change (set the clock or temporarily set `DayRef` and the day format to test) and with align left.
-4. RecycleManager `Drives=ALL` updates within ~3 s of deleting a file on C: and on a second drive (T:), and does not stall Rainmeter if a removable or network drive is present.
-5. `EmptyBin` shows the Windows confirm; `EmptyBinSilent` empties with no dialog; the line flips to `EMPTY` right after.
-6. Playnite: the `["path" --hidesplashscreen]` action starts Playnite without the splash; clicking again while Playnite runs focuses the existing window rather than erroring.
-7. Text shadow `InlineSetting=Shadow` renders (needs Rainmeter 4.0+ with D2D; confirm Rainmeter version in About).
-8. All three look right at Scale 2.5 (icons from 3x PNGs, underline 1 px x Scale, no clipped tracking on the right edge).
+1. `%V` shows `41` on 10 Oct 2026 (v1.0.0 already uses it).
+2. Day-Date right edge stays put across a day change and in left alignment; nested `[#Anchor[#DayDateAlign]]` resolves (Rainmeter 4.5).
+3. RecycleManager `Drives=ALL` updates within about 3 s after deleting on C: and T:, and does not stall Rainmeter with a USB or network drive attached.
+4. `EmptyBin` shows the Windows confirm, `EmptyBinSilent` does not, and the line flips to `EMPTY` right after.
+5. `%LOCALAPPDATA%` in `PlaynitePath` expands when run from an action (fresh install default). Vishnu's own full path works either way.
+6. Playnite starts without the splash, and clicking again while it runs focuses the open window.
+7. All three look right at Scale 2.5.
+
+## As built (v2.0.0)
+
+- Tracking: DirectWrite adds CharacterSpacing leading **and** trailing to every letter, so leading = trailing = tracking would double the gap. These skins put the tracking on one side only: before each letter for right-aligned text (`| t | 0`), after each letter for left-aligned text (`| 0 | t`). Day-Date switches with `[#Lead[#DayDateAlign]]` / `[#Trail[#DayDateAlign]]`.
+- Week on/off uses two detail meters with `Hidden=(1-#DayDateWeek#)` / `Hidden=#DayDateWeek#`.
+- The reference meters (`RefDay`, `RefText`) are transparent, not `Hidden=1`, so their width is always measured.
+- `PlayniteSkipSplash` defaults to 1 (Vishnu's old skin always skipped the splash).
+- Icons added: `trash-empty.png` (from `docs/icons/trash-empty.svg`, rendered by `tools/render-icons.js`), `playnite-controller.png` (original art, unchanged).

@@ -6,4 +6,4 @@
 ; Playnite program.
 PlaynitePath=%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe
 ; Open Playnite without its splash screen.
-PlayniteSkipSplash=0
+PlayniteSkipSplash=1
