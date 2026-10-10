@@ -1,8 +1,8 @@
 # Spec: Controllers skin
 
-Source of truth: `docs/DESIGN-V1.md` section "Controllers" and the V1 canvas board `Controllers.dc.html`. This file says how to build it in Rainmeter. Status: investigated, not built.
+Source of truth: `docs/DESIGN-V1.md` section "Controllers" and the V1 canvas board `Controllers.dc.html`. This file says how to build it in Rainmeter. Status: built (see section 10 for what the build settled).
 
-Shared conventions: follow `specs/foundation-settings.md` when it lands. Until then this spec uses what the repo already does: `Theme.inc`, `User.inc`, `Styles.inc`, `Fade.inc` included in that order; every size times `#Scale#`; ASCII-only files with CRLF; settings in `User.inc`; header comment block in the .ini; Settings opened from the right-click menu. If the foundation spec renames keys, changes the include order or the Settings hook, it wins.
+Shared conventions: `specs/foundation-settings.md` (skin template in its section 2, tokens and styles in 3 and 5, Settings pages in 7). This spec uses its names; where anything here disagrees with it, the foundation spec wins.
 
 ## 1. Verdict
 
@@ -10,12 +10,12 @@ Everything in the design can be driven from Rainmeter. Rainmeter has no measure 
 
 | Feature | Route | Confidence |
 |---|---|---|
-| Detect connected controllers (USB and Bluetooth) | Helper polls PnP every 3 s: present HID devices with gamepad/joystick usage, plus Xbox USB/adapter nodes by name | High, verify IDs on PC |
-| Tell Xbox / DualSense / Moza / other apart | Vendor ID in the device ID: Microsoft `045E`, Sony `054C`, Moza `346E` | High (Moza ID verify on PC) |
-| Hide skin when none connected | Lua `!Hide` / `!ShowFade` on count change | High |
-| Xbox battery over Bluetooth | PnP property `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2` (Bluetooth battery %) on the controller's `BTHLE` node | High, it is what Windows Settings shows |
+| Detect connected controllers (USB and Bluetooth) | Helper polls PnP every 3 s: present HID devices with gamepad/joystick usage, plus Xbox USB nodes and Moza by VID; Bluetooth pads must also pass the IsConnected check | High (IDs checked on PC 2026-10-11) |
+| Tell Xbox / DualSense / Moza / other apart | Vendor ID in the device ID: Microsoft `045E`, Sony `054C` (PID `0CE6`/`0DF2` only), Moza `346E` | High, confirmed on PC |
+| Hide skin when none connected | Lua sets `SelfHidden` and updates `mVisible` (Core.inc) on count change | High |
+| Xbox battery over Bluetooth | PnP property `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2` (Bluetooth battery %) on the controller's `BTHLE` node, read only while connected (it keeps a stale value when off) | High, property seen on PC |
 | DualSense battery, DSX not running | Read one HID input report, decode the status byte | High over USB; over Bluetooth only if something (DSX, Steam) already switched it to full reports, see section 6 |
-| DualSense battery, DSX running | 1st: ask DSX's UDP mod server for status. 2nd: shared HID read as above | Medium, both need checking on the PC |
+| DualSense battery, DSX running | DSX's UDP mod server (on, 127.0.0.1:6969 on Vishnu's PC). The HID read is blocked then: DSX controls HidHide and hides the pad | Medium, live status reply not yet tried |
 | Charging bolt | DualSense: status byte high nibble. Xbox Bluetooth: not exposed | DualSense only |
 | Clicks (DSX, Pit House, Windows settings) | Plain Rainmeter `["#Target#"]` bang | High |
 | Per-row hover, name, battery rules | Lua + meter formulas, same fade system as the other skins | High |
@@ -23,7 +23,7 @@ Everything in the design can be driven from Rainmeter. Rainmeter has no measure 
 Can't be done, by design falls back to showing nothing (never a wrong value):
 
 - **Xbox wired over USB**: Windows exposes no battery (XInput reports it as wired). No battery shown.
-- **Xbox through the Xbox Wireless Adapter**: only 4 coarse levels (empty/low/medium/full) via XInput, not a percentage. Not shown in v1 (option in section 6 if Vishnu uses the adapter).
+- **Xbox through the Xbox Wireless Adapter**: only 4 coarse levels via XInput. Not built: Vishnu's pad is Bluetooth LE and no adapter has ever been connected (probe 2026-10-11).
 - **Xbox charging state over Bluetooth**: the Bluetooth battery property has no charging flag. No bolt for Xbox.
 - **DualSense over Bluetooth with neither DSX nor Steam running**: the controller sends a short report with no battery until an app switches it to full mode. The helper will not force the switch (doing so can break DirectInput games until reconnect). No battery shown in that case.
 - **DualSense while DSX hides it with HidHide and DSX's UDP status is off or unavailable**: no battery shown, unless `powershell.exe` is added to HidHide's allow list (section 6).
@@ -31,16 +31,17 @@ Can't be done, by design falls back to showing nothing (never a wrong value):
 
 ## 2. Files
 
+Skin thread owns:
+
 ```
-Controllers/Controllers.ini
+Controllers/Controllers.ini          foundation skin template, section 2
+Controllers/Defaults.inc             defaults for every Controllers* key (section 6)
+Settings/Controllers.ini             fills the foundation's stub page
 @Resources/Scripts/Controllers.lua
 @Resources/Scripts/Controllers.ps1
-@Resources/Icons/controller-xbox.png
-@Resources/Icons/controller-dualsense.png
-@Resources/Icons/wheel-moza.png
 ```
 
-Icons: render from `docs/icons/*.svg` with headless Chromium, same pipeline as the existing icons (white on transparent, 2x of the drawn size). "Other" controllers reuse `controller-xbox.png` (the Fluent gamepad outline reads as a generic pad). The battery glyph and bolt are Shape meters, not PNGs, so they can take Warn/Accent colours and a live fill width.
+Icons `controller-xbox.png`, `controller-dualsense.png`, `wheel-moza.png` are rendered by the foundation (`tools/render-icons.py`, 128 px masters with `IconPad` and shadow baked in). "Other" controllers reuse `controller-xbox.png` (the Fluent gamepad outline reads as a generic pad). The battery glyph and bolt are Shape meters, not PNGs, so they take token colours and a live fill width.
 
 Runtime state file: `%TEMP%\ControlPlaine-controllers.txt` (written by the helper, read by Lua). Nothing new goes in the repo or `.gitignore`.
 
@@ -54,28 +55,29 @@ From the canvas board (sizes at Scale 1; multiply everything by `#Scale#`):
 [icon 32]  [battery] 12%
 ```
 
-- Rows: up to `MaxRows=4` fixed rows (`Row1..Row4`), each built from: `RowNHit` (Shape, full-row hit rectangle, fill `0,0,0,1`), `RowNIcon` (Image, 32x32 centred in a 44 wide box), `RowNBat` (Shape battery glyph), `RowNPct` (String), `RowNName` (String). Row N top = `(N-1)*50`.
+- Rows: up to `MaxRows=4` fixed rows (`Row1..Row4`), each built from: `RowNHit` (`MeterStyle=sHit`, full-row rectangle), `RowNIcon` (Image, `sIcon`), `RowNBat` (Shape battery glyph), `RowNPct` (String), `RowNName` (String). Row N top = `(N-1)*50`.
+- Icon: the canvas draws these at 32 px visual (larger than the suite's 24), centred in a 44 px column. Skin-local variable `CtlIcon=32`; meter `W=H=(#CtlIcon#*#IconBox#/#IconSize#*#Scale#)` so the baked padding scales with it, placed at `X=((44-#CtlIcon#)/2-#IconPad#*#CtlIcon#/#IconSize#)*#Scale#`.
 - Battery glyph (Shape), same geometry as the canvas: outline `Rectangle 0.5,0.5,17,9,2` stroke 1; nub `Rectangle 18.2,3,1.5,4,0.5` filled; level `Rectangle 2,2,(Max(Bat,8)*0.14),6,1` filled (8% floor so a near-empty bar is still visible). Charging: a filled bolt polygon cut out of the level with `Combine ... | Exclude`.
-- Text: percent at `SizeXS` (9), name at `SizeS` (10), weight 600, spaced caps per the foundation spec (Rainmeter `InlineSetting=CharacterSpacing`).
+- Text: percent and name both `MeterStyle=sDetail` (9.5 px semibold, tracked, upper case, shadow); the canvas's 9/10 px both round to it. Tracking on the trailing side only (`CharacterSpacing | 0 | t`): DirectWrite applies it per letter, so both sides doubles the gap.
 - Gaps: icon box to battery 12, glyph to percent 6, battery group to name 12. Lua sets `RowNName` X explicitly, because the battery group may be hidden (Moza, unknown battery) and the name must then sit right after the icon.
-- Colours: everything `#Ink#`; battery glyph and percent `#Warn#` below `ControllersBatteryLow` (15%); `#Accent#` while charging (charging wins over low).
+- Colours: everything `#Ink#`; battery glyph and percent `#Warn#` (`sWarn`) below `ControllersBatteryLow` (15%); `#Accent#` (`sAccent`) while charging (charging wins over low). The glyph's colour is set by Lua with `!SetOption` on the Shape's `Stroke Color`/`Fill Color`, never a raw RGB literal.
 - Order of rows is fixed by kind so they don't jump around: Xbox, DualSense, Moza, Other. Within a kind, connection order.
 
 ### Alpha and hover
 
-- Skin-level `Reveal` (from `Fade.inc`) as in every skin.
+- Skin-level `Reveal` (hover fade in `Core.inc`) as in every skin.
 - Lua keeps `HoverRow` (0 = none). Each `RowNHit` has `MouseOverAction=[!SetVariable HoverRow N][!UpdateMeterGroup Rows][!Redraw]` and `MouseLeaveAction` back to 0.
-- Row alpha (icon, glyph, text): `HoverRow=0` -> `AlphaRest`; hovered row -> `AlphaHover`; other rows while one is hovered -> `AlphaDim` (new token, default `(#AlphaRest#*0.6)`; foundation spec may own it).
-- Battery group visible when: `Bat >= 0` and (`Bat < ControllersBatteryShowBelow` or `Reveal > 0`). At rest only low ones show; on hover over the skin every known battery fades in with `Reveal`. Unknown battery (`-1`) never shows.
+- Row alpha: `HoverRow=0` -> icon `AlphaDetail`, battery text `AlphaValue`; hovered row -> `AlphaHover`; other rows while one is hovered -> `AlphaDim` (Core.inc, 60% of the rest level).
+- Battery group visible when: `Bat >= 0` and (`Bat < ControllersBatteryShow` or `Reveal > 0`). At rest only low ones show; on hover over the skin every known battery fades in with `Reveal`. Unknown battery (`-1`) never shows.
 - Name visible only on the hovered row (alpha `AlphaHover` when `HoverRow=N`, else 0). Names are fixed per kind: `XBOX`, `DUALSENSE` (`DUALSENSE EDGE` for PID 0DF2), `MOZA`, `CONTROLLER`.
 - Each `RowNHit` has `MouseActionCursor=1` and `ToolTipText` (`Open DSX`, `Open Pit House`, `Open Bluetooth settings`).
 
 ### Show / hide
 
 - `Update=1000`. Lua re-reads the state file every update (cheap `io.open`), parses only if the text changed.
-- Count goes 0 -> n: set rows, `[!ShowFade]`. n -> 0: `[!HideFade]`. Rows beyond the count get `Hidden 1`.
-- `DynamicWindowSize=1` so the window shrinks to the rows shown. Anchor top-left; the list grows down.
-- On first load with nothing connected, the skin hides itself in `Initialize()` after the first read, so it never flashes.
+- Count goes 0 -> n: set rows, then `[!SetVariable SelfHidden 0][!UpdateMeasure mVisible]`. n -> 0: `[!SetVariable SelfHidden 1][!UpdateMeasure mVisible]`. Never `!Show`/`!Hide` directly (foundation rule; Core combines this with full-screen hiding). Rows beyond the count get `Hidden 1`.
+- `DynamicWindowSize=1` (in the template) so the window shrinks to the rows shown. Anchor top-left; the list grows down.
+- Controllers.ini sets `SelfHidden=1` in its skin-local variables (after the Defaults include), so on load it stays hidden until the first read finds a controller, and never flashes.
 
 ## 4. The helper (`Controllers.ps1`)
 
@@ -91,7 +93,7 @@ State=Hide
 OutputType=ANSI
 DynamicVariables=1
 
-[Rainmeter]
+; added to the template's [Rainmeter] section
 OnRefreshAction=[!CommandMeasure mHelper "Run"]
 ```
 
@@ -104,15 +106,16 @@ Every `Poll` seconds (default 3):
 1. **Enumerate** with one CIM query (warm process, ~100 ms):
    `Get-CimInstance Win32_PnPEntity -Filter "Present=TRUE AND (PNPClass='HIDClass' OR PNPClass='XnaComposite' OR PNPClass='XboxComposite')"`.
 2. **Keep game controllers only**:
-   - HID nodes whose `CompatibleID` contains `HID_DEVICE_UP:0001_U:0005` (gamepad) or `HID_DEVICE_UP:0001_U:0004` (joystick). This catches Xbox over Bluetooth, DualSense over USB/Bluetooth, the Moza base and any other pad. Mice, keyboards and headsets have other usages and drop out.
-   - Plus Xbox nodes that are not HID: `XnaComposite`/`XboxComposite` class or name matching `Xbox*Controller*` (wired USB and through the wireless adapter). Exclude the adapter itself (name contains `Adapter`).
-   - HID child nodes only exist while a Bluetooth device is actually connected, so paired-but-off controllers don't show.
+   - HID nodes whose `CompatibleID` contains `HID_DEVICE_UP:0001_U:0005` (gamepad) or `HID_DEVICE_UP:0001_U:0004` (joystick). This catches Xbox over Bluetooth, DualSense over USB/Bluetooth and any other pad. Mice, keyboards and headsets have other usages and drop out.
+   - Plus Xbox nodes that are not HID: `XnaComposite`/`XboxComposite` class or name matching `Xbox*Controller*` (wired USB). Exclude any name containing `Adapter`.
+   - Plus Moza by vendor: any present `HID\VID_346E...` or `USB\VID_346E...` node (seen on PC: PIDs `0005` and `0015`, HID "MOZA Windows Driver" on `MI_02`), whether or not it has a gamepad usage. Ignore `SWD\` software nodes ("MOZA WheelBase Virtual Device") and the COM port; they are not proof the base is plugged in.
+   - **Bluetooth connected check (required).** On Vishnu's PC, paired pads that are switched off keep `Present=TRUE`, Status OK and even their HID child node. So for every Bluetooth match, take its MAC, find `BTHLE\DEV_<mac>` (Xbox, BLE) or `BTHENUM\DEV_<mac>` (DualSense, classic), read `DEVPKEY_Device_IsConnected` = `{83DA6326-97A6-4088-9453-A1923F573B29} 15` and keep the device only if it is `True`. USB devices are only present while plugged in, so they skip this.
 3. **Drop virtual pads**: DSX (and DS4Windows) create virtual Xbox 360 / DS4 pads through ViGEmBus. For each new device ID, read `DEVPKEY_Device_Parent` once (cache it) and drop it if the parent chain starts with `ROOT\` or contains `VIGEM`. Without this, a phantom XBOX row appears whenever DSX runs.
 4. **Classify** by vendor ID parsed with `VID[_&](?:0002|02)?([0-9A-F]{4})[&_]PID[_&]([0-9A-F]{4})` (covers USB `VID_054C&PID_0CE6`, Bluetooth classic `VID&0002054C_PID&0CE6`, BLE `VID&02045E_PID&0B13`): `045E` xbox, `054C` with PID `0CE6`/`0DF2` dualsense, `346E` moza, anything else other. Moza pedals or handbrake plugged in on their own share `346E`: one row per Moza is enough, so collapse all `346E` devices into one row.
 5. **Dedupe** to one entry per physical device: key on the Bluetooth MAC when the ID has one (the 12 hex digits after `_PID&xxxx_REV&xxxx_` or in `BTHLE\DEV_<mac>`), else the USB instance path's parent. Multiple HID collections from one pad collapse to one row.
 6. **Battery**, only every `BatteryPoll` seconds (default 60) and immediately when a device first appears:
-   - Xbox Bluetooth: find `BTHLE\DEV_<mac>` with the same MAC, read `Get-PnpDeviceProperty -InstanceId <id> -KeyName '{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2'`; use `.Data` if the type isn't `Empty`. No charging info.
-   - Xbox USB / adapter: `-1`.
+   - Xbox Bluetooth: on the same `BTHLE\DEV_<mac>` node, read `Get-PnpDeviceProperty -InstanceId <id> -KeyName '{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2'` (a Byte); use `.Data` if the type isn't `Empty`. Only ever read it after the IsConnected check passed: when the pad is off it still returns the last value (77 at probe time). No charging info.
+   - Xbox USB: `-1`.
    - DualSense: section 5.
    - Moza, other: `-1`.
 7. **Write** the file only when content changed: write `<file>.tmp`, then `Move-Item -Force` over the real file so Lua never reads half a file.
@@ -133,6 +136,8 @@ Fields: kind, display name, battery 0-100 or -1 unknown, charging 0/1. Lua split
 ## 5. DualSense battery
 
 Two sources, tried in this order each battery poll. The first that gives a value wins; if neither does, `-1` (show nothing).
+
+On Vishnu's PC (probe 2026-10-11): DSX v3 Beta from Steam (`G:\SteamLibrary\steamapps\common\DSX`, also starts at logon) has `use_incoming_udp: true` on `127.0.0.1:6969`, and `SaveFile_LetDSXControlHidHide: true` with the DualSense's Bluetooth HID paths on its hide list. So while DSX runs, 5a is the only route and 5b fails to open the pad. With DSX closed, 5b is the route (if DSX lifts the hide on exit; to be checked).
 
 ### 5a. DSX UDP status (only when `DSX.exe` is running)
 
@@ -158,25 +163,35 @@ Small C# block compiled once at helper start with `Add-Type` (P/Invoke to `hid.d
 
 Resolution is 10% steps, which is what PlayStation shows too.
 
-## 6. Settings (User.inc keys, names to match the foundation spec)
+## 6. Settings
+
+Keys and defaults live in `Controllers/Defaults.inc`; Settings writes overrides to `User.inc`. The first four are the foundation's agreed names (its section 7.6); the rest are additions with the same prefix.
 
 | Key | Default | Meaning |
 |---|---|---|
-| `ControllersBatteryShowBelow` | `50` | At rest, show battery only below this % (design "configurable 50%") |
-| `ControllersBatteryLow` | `15` | Below this, battery is Warn orange |
+| `ControllersBatteryShow` | `50` | At rest, show battery only below this % (design "configurable 50%") |
 | `ControllersDualSenseApp` | `steam://rungameid/1812620` | Click DualSense (DSX on Steam, app id 1812620). Can be an exe path instead |
-| `ControllersWheelApp` | `C:\Program Files (x86)\MOZA Pit House\MOZA Pit House.exe` | Click Moza (verify path) |
-| `ControllersOtherTarget` | `ms-settings:bluetooth` | Click Xbox or any other controller |
+| `ControllersWheelApp` | `C:\Program Files (x86)\MOZA Pit House\bin\MOZA Pit House.exe` | Click Moza (path confirmed on PC) |
+| `ControllersOther` | `ms-settings:bluetooth` | Click Xbox or any other controller |
+| `ControllersBatteryLow` | `15` | Below this, battery is Warn orange |
 | `ControllersPoll` | `3` | Seconds between device scans |
 | `ControllersBatteryPoll` | `60` | Seconds between battery reads |
 | `ControllersDsxPort` | `6969` | DSX mod server port |
 
-Settings panel CONTROLLERS tab (design: "battery threshold, DualSense app, wheel app, other controllers target"): the first is a scroll box (step 5, range 5-100), the three targets are click-to-edit paths. The polls and port live in User.inc only.
+Settings page `Settings/Controllers.ini` (foundation page template, section 7.1; controls from 7.3), rows from the design ("battery threshold, DualSense app, wheel app, other controllers target"):
 
-Click actions on `RowNHit`: `LeftMouseUpAction=["#ControllersDualSenseApp#"]` etc.; Lua sets which variable each row uses when it assigns kinds to rows. Right-click menu: Settings (per foundation spec).
+| Row | Control | Call |
+|---|---|---|
+| BATTERY AT REST | value box, shows `50%` | `Step('ControllersBatteryShow',5,5,100,'Controllers')` |
+| DUALSENSE APP | path box | `EditPath('ControllersDualSenseApp','Controllers')` |
+| WHEEL APP | path box | `EditPath('ControllersWheelApp','Controllers')` |
+| OTHER CONTROLLERS | path box | `EditPath('ControllersOther','Controllers')` |
+
+`ControllersBatteryLow`, the polls and the port are Defaults-only (no row), changeable by editing `User.inc`.
+
+Click actions on `RowNHit`: `LeftMouseUpAction=["#ControllersDualSenseApp#"]` etc.; Lua sets which variable each row uses when it assigns kinds to rows. Right-click menu comes from the template's `ContextAction`, which opens `Settings\Controllers.ini`.
 
 Optional, only if Vishnu needs them after the PC checks:
-- **Xbox Wireless Adapter battery**: `XInputGetBatteryInformation` (xinput1_4.dll) gives EMPTY/LOW/MEDIUM/FULL. Could show the glyph with a coarse fill and no percent. Not built unless he uses the adapter.
 - **HidHide allow list**: if DSX hides the DualSense and 5a is unavailable, adding `powershell.exe` to HidHide's allow list makes 5b work. It is his call: any PowerShell would then see the pad (harmless, but it is a change to his setup).
 
 ## 7. Header comment for the .ini
@@ -185,14 +200,17 @@ What it shows (connected game controllers with battery), designed for Xbox (Blue
 
 ## 8. Check on Vishnu's PC before calling it done
 
-1. With each controller connected in turn (Xbox BT, Xbox USB, DualSense USB, DualSense BT, Moza), run `Get-CimInstance Win32_PnPEntity -Filter "Present=TRUE AND (PNPClass='HIDClass' OR PNPClass='XnaComposite' OR PNPClass='XboxComposite')" | ft Name,PNPClass,DeviceID,CompatibleID`. Confirm: the gamepad/joystick compatible IDs, Moza's vendor ID really is `346E`, and that a paired-but-off Bluetooth pad disappears.
-2. With DSX running: the virtual Xbox 360 pad is dropped by the parent check (no phantom XBOX row).
-3. Xbox over Bluetooth: the battery property returns a number on the `BTHLE` node and matches Settings > Bluetooth & devices.
-4. DualSense with DSX running: does 5a answer (and is DSX's UDP/mod server switched on in DSX settings)? Does 5b open the device, or does HidHide block it?
-5. DualSense over Bluetooth with DSX closed: confirm we show nothing rather than a stale or wrong value.
-6. `steam://rungameid/1812620` opens DSX (and only focuses it if already running). Pit House exe path and that a second launch doesn't open a second copy.
-7. Helper CPU stays negligible (expect well under 1% average) and the process disappears when the skin is unloaded or Rainmeter exits.
-8. Which Xbox connection he actually uses (Bluetooth, adapter or cable), to decide on the adapter option in section 6.
+Answered by the probe (2026-10-11): Moza VID `346E` (PIDs `0005`, `0015`); Xbox is Bluetooth LE, no adapter; DSX UDP server on at 127.0.0.1:6969; DSX Steam app id 1812620; Pit House path; paired-but-off pads stay present (hence the IsConnected check); the Sony camera `054C:0A92` is excluded by the PID filter.
+
+Still to check, with the pads on:
+
+1. Each controller shows one row when connected and none when switched off (Xbox BT, DualSense USB and BT, Moza).
+2. With DSX running: no phantom XBOX row from the ViGEm virtual Xbox 360 pad (`045E:028E`).
+3. Xbox battery matches Settings > Bluetooth & devices while connected.
+4. DSX answers the status request on 6969 with the DualSense battery (5a).
+5. DSX closed: does DSX lift the HidHide hide so 5b can open the pad? Over Bluetooth with DSX and Steam closed we expect nothing shown (short reports), not a stale value.
+6. `steam://rungameid/1812620` only focuses DSX when it is already running (it auto-starts at logon); Pit House doesn't open a second copy.
+7. Helper CPU stays negligible and the process goes away when the skin is unloaded or Rainmeter exits.
 
 ## 9. Sources
 
@@ -200,3 +218,11 @@ What it shows (connected game controllers with battery), designed for Xbox (Blue
 - Bluetooth battery property key: Microsoft Q&A 1156194 and `HyperNylium/Get-Bluetooth-Battery-Persentage`.
 - RunCommand kill-on-unload with `State=Hide`: docs.rainmeter.net/manual/plugins/runcommand.
 - DSX mod server, status response fields, HidHide optional, Steam app id 1812620: DS4Windows PR #86 and its `docs/DSX-game-mod-support.md`, Paliverse/DualSenseX README.
+
+## 10. What the build settled
+
+- DSX status packet confirmed on Vishnu's PC: `{"instructions":[{"type":0,"parameters":[]}]}` to 127.0.0.1:6969, reply JSON with `isControllerConnected` and `Devices` (`DeviceType` 0 = DualSense, `ConnectionType` 0 = USB, `BatteryLevel`). The top-level `BatteryLevel` is ignored. A USB pad below 100% from DSX is shown as charging.
+- If DSX lists more DualSense pads than PnP shows (HidHide can hide them), the helper adds rows from DSX's list.
+- The helper rewrites the state file every scan with a time stamp. Lua deletes the file on load, treats a file older than 4 polls (min 15 s) as "nothing connected" and restarts the helper at most every 30 s.
+- Rows are shown and hidden with `!ShowMeterGroup` / `!HideMeterGroup Row<N>`; each row's transparent hit area sits on top and takes hover and click.
+- Settings page rows: BATTERY AT REST (scroll, 5-100 step 5), DUALSENSE APP, WHEEL APP, OTHER CONTROLLERS (click to edit).
