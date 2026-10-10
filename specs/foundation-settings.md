@@ -232,7 +232,9 @@ No measure: Settings runs `[!DraggableGroup 0 ControlPlaine]` / `1`, Rainmeter p
 
 ## 5. Styles.inc
 
-All styles set `AntiAlias=1`, `DynamicVariables=1`, and text styles `StringCase=Upper`, `StringEffect=Shadow`, `FontEffectColor=#Shadow#`, `FontFace=#FontFace#`.
+All styles set `AntiAlias=1`, `DynamicVariables=1`, and text styles `StringCase=Upper`, `StringEffect=Shadow`, `FontFace=#FontFace#`, and a shadow whose alpha follows the text: `FontEffectColor=#ShadowRGB#,(<text alpha>*#ShadowK#)`. A meter that overrides `FontColor` alpha must restate `FontEffectColor` the same way, or a faded label leaves its shadow behind.
+
+The hover fade's ActionTimer steps read `[#Reveal]` (nested syntax), not `#Reveal#`, because the plain form is resolved only once per skin update.
 
 | Style | Use | Key options |
 |---|---|---|
@@ -262,7 +264,7 @@ As built, Theme.inc provides `#RingTrack#` and `#RingFill#` modifier strings, co
 | Segoe UI Variable Display | `FontFace` via DirectWrite named instance | Win10 lacks it; Rainmeter falls back to Arial silently. Keep `FontFace` overridable: Settings writes `FontFace=Segoe UI` if PC check fails. |
 | Weights 300/400/600 | `FontWeight=` | **Medium 500 does not exist** in Segoe UI; we use Semibold 600 for Title/Detail. |
 | Tracking in em | `InlineSetting=CharacterSpacing | t | t` | Values precomputed in px per size. |
-| Text shadow 0 1px 3px | `StringEffect=Shadow`, `FontEffectColor=0,0,0,115` | **No blur** in Rainmeter, hard 1px shadow. Close enough at these sizes. |
+| Text shadow 0 1px 3px | `StringEffect=Shadow`, `FontEffectColor=0,0,0,(alpha*0.45)` | **No blur** in Rainmeter, hard 1px shadow. Close enough at these sizes. |
 | Icon shadow | Baked into PNG | Fine (tint multiplies RGB; the black shadow stays black). |
 | Ring/line shadow | none | **Not possible** on Shape meters without a duplicate shape; skipped. |
 | Hover fade 150-200 ms | ActionTimer 12 x 15 ms | OK. |

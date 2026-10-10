@@ -106,8 +106,12 @@ AntiAlias=1
 DynamicVariables=1
 
 ; Row description: 12px, 55%, sentence case. Put it at Y=(4*#PS#)R under the label.
+; Wraps at 300px so it never runs under a path box or choice words (they start
+; about 310px right of ColL); two lines still fit the 64px row pitch.
 [sRowDesc]
 X=(#ColL#*#PS#)
+W=(300*#PS#)
+ClipString=2
 FontFace=#FontFace#
 FontSize=(9*#PS#)
 FontWeight=400
