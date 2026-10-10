@@ -84,7 +84,7 @@ Rules for skins:
 
 ## 3. Theme.inc (tokens)
 
-Font sizes are **points** (Rainmeter `FontSize` is pt; px x 0.75). Tracking is px at scale 1 (CharacterSpacing is in DIPs). Use leading = trailing = tracking for left/centre text, and trailing `0` for right-aligned text so right edges line up.
+Font sizes are **points** (Rainmeter `FontSize` is pt; px x 0.75). Tracking is px at scale 1 (CharacterSpacing is in DIPs). Apply it on one side only (both sides doubles the gap): `| 0 | t` for left/centred text, `| t | 0` for right-aligned text so right edges line up.
 
 ```ini
 [Variables]
