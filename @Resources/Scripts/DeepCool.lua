@@ -1,12 +1,12 @@
 -- Control-Plaine | DeepCool
 -- Follows whether the DeepCool app runs and starts or closes it on click.
--- Starting and closing take a few seconds, so a click shows STARTING or
--- CLOSING with a spinner, and the on/off state changes only once the
+-- Starting and closing take a few seconds, so a click shows STARTING TELEMETRY
+-- or STOPPING TELEMETRY with a spinner, and the on/off state changes only once the
 -- process list confirms it (or after a timeout, back to what is true).
 
 local TIMEOUT = 30      -- s before a start or close that never lands is given up
 local SETTLE = 3        -- s the process must run before a start counts as done
--- s CLOSING stays after the process is gone: DeepCoolOffDelay (the case
+-- s STOPPING TELEMETRY stays after the process is gone: DeepCoolOffDelay (the case
 -- screen goes dark a few seconds after the app exits).
 
 local running = false
@@ -24,9 +24,9 @@ local function show()
 	local accent, ink = SKIN:GetVariable('Accent'), SKIN:GetVariable('Ink')
 	local text, tip
 	if pending == 'start' then
-		text, tip = 'Starting', 'Starting DeepCool'
+		text, tip = 'Starting telemetry', 'Starting DeepCool'
 	elseif pending == 'stop' then
-		text, tip = 'Closing', 'Closing DeepCool'
+		text, tip = 'Stopping telemetry', 'Closing DeepCool'
 	else
 		text = label() .. (running and ' on' or ' off')
 		tip = running and 'Close DeepCool' or 'Start DeepCool'
@@ -56,7 +56,7 @@ function Update()
 		if now - seenAt >= SETTLE then pending = nil end
 	elseif pending == 'stop' and not running then
 		goneAt = goneAt or now
-		local delay = tonumber(SKIN:GetVariable('DeepCoolOffDelay', '5')) or 5
+		local delay = tonumber(SKIN:GetVariable('DeepCoolOffDelay', '7')) or 7
 		if now - goneAt >= delay then pending = nil end
 	end
 	if pending and now - since > TIMEOUT then pending = nil end
