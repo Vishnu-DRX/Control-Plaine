@@ -1,7 +1,10 @@
 // Renders docs/icons/*.svg to @Resources/Icons/<name>.png for Rainmeter.
-// Each PNG is 128x128 (IconBox 32 x 4): the 24-unit icon drawn at 96 px in the
-// centre, white, with the suite's shadow (0 1px 3px rgba(0,0,0,.45) at 4x)
-// baked in. Rainmeter tints the white with ImageTint; the black shadow stays.
+// Each PNG is drawn at the exact pixel size its skin shows it at (scale 1),
+// so Rainmeter never resamples it: resampling a larger PNG down is what made
+// the icons soft. The 24-unit icon fills 3/4 of a square box (IconBox 32 for
+// most icons), white, no shadow. Rainmeter tints the white with ImageTint.
+// At a Scale other than 1 the PNGs are resampled, so re-render with
+// ICON_SCALE=<Scale> for the sharpest result.
 //
 // Dev-time only: node tools/render-icons.js (needs Playwright + Chromium).
 const { chromium } = require('playwright');
@@ -11,21 +14,35 @@ const { join, basename } = require('node:path');
 const root = join(__dirname, '..');
 const src = join(root, 'docs', 'icons');
 const out = join(root, '@Resources', 'Icons');
+const scale = Number(process.env.ICON_SCALE || 1);
+
+// Box size (px at scale 1) per icon; everything else uses IconBox (32).
+const BOX = {
+  'trash': 48, 'trash-empty': 48,                    // RecycleBin IconW
+  'controller-xbox': 44, 'controller-dualsense': 44, // Controllers CtlIcon 33
+  'wheel-moza': 44,
+};
 
 (async () => {
 const browser = await chromium.launch(
   process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-const page = await browser.newPage({ viewport: { width: 128, height: 128 } });
 for (const file of readdirSync(src).filter(f => f.endsWith('.svg')).sort()) {
+  const name = basename(file, '.svg');
+  const box = Math.round((BOX[name] || 32) * scale);
+  const icon = box * 3 / 4;
+  const page = await browser.newPage({ viewport: { width: box, height: box } });
   const svg = readFileSync(join(src, file), 'utf8')
     .replace(/<metadata>[\s\S]*?<\/metadata>/, '')
-    .replace(/width="24" height="24"/, 'width="96" height="96"');
+    .replace(/width="24" height="24"/, `width="${icon}" height="${icon}"`)
+    // 2.2 units is 2.2 px at 24 px: snap to 2 px so straight lines land on
+    // whole pixels instead of smearing over three.
+    .replace(/stroke-width="2\.2"/g, `stroke-width="${2 * 24 / icon}"`);
   await page.setContent(`<html><body style="margin:0;background:transparent">
-    <div style="width:128px;height:128px;display:flex;align-items:center;justify-content:center;
-      filter:drop-shadow(0 4px 12px rgba(0,0,0,.45))">${svg}</div></body></html>`);
-  const name = basename(file, '.svg') + '.png';
-  await page.locator('div').screenshot({ path: join(out, name), omitBackground: true });
-  console.log(name);
+    <div style="width:${box}px;height:${box}px;display:flex;align-items:center;justify-content:center">
+    ${svg}</div></body></html>`);
+  await page.locator('div').screenshot({ path: join(out, name + '.png'), omitBackground: true });
+  await page.close();
+  console.log(name + '.png', box);
 }
 await browser.close();
 })();
