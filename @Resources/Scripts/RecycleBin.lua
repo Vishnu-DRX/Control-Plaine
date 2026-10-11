@@ -1,6 +1,6 @@
 -- Control-Plaine | RecycleBin
--- Formats "35 FILES   3.2 GB", swaps the full/empty icon and shows or hides
--- the EMPTY link. Runs on every update (no IfConditions: they only fire on
+-- Shows the bin size ("3.2 GB", orange above RecycleBinWarnGB), swaps the
+-- full/empty icon and shows or hides the EMPTY link beside the size. Runs on every update (no IfConditions: they only fire on
 -- a change, which is how older skins went stale).
 
 local mCount, mSize
@@ -30,26 +30,26 @@ end
 
 function Update()
 	local n = math.floor(mCount:GetValue() + 0.5)
-	local text, icon
+	local bytes = mSize:GetValue()
+	local warnGB = tonumber(SKIN:GetVariable('RecycleBinWarnGB')) or 10
+	local text, icon, warn
 	if n <= 0 then
-		text, icon = 'EMPTY', 'trash-empty.png'
+		text, icon, warn = 'EMPTY', 'trash-empty.png', false
 	else
-		text = n == 1 and '1 FILE' or (n .. ' FILES')
-		if on('RecycleBinShowSize') then
-			text = text .. '   ' .. size(mSize:GetValue())
-		end
-		icon = 'trash.png'
+		text, icon = size(bytes), 'trash.png'
+		warn = bytes > warnGB * 1024 ^ 3
 	end
 
-	if text ~= last then
-		local full = n > 0
+	local state = text .. (warn and '!' or '')
+	if state ~= last then
 		SKIN:Bang('!SetOption', 'Detail', 'Text', text)
+		SKIN:Bang('!SetVariable', 'SizeInk', SKIN:GetVariable(warn and 'Warn' or 'Ink'))
+		SKIN:Bang('!SetVariable', 'SizeAlpha', SKIN:GetVariable(warn and 'AlphaValue' or 'AlphaDetail'))
 		SKIN:Bang('!SetOption', 'Icon', 'ImageName', '#@#Icons\\' .. icon)
-		local show = full and '!ShowMeter' or '!HideMeter'
-		SKIN:Bang(show, 'LinkEmpty')
+		SKIN:Bang(n > 0 and '!ShowMeter' or '!HideMeter', 'LinkEmpty')
 		SKIN:Bang('!UpdateMeter', '*')
 		SKIN:Bang('!Redraw')
-		last = text
+		last = state
 	end
 	return n
 end
