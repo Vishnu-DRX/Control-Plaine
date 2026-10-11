@@ -3,8 +3,8 @@
 ; Owned by the DayDate skin; add keys here with the DayDate prefix.
 
 [Variables]
-; What a click opens: the Windows calendar app by default, or any program,
-; file or URI (for example https://calendar.google.com).
-DayDateClick=outlookcal:
+; What a click opens: calendar (the Windows calendar flyout, Win+N), or any
+; program, file or URI (for example https://calendar.google.com).
+DayDateClick=calendar
 ; Which side the date lines up to: left or right.
 DayDateAlign=right
