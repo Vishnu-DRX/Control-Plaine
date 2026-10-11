@@ -27,13 +27,17 @@ end
 local function rest(l)
 	l.phase, l.offset, l.count = 'idle', 0, 0
 	SKIN:Bang('!SetOption', l.meter, 'X', 0)
-	SKIN:Bang('!SetOption', l.meter, 'ClipStringW', '(#TextW#*#Scale#)')
+	SKIN:Bang('!SetOption', l.meter, 'ClipString', 1)
+	SKIN:Bang('!SetOption', l.meter, 'W', '(#TextW#*#Scale#)')
 	SKIN:Bang('!UpdateMeter', l.meter)
 end
 
 -- Unclip to measure the full text; slide only if it doesn't fit.
+-- (ClipString=2 would wrap at a word instead, so: no clipping and no W,
+-- an empty value drops the option, and the meter sizes to the text.)
 local function begin(l)
-	SKIN:Bang('!SetOption', l.meter, 'ClipStringW', 4000)
+	SKIN:Bang('!SetOption', l.meter, 'ClipString', 0)
+	SKIN:Bang('!SetOption', l.meter, 'W', '')
 	SKIN:Bang('!UpdateMeter', l.meter)
 	l.over = SKIN:GetMeter(l.meter):GetW() - SKIN:GetMeter(l.box):GetW()
 	if l.over <= 0 then
