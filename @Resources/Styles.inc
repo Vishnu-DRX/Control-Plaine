@@ -2,8 +2,8 @@
 ; Combine with |, later styles win: MeterStyle=sValue | sWarn.
 ; (Rainmeter styles cannot inherit from each other, so each is complete.)
 ;
-; Text: upper case, Segoe UI, with the suite's hard shadow (Rainmeter shadows
-; cannot blur). Tracking goes on the meter, because it depends on alignment:
+; Text: upper case, Segoe UI, no shadow (a Rainmeter shadow is a hard 1px
+; copy that makes small text look soft; Vishnu wants it crisp). Tracking goes on the meter, because it depends on alignment:
 ;   left/centred:  InlineSetting=CharacterSpacing | 0 | (#TrackDetail#*#Scale#)
 ;   right-aligned: InlineSetting=CharacterSpacing | (#TrackDetail#*#Scale#) | 0
 ; One side only: setting both doubles the gap between letters.
@@ -14,7 +14,7 @@
 [sDisplay]
 FontFace=#FontFace#
 StringCase=Upper
-StringEffect=Shadow
+StringEffect=None
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDisplay#*#Scale#)
@@ -27,7 +27,7 @@ Group=Reveal
 [sValue]
 FontFace=#FontFace#
 StringCase=Upper
-StringEffect=Shadow
+StringEffect=None
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeValue#*#Scale#)
@@ -40,7 +40,7 @@ Group=Reveal
 [sTitle]
 FontFace=#FontFace#
 StringCase=Upper
-StringEffect=Shadow
+StringEffect=None
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeTitle#*#Scale#)
@@ -53,7 +53,7 @@ Group=Reveal
 [sDetail]
 FontFace=#FontFace#
 StringCase=Upper
-StringEffect=Shadow
+StringEffect=None
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDetail#*#Scale#)
@@ -66,7 +66,7 @@ Group=Reveal
 [sReveal]
 FontFace=#FontFace#
 StringCase=Upper
-StringEffect=Shadow
+StringEffect=None
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDetail#*#Scale#)
@@ -75,12 +75,12 @@ FontColor=#Ink#,(#AlphaHover#*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaHover#*#Reveal#)*#ShadowK#)
 Group=Reveal
 
-; Action links (OPEN, EMPTY, SCHEDULE, SET, CANCEL), shown on hover.
-; Put an Image meter with sLinkLine right below it.
+; Action links (EMPTY, SCHEDULE, SET, CANCEL), shown on hover. No underline:
+; the hand cursor and the hover reveal are enough.
 [sLink]
 FontFace=#FontFace#
 StringCase=Upper
-StringEffect=Shadow
+StringEffect=None
 AntiAlias=1
 DynamicVariables=1
 FontSize=(#SizeDetail#*#Scale#)
@@ -89,18 +89,6 @@ FontColor=#Ink#,(#AlphaHover#*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaHover#*#Reveal#)*#ShadowK#)
 SolidColor=0,0,0,1
 MouseActionCursor=1
-Group=Reveal
-
-; 1px accent underline for a link. On an Image meter right after the link:
-;   Meter=Image
-;   MeterStyle=sLinkLine
-;   W=[<LinkMeter>:W]
-[sLinkLine]
-X=r
-Y=(#LinkGap#*#Scale#)R
-H=(1*#Scale#)
-SolidColor=#Accent#,(255*#Reveal#)
-DynamicVariables=1
 Group=Reveal
 
 ; Colour modifiers, used after a text or icon style. They restate the alpha.

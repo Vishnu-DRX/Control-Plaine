@@ -47,10 +47,6 @@ function Update()
 		SKIN:Bang('!SetOption', 'Icon', 'ImageName', '#@#Icons\\' .. icon)
 		local show = full and '!ShowMeter' or '!HideMeter'
 		SKIN:Bang(show, 'LinkEmpty')
-		SKIN:Bang(show, 'LinkEmptyLine')
-		-- With EMPTY gone, OPEN takes the right edge.
-		SKIN:Bang('!SetOption', 'LinkOpen', 'X',
-			full and '([LinkEmpty:X]-16*#Scale#)' or '#ColW#')
 		SKIN:Bang('!UpdateMeter', '*')
 		SKIN:Bang('!Redraw')
 		last = text

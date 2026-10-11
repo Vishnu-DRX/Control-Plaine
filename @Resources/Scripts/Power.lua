@@ -157,11 +157,9 @@ local function paint()
 	SKIN:Bang('!SetVariable', 'LinkKeep', linkKeep)
 	if linkKey and slotOf(linkKey) then
 		SKIN:Bang('!ShowMeter', 'Link')
-		SKIN:Bang('!ShowMeter', 'LinkLine')
 		place('Link', iconCentre(slotOf(linkKey)))
 	else
 		SKIN:Bang('!HideMeter', 'Link')
-		SKIN:Bang('!HideMeter', 'LinkLine')
 	end
 
 	SKIN:Bang('!UpdateMeterGroup', 'Main')

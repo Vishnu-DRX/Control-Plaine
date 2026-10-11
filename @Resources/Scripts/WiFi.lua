@@ -60,7 +60,6 @@ local function setLink(text, token)
 	SKIN:Bang('!SetOption', 'Link', 'Text', text)
 	color('Link', token or 'Ink', LINK_ALPHA)
 	SKIN:Bang('!UpdateMeter', 'Link')
-	SKIN:Bang('!UpdateMeter', 'LinkLine')
 	SKIN:Bang('!Redraw')
 end
 
