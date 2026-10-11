@@ -41,11 +41,11 @@ function RingClick(x, y)
 	local d = math.sqrt(dx * dx + dy * dy)
 	local slack = w / 2 + 6 * scale
 	if d < r - slack or d > r + slack then return end
-	-- 0 at 12 o'clock, clockwise (screen y grows downward).
-	local a = math.atan2(dx, -dy)
+	-- 0 at 9 o'clock, clockwise (screen y grows downward).
+	local a = math.atan2(-dy, -dx)
 	if a < 0 then a = a + 2 * math.pi end
 	local p = math.floor(a / (2 * math.pi) * 100 + 0.5)
-	-- Just left of the top means full; a click never silences the output.
+	-- Just below 9 o'clock means full; a click never silences the output.
 	if p >= 98 then p = 100 end
 	if p < 1 then p = 1 end
 	SKIN:Bang('!CommandMeasure', 'mAudio', 'SetVolume ' .. p)
