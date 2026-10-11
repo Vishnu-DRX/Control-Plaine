@@ -13,6 +13,6 @@ DeepCoolStartHidden=1
 DeepCoolArgs=
 ; Hover label: screen (CASE SCREEN ON / OFF) or app (DEEPCOOL ON / OFF).
 DeepCoolLabel=screen
-; Seconds CLOSING stays after the app has exited: the case screen takes about
+; Seconds STOPPING TELEMETRY stays after the app has exited: the case screen takes about
 ; this long to actually go dark.
-DeepCoolOffDelay=5
+DeepCoolOffDelay=7
