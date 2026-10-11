@@ -110,7 +110,7 @@ Every action ends with `[!UpdateMeasureGroup Volume][!UpdateMeterGroup Volume][!
 **Ring click** (`Volume.lua`)
 1. `$MouseX$` and `$MouseY$` are relative to the meter that owns the action. Put `LeftMouseUpAction` on a square `sHit` meter the size of the ring. Draw it **before** `[Speaker]`, so the icon on top keeps its own click.
 2. Compute `dx = x - c` and `dy = y - c`, with `c` the ring centre from the foundation formula. Ignore the click when `sqrt(dx^2+dy^2)` falls outside `RingRadius*Scale +- (RingStroke/2 + 6)*Scale`, so only the ring band counts.
-3. Compute `t = math.atan2(dx, -dy)`. That gives 0 at 12 o'clock, clockwise, because screen y grows downward. If `t < 0`, add `2*pi`.
+3. Compute `t = math.atan2(-dy, -dx)`. That gives 0 at 9 o'clock, clockwise, because screen y grows downward. If `t < 0`, add `2*pi`.
 4. Compute `p = floor(t / (2*pi) * 100 + 0.5)`.
    - `p >= 98` becomes 100 (a click just left of the top).
    - `p < 1` becomes 1 (a click at the top never silences the output).
