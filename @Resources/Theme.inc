@@ -43,7 +43,7 @@ TrackDisplay=15.6
 SizeValue=15
 SizeValueS=13.5
 SizeValueL=16.5
-WeightValue=300
+WeightValue=400
 TrackValue=1.8
 ; Title: 12.5px. RECYCLE BIN, date line.
 SizeTitle=9.5
@@ -63,12 +63,11 @@ RingWidth=#RingStroke#
 RingTrack=Fill Color 0,0,0,0 | StrokeWidth (#RingWidth#*#Scale#) | Stroke Color #Ink#,#AlphaTrack#
 RingFill=Fill Color 0,0,0,0 | StrokeWidth (#RingWidth#*#Scale#) | Stroke Color #RingColor#,255 | StrokeStartCap Round | StrokeEndCap Round
 ; Visual icon size; every icon PNG is a IconBox square with IconPad of
-; transparent margin around the icon (it holds the baked shadow).
+; transparent margin around the icon. PNGs are stored at the size they are
+; shown (tools/render-icons.js), so Rainmeter never resamples them.
 IconSize=24
 IconPad=4
 IconBox=32
-; Gap between link text and its 1px underline.
-LinkGap=2
 
 ; ---- Motion (ms) ----
 ; A fade is FadeSteps steps of FadeStep ms (12 x 15 = 180 ms).
