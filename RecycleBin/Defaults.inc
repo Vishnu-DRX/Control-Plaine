@@ -3,7 +3,7 @@
 ; Owned by the RecycleBin skin; add keys here with the RecycleBin prefix.
 
 [Variables]
-; Show how much space the bin uses.
-RecycleBinShowSize=1
 ; Windows asks to confirm when you click Empty.
 RecycleBinConfirm=1
+; The size turns orange above this many GB.
+RecycleBinWarnGB=10
