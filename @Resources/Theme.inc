@@ -43,7 +43,7 @@ TrackDisplay=15.6
 SizeValue=15
 SizeValueS=13.5
 SizeValueL=16.5
-WeightValue=300
+WeightValue=400
 TrackValue=1.8
 ; Title: 12.5px. RECYCLE BIN, date line.
 SizeTitle=9.5

@@ -33,7 +33,10 @@ for (const file of readdirSync(src).filter(f => f.endsWith('.svg')).sort()) {
   const page = await browser.newPage({ viewport: { width: box, height: box } });
   const svg = readFileSync(join(src, file), 'utf8')
     .replace(/<metadata>[\s\S]*?<\/metadata>/, '')
-    .replace(/width="24" height="24"/, `width="${icon}" height="${icon}"`);
+    .replace(/width="24" height="24"/, `width="${icon}" height="${icon}"`)
+    // 2.2 units is 2.2 px at 24 px: snap to 2 px so straight lines land on
+    // whole pixels instead of smearing over three.
+    .replace(/stroke-width="2\.2"/g, `stroke-width="${2 * 24 / icon}"`);
   await page.setContent(`<html><body style="margin:0;background:transparent">
     <div style="width:${box}px;height:${box}px;display:flex;align-items:center;justify-content:center">
     ${svg}</div></body></html>`);
