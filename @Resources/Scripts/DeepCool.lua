@@ -6,15 +6,18 @@
 
 local TIMEOUT = 30      -- s before a start or close that never lands is given up
 local SETTLE = 3        -- s the process must run before a start counts as done
+-- s CLOSING stays after the process is gone: DeepCoolOffDelay (the case
+-- screen goes dark a few seconds after the app exits).
 
 local running = false
 local pending           -- nil, 'start' or 'stop'
 local since = 0         -- when pending began
 local seenAt            -- when the process was first seen during a start
+local goneAt            -- when the process was first missing during a close
 local proc, spin
 
 local function label()
-	return SKIN:GetVariable('DeepCoolLabel', 'app'):lower() == 'screen' and 'Case screen' or 'DeepCool'
+	return SKIN:GetVariable('DeepCoolLabel', 'screen'):lower() == 'screen' and 'Case screen' or 'DeepCool'
 end
 
 local function show()
@@ -52,7 +55,9 @@ function Update()
 		seenAt = seenAt or now
 		if now - seenAt >= SETTLE then pending = nil end
 	elseif pending == 'stop' and not running then
-		pending = nil
+		goneAt = goneAt or now
+		local delay = tonumber(SKIN:GetVariable('DeepCoolOffDelay', '5')) or 5
+		if now - goneAt >= delay then pending = nil end
 	end
 	if pending and now - since > TIMEOUT then pending = nil end
 	show()
@@ -63,6 +68,7 @@ function Toggle()
 	if pending then return end
 	if running then
 		pending = 'stop'
+		goneAt = nil
 		SKIN:Bang('!CommandMeasure', 'mStop', 'Run')
 	else
 		pending = 'start'
