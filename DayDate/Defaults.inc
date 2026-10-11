@@ -3,9 +3,8 @@
 ; Owned by the DayDate skin; add keys here with the DayDate prefix.
 
 [Variables]
-; 12 or 24 hour clock on hover.
-DayDateClock=12
-; Show the week number on hover.
-DayDateWeek=1
+; What a click opens: the Windows calendar app by default, or any program,
+; file or URI (for example https://calendar.google.com).
+DayDateClick=outlookcal:
 ; Which side the date lines up to: left or right.
 DayDateAlign=right

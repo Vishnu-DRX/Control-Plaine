@@ -17,6 +17,8 @@ local FALLBACKS = {
 }
 local INSTALL_URL = 'https://www.speedtest.net/apps/cli'
 
+local spin              -- loader while a test runs (Spinner.lua)
+
 local m = {}
 local shown = {}         -- what the meters show now, to skip needless redraws
 local testing = false
@@ -52,7 +54,7 @@ local function color(meter, token, alpha)
 	SKIN:Bang('!SetOption', meter, 'FontColor', value)
 end
 
-local NAME_REST = '(#*NameAlpha*#+(#*AlphaHover*#-#*NameAlpha*#)*#*Reveal*#)'
+local NAME_REST = '(#*AlphaHover*#*#*Reveal*#)'
 local NAME_WARN = '(#*AlphaValue*#+(#*AlphaHover*#-#*AlphaValue*#)*#*Reveal*#)'
 local LINK_ALPHA = '(#*AlphaHover*#*Max(#*Reveal*#,#*Testing*#))'
 
@@ -74,6 +76,7 @@ function Initialize()
 	for _, name in ipairs({ 'mSSID', 'mQuality', 'mType', 'mState', 'mInternet', 'mAirplane' }) do
 		m[name] = SKIN:GetMeasure(name)
 	end
+	spin = dofile(SKIN:GetVariable('@') .. 'Scripts\\Spinner.lua').new('Spinner', 'mSpin')
 	out = (os.getenv('TEMP') or SKIN:GetVariable('CURRENTPATH')) .. '\\' .. OUT_NAME
 
 	local click = SKIN:GetVariable('WiFiClick', 'settings')
@@ -156,6 +159,7 @@ function LinkClick()
 	SKIN:Bang('!UpdateMeasure', 'mSpeedRun')
 	SKIN:Bang('!SetVariable', 'Testing', '1')
 	setLink('Testing', 'Accent')
+	spin:start()
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Stop 2')
 	SKIN:Bang('!CommandMeasure', 'mSpeedRun', 'Run')
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Execute 1')
@@ -179,6 +183,7 @@ end
 function Finished()
 	if not testing then return end
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Stop 1')
+	spin:stop()
 	local down, up, ping
 	for _, line in ipairs(readLines()) do
 		if line:match('"type":"(%a+)"') == 'result' then
@@ -194,8 +199,13 @@ function Finished()
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Execute 2')
 end
 
+function Spin()
+	spin:step()
+end
+
 function Clear()
 	testing = false
+	spin:stop()
 	SKIN:Bang('!SetVariable', 'Testing', '0')
 	restLink()
 end
