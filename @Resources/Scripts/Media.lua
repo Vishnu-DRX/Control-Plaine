@@ -71,13 +71,15 @@ local function startAll()
 end
 
 function TrackChanged()
-	if not enabled then return end
+	-- mTitle's OnChangeAction can fire during a refresh before the meters
+	-- exist; the OnRefreshAction call comes after and does the work.
+	if not enabled or not SKIN:GetMeter('Title') then return end
 	for _, l in ipairs(LINES) do rest(l) end
 	startAll()
 end
 
 function Hover(on)
-	if not enabled then return end
+	if not enabled or not SKIN:GetMeter('Title') then return end
 	hovering = on == 1
 	if hovering then
 		startAll()
