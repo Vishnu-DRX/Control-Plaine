@@ -54,20 +54,29 @@ local function color(meter, token, alpha)
 	SKIN:Bang('!SetOption', meter, 'FontColor', value)
 end
 
-local NAME_REST = '(#*AlphaHover*#*#*Reveal*#)'
+-- The name shows on hover, and stays while a speed test runs (Hold) until its
+-- result replaces it (Result).
+local NAME_REST = '(#*AlphaHover*#*Max(#*Reveal*#,#*Hold*#)*(1-#*Result*#))'
 local NAME_WARN = '(#*AlphaValue*#+(#*AlphaHover*#-#*AlphaValue*#)*#*Reveal*#)'
-local LINK_ALPHA = '(#*AlphaHover*#*Max(#*Reveal*#,#*Testing*#))'
+local NAME_MAX = 15     -- characters kept of a long network name
 
-local function setLink(text, token)
-	SKIN:Bang('!SetOption', 'Link', 'Text', text)
-	color('Link', token or 'Ink', LINK_ALPHA)
-	SKIN:Bang('!UpdateMeter', 'Link')
+local hold = 0           -- mirrors the Hold variable while it fades
+
+local function setText(meter, text)
+	SKIN:Bang('!SetOption', meter, 'Text', text)
+	SKIN:Bang('!UpdateMeter', meter)
+end
+
+local function setHold(v)
+	hold = v
+	SKIN:Bang('!SetVariable', 'Hold', tostring(v))
+	SKIN:Bang('!UpdateMeterGroup', 'Reveal')
 	SKIN:Bang('!Redraw')
 end
 
-local function restLink()
+local function restTip()
 	exe = findExe()
-	setLink(exe and 'Speed test' or 'Install speedtest')
+	SKIN:Bang('!SetOption', 'Gauge', 'ToolTipText', exe and 'Speed test' or 'Install speedtest')
 end
 
 -- ---------- lifecycle ----------
@@ -83,7 +92,7 @@ function Initialize()
 	if click == '' or click:lower() == 'settings' then click = 'ms-settings:network-wifi' end
 	SKIN:Bang('!SetVariable', 'OpenTarget', click)
 
-	restLink()
+	restTip()
 end
 
 -- Same order as the taskbar: a live connection wins, then airplane mode.
@@ -108,6 +117,8 @@ function Update()
 			icon = (q >= 67 or q <= 0) and 'wifi' or (q >= 34 and 'wifi-2' or 'wifi-1')
 			text = m.mSSID:GetStringValue()
 			if text == '' or text == '-1' then text = 'Wi-Fi' end
+			-- Cut long ASCII names so the speed test fits on the line.
+			if #text > NAME_MAX and not text:find('[\128-\255]') then text = text:sub(1, NAME_MAX - 1) .. '...' end
 		end
 	elseif m.mAirplane:GetValue() == 1 then
 		icon, text = 'airplane', 'Airplane mode'
@@ -146,7 +157,7 @@ end
 
 function LinkClick()
 	if testing then return end
-	restLink()
+	restTip()
 	if not exe then
 		SKIN:Bang('["' .. INSTALL_URL .. '"]')
 		return
@@ -157,10 +168,13 @@ function LinkClick()
 	SKIN:Bang('!SetOption', 'mSpeedRun', 'Parameter', 'call "' .. exe ..
 		'" --format=json --progress=yes --accept-license --accept-gdpr > "' .. out .. '" 2>&1')
 	SKIN:Bang('!UpdateMeasure', 'mSpeedRun')
-	SKIN:Bang('!SetVariable', 'Testing', '1')
-	setLink('Testing', 'Accent')
+	SKIN:Bang('!SetVariable', 'Result', '0')
+	SKIN:Bang('!SetOption', 'Live', 'FontColor', '#*Accent*#,(#*AlphaHover*#*(1-#*Result*#)*Max(#*Reveal*#,#*Hold*#))')
+	setText('Live', '')
+	setHold(1)
 	spin:start()
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Stop 2')
+	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Stop 3')
 	SKIN:Bang('!CommandMeasure', 'mSpeedRun', 'Run')
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Execute 1')
 end
@@ -172,7 +186,10 @@ function Poll()
 		local kind = lines[i]:match('"type":"(%a+)"')
 		if kind == 'download' or kind == 'upload' then
 			local v = mbps(lines[i], kind)
-			if v then setLink('Testing  ' .. v .. ' Mbps', 'Accent') end
+			if v then
+				setText('Live', v .. ' Mbps')
+				SKIN:Bang('!Redraw')
+			end
 			return
 		elseif kind == 'ping' or kind == 'testStart' then
 			return
@@ -184,18 +201,23 @@ function Finished()
 	if not testing then return end
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Stop 1')
 	spin:stop()
-	local down, up, ping
+	local down, up
 	for _, line in ipairs(readLines()) do
 		if line:match('"type":"(%a+)"') == 'result' then
 			down, up = mbps(line, 'download'), mbps(line, 'upload')
-			ping = line:match('"ping":{[^}]-"latency":([%d%.]+)')
 		end
 	end
-	if down and up and ping then
-		setLink(string.format('%d / %d Mbps   Ping %d ms', down, up, math.floor(tonumber(ping) + 0.5)))
+	if down and up then
+		setText('Live', '')
+		setText('Down', tostring(down))
+		setText('Up', up .. ' Mbps')
+		SKIN:Bang('!SetVariable', 'Result', '1')
 	else
-		setLink('Test failed', 'Warn')
+		SKIN:Bang('!SetOption', 'Live', 'FontColor', '#*Warn*#,(#*AlphaHover*#*Max(#*Reveal*#,#*Hold*#))')
+		setText('Live', 'Test failed')
 	end
+	SKIN:Bang('!UpdateMeterGroup', 'Reveal')
+	SKIN:Bang('!Redraw')
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Execute 2')
 end
 
@@ -203,9 +225,24 @@ function Spin()
 	spin:step()
 end
 
+-- After ResultHold: fade the result (and the name that was held) out.
 function Clear()
+	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Stop 3')
+	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Execute 3')
+end
+
+function HoldStep()
+	local v = hold - 1 / tonumber(SKIN:GetVariable('FadeSteps', '12'))
+	if v > 0.001 then
+		setHold(v)
+		return
+	end
 	testing = false
 	spin:stop()
-	SKIN:Bang('!SetVariable', 'Testing', '0')
-	restLink()
+	SKIN:Bang('!SetVariable', 'Result', '0')
+	setText('Live', '')
+	setText('Down', '')
+	setText('Up', '')
+	setHold(0)
+	restTip()
 end
