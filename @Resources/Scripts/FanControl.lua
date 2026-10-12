@@ -216,7 +216,7 @@ function Ramp()
 		maxOn == 1 and 'Fans speeding up' or 'Fans slowing down')
 	local settled
 	if maxOn == 1 then
-		settled = shown >= 100
+		settled = shown >= 100 and lastAvg and lastAvg >= 97
 	else
 		local cfg = readCache()
 		settled = target and math.abs(shown - target) < 1 and elapsed >= 4
