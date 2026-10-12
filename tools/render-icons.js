@@ -18,7 +18,7 @@ const scale = Number(process.env.ICON_SCALE || 1);
 
 // Box size (px at scale 1) per icon; everything else uses IconBox (32).
 const BOX = {
-  'trash': 48, 'trash-empty': 48,                    // RecycleBin IconW
+  'trash': 56, 'trash-empty': 56,                    // RecycleBin IconW
   'controller-xbox': 44, 'controller-dualsense': 44, // Controllers CtlIcon 33
   'wheel-moza': 44,
 };
