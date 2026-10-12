@@ -84,7 +84,7 @@ Anurati to Segoe UI; design sizes and tracking; constant `Right=805` replaced by
 35 FILES   3.2 GB             sDetail  AlphaDetail -> Hover
       OPEN   EMPTY            sLink + sLinkLine (accent underline), hover only
 ```
-- Text column right-aligned at `X=[RefText:W]`. `[RefText]` is a hidden `sDetail` meter with `Text=0000 FILES   000.0 GB`; the column is `Max([RefText:W],[Title:W])` wide so the icon never moves as numbers change.
+- Same layout as Volume and Media: a fixed `ColW=200` text column, text right-aligned `Inset=12` from its end, then `Gap=12`, then the icon centred where their ring is. (Replaced the measured `RefText` column, so the three skins are the same width.)
 - Icon: 36 px visual on the canvas, so `W=H=(48*#Scale#)` (PNG box = visual / 0.75), placed `14*#Scale#` right of the column minus the baked pad (`6*#Scale#`), vertically centred on the title + detail lines only (not the links). `ImageTint=#Ink#`, `ImageAlpha` AlphaDetail -> Hover.
 - Links right-aligned under the detail line, 16 px apart, 4 px below. Each has an `sLinkLine` underline.
 

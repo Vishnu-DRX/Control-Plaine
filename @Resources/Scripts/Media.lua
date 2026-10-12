@@ -23,10 +23,11 @@ function Initialize()
 	end
 end
 
--- Cut back to the ellipsis at the start of the line.
+-- Back to rest: right-aligned, cut with an ellipsis if too long.
 local function rest(l)
 	l.phase, l.offset, l.count = 'idle', 0, 0
-	SKIN:Bang('!SetOption', l.meter, 'X', 0)
+	SKIN:Bang('!SetOption', l.meter, 'StringAlign', 'Right')
+	SKIN:Bang('!SetOption', l.meter, 'X', '(#TextW#*#Scale#)')
 	SKIN:Bang('!SetOption', l.meter, 'ClipString', 1)
 	SKIN:Bang('!SetOption', l.meter, 'W', '(#TextW#*#Scale#)')
 	SKIN:Bang('!UpdateMeter', l.meter)
@@ -36,6 +37,8 @@ end
 -- (ClipString=2 would wrap at a word instead, so: no clipping and no W,
 -- an empty value drops the option, and the meter sizes to the text.)
 local function begin(l)
+	SKIN:Bang('!SetOption', l.meter, 'StringAlign', 'Left')
+	SKIN:Bang('!SetOption', l.meter, 'X', 0)
 	SKIN:Bang('!SetOption', l.meter, 'ClipString', 0)
 	SKIN:Bang('!SetOption', l.meter, 'W', '')
 	SKIN:Bang('!UpdateMeter', l.meter)
