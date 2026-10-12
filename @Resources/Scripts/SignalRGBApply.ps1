@@ -8,7 +8,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$Url,
     [string]$Name = 'SignalRgb',
-    [int]$Seconds = 8
+    [int]$Seconds = 5
 )
 
 Add-Type -Namespace ControlPlaine -Name SgWin -MemberDefinition @'
@@ -62,8 +62,8 @@ while ((Get-Date) -lt $deadline) {
     if ($script:pids.Count -gt 0) {
         $before = $script:seen
         [void][ControlPlaine.SgWin]::EnumWindows($cb, [System.IntPtr]::Zero)
-        if ($script:seen -gt $before -and $deadline -gt (Get-Date).AddSeconds(3)) {
-            $deadline = (Get-Date).AddSeconds(3)
+        if ($script:seen -gt $before -and $deadline -gt (Get-Date).AddSeconds(2)) {
+            $deadline = (Get-Date).AddSeconds(2)
         }
     }
     Start-Sleep -Milliseconds 10

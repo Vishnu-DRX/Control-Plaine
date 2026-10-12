@@ -142,7 +142,7 @@ local function apply(name, params)
 	if params and params ~= '' then url = url .. '?' .. params end
 	local script = SKIN:GetVariable('@') .. 'Scripts\\SignalRGBApply.ps1'
 	SKIN:Bang('!SetOption', 'mApply', 'Parameter',
-		'-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "' .. script .. '" -Url "' .. url .. '"')
+		'/c start "" /b powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "' .. script .. '" -Url "' .. url .. '"')
 	SKIN:Bang('!UpdateMeasure', 'mApply')
 	SKIN:Bang('!CommandMeasure', 'mApply', 'Run')
 end
