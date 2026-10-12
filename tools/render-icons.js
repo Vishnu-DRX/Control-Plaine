@@ -21,6 +21,8 @@ const BOX = {
   'trash': 56, 'trash-empty': 56,                    // RecycleBin IconW
   'controller-xbox': 44, 'controller-dualsense': 44, // Controllers CtlIcon 33
   'wheel-moza': 44,
+  'gauge': 28,                                       // WiFi speed test button
+  'arrow-down': 16, 'arrow-up': 16,                  // WiFi speed test result
 };
 
 (async () => {
