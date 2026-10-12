@@ -26,6 +26,6 @@ SignalRGBColor=00FFFF
 ; Text before the percentage.
 SignalRGBLabel=Case lights
 ; The double arrow starts this effect (empty hides the arrow) with these
-; link parameters, e.g. speed=60&scale=2.
-SignalRGBMoveEffect=Cyan Move
-SignalRGBMoveParams=
+; link parameters (# is %23, a space %20), e.g. speed=60.
+SignalRGBMoveEffect=Side to Side
+SignalRGBMoveParams=direction=Side%20to%20Side&color1=%2300FFFF&color2=%23006666&rainbow=false
