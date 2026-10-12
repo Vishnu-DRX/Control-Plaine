@@ -1,7 +1,9 @@
 -- Control-Plaine | FanControl
 -- Averages the fan duty (%) Fan Control reports, runs the MAX / normal profile
 -- switch, and keeps the MAX state in step with the config Fan Control is
--- actually using (Configurations\CACHE).
+-- actually using (Configurations\CACHE). After a switch the shown % climbs (or
+-- falls) while SPEEDING UP / SLOWING DOWN and a spinner show, until the fans
+-- have got there.
 -- The numbers come from %TEMP%\ControlPlaine-fans.txt, written every 2 s by
 -- Scripts\FanControlSensors.ps1, which runs as the \ControlPlaine\FanSensors
 -- task (Fan Control's sensor feed only answers admin programs). The file is
@@ -17,6 +19,13 @@ local RETRY = 30       -- s between starts
 local maxOn = 0
 local holdUntil = 0    -- ignore CACHE until then (a switch is in flight)
 local ticks = 0
+local spin             -- loader while the fans change speed (Spinner.lua)
+local lastAvg          -- latest average duty from the sensor file
+local shown = 0        -- the % on screen while ramping
+local busy = false
+local switchedAt = 0
+local STEP = 1.5       -- % per 200 ms tick: 50% to 100% takes about 7 s
+local GIVE_UP = 25     -- s before a switch counts as done anyway
 
 local function var(name, default)
 	return SKIN:GetVariable(name, default or '')
@@ -34,9 +43,12 @@ end
 
 local function showMax()
 	setVar('MaxOn', maxOn)
-	setVar('BubbleInk', maxOn == 1 and var('Dark') or var('Ink'))
-	SKIN:Bang('!UpdateMeter', 'Bubble')
-	SKIN:Bang('!UpdateMeter', 'BubbleText')
+	local tint = maxOn == 1 and var('Accent') or var('Ink')
+	setVar('IconTint', tint)
+	setVar('SnowTint', tint)
+	setVar('SnowTip', maxOn == 1 and 'Back to normal' or 'All fans to 100%')
+	SKIN:Bang('!UpdateMeter', 'Icon')
+	SKIN:Bang('!UpdateMeter', 'Snow')
 	SKIN:Bang('!Redraw')
 end
 
@@ -89,6 +101,7 @@ function Initialize()
 	configDir = dir .. 'Configurations'
 	cacheFile = configDir .. '\\CACHE'
 
+	spin = dofile(var('@') .. 'Scripts\\Spinner.lua').new('Spinner', 'mSpin')
 	sensorFile = (os.getenv('TEMP') or '') .. '\\ControlPlaine-fans.txt'
 	startReader()
 
@@ -143,9 +156,19 @@ local function average()
 	return sum / count
 end
 
+local function showText(text, tip)
+	setVar('FanText', text)
+	setVar('FanTip', tip)
+	SKIN:Bang('!UpdateMeter', 'Value')
+	SKIN:Bang('!Redraw')
+end
+
 function Update()
 	local avg, why = average()
-	if maxOn == 1 then
+	lastAvg = avg
+	if busy then
+		-- Ramp() owns the text until the switch is done.
+	elseif maxOn == 1 then
 		setVar('FanText', '100%')
 		setVar('FanTip', 'All fans at 100%')
 	elseif avg then
@@ -157,11 +180,56 @@ function Update()
 	end
 	-- Every 10 s, follow config changes made in the Fan Control window.
 	ticks = ticks + 1
-	if ticks % 5 == 0 then syncMax() end
+	if ticks % 5 == 0 and not busy then syncMax() end
 	return avg or -1
 end
 
+local function finish()
+	busy = false
+	spin:stop()
+	SKIN:Bang('!CommandMeasure', 'mRamp', 'Stop 1')
+	setVar('Busy', 0)
+	setVar('StatusText', '')
+	SKIN:Bang('!UpdateMeter', 'Status')
+	if maxOn == 1 then
+		showText('100%', 'All fans at 100%')
+	elseif lastAvg then
+		showText(string.format('%d%%', math.floor(lastAvg + 0.5)), 'Average fan speed')
+	else
+		showText('--', 'No fan data')
+	end
+end
+
+-- Every 200 ms while the fans change speed: move the shown % toward its
+-- target (100, or the normal curve's value) and finish once Fan Control has
+-- switched config and the sensors agree.
+function Ramp()
+	if not busy then return end
+	local elapsed = os.time() - switchedAt
+	local target = maxOn == 1 and 100 or lastAvg
+	if target then
+		if shown < target then shown = math.min(shown + STEP, target)
+		elseif shown > target then shown = math.max(shown - STEP, target) end
+	end
+	showText(string.format('%d%%', math.floor(shown + 0.5)),
+		maxOn == 1 and 'Fans speeding up' or 'Fans slowing down')
+	local settled
+	if maxOn == 1 then
+		settled = shown >= 100 and lastAvg and lastAvg >= 97
+	else
+		local cfg = readCache()
+		settled = target and math.abs(shown - target) < 1 and elapsed >= 4
+			and cfg and cfg:lower() == var('FanControlNormal'):lower()
+	end
+	if settled or elapsed >= GIVE_UP then finish() end
+end
+
+function Spin()
+	spin:step()
+end
+
 function ToggleMax()
+	if busy then return end
 	maxOn = 1 - maxOn
 	if maxOn == 1 then
 		run('FanMax', '-c ' .. var('FanControlMax'))
@@ -172,9 +240,16 @@ function ToggleMax()
 	holdUntil = os.time() + 15
 	saveMax()
 	showMax()
-	SKIN:Bang('!UpdateMeasure', 'mFanControl')
-	SKIN:Bang('!UpdateMeter', 'Value')
-	SKIN:Bang('!Redraw')
+	busy = true
+	switchedAt = os.time()
+	shown = maxOn == 1 and (lastAvg or 0) or 100
+	setVar('Busy', 1)
+	setVar('StatusText', maxOn == 1 and 'Speeding up' or 'Slowing down')
+	SKIN:Bang('!UpdateMeter', 'Status')
+	spin:start()
+	SKIN:Bang('!CommandMeasure', 'mRamp', 'Stop 1')
+	SKIN:Bang('!CommandMeasure', 'mRamp', 'Execute 1')
+	Ramp()
 end
 
 function Open()
