@@ -1,17 +1,23 @@
 -- Control-Plaine | SignalRGB
 -- Reads lighting state from SignalRGB's local API and sends brightness and
 -- on/off changes with curl. The API is SignalRGB Pro only: anything that is not
--- a lighting state (403 "Missing Permission", an error, no answer) puts the
--- skin in launcher mode, and it keeps checking so it recovers on its own.
+-- a lighting state (403 "Missing Permission", an error, no answer) drops the
+-- skin to free mode, and it keeps checking so it recovers on its own.
+--
+-- Free mode (no Pro): the application URL signalrgb://effect/apply/<effect>
+-- is open to everyone. Solid Color takes a color, so brightness is the color
+-- scaled toward black and 0 is black. The skin remembers what it sent (the
+-- free tier cannot be read back). SignalRGBEffect= (empty) means launcher only.
 
 local api = false          -- true while the API answers with a lighting state
+local effectMode = false   -- free mode drives an effect with URLs
 local enabled = false
 local bright = 0           -- 0 to 100
 local lastBright = 50      -- brightness to come back to after OFF
 local holdUntil = 0        -- ignore reads until then (a change is in flight)
 local misses = 0
 local sentBright, sentEnabled
-local step, port, apiAllowed
+local step, port, apiAllowed, effect
 
 local function setVar(name, value)
 	SKIN:Bang('!SetVariable', name, tostring(value))
@@ -39,9 +45,14 @@ local function ringShape()
 		c + r * math.sin(a), c - r * math.cos(a), a > math.pi and 1 or 0) .. stroke
 end
 
+-- Ring, scroll and brightness text are live with the API or in free mode.
+local function active()
+	return api or effectMode
+end
+
 local function show()
-	setVar('ApiMode', api and 1 or 0)
-	setVar('IconTint', (api and enabled and bright > 0) and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
+	setVar('ApiMode', active() and 1 or 0)
+	setVar('IconTint', (active() and enabled and bright > 0) and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
 	setVar('BrightText', (enabled and bright > 0) and (bright .. '%') or 'OFF')
 	SKIN:Bang('!SetOption', 'Ring', 'Shape2', ringShape())
 	SKIN:Bang('!UpdateMeter', '*')
@@ -55,13 +66,20 @@ function Initialize()
 	if not apiAllowed then
 		SKIN:Bang('!DisableMeasure', 'mApi')
 	end
+	effect = SKIN:GetVariable('SignalRGBEffect', 'Solid Color')
+	effectMode = effect ~= ''
+	if effectMode then
+		bright = math.max(0, math.min(100, tonumber(SKIN:GetVariable('SignalRGBBright', '100')) or 100))
+		enabled = bright > 0
+		if bright > 0 then lastBright = bright end
+	end
 	show()
 end
 
 function Update()
 	-- The accent can change while running (Core.inc follows Windows).
-	if api then show() end
-	return api and (enabled and bright or 0) or -1
+	if active() then show() end
+	return active() and (enabled and bright or 0) or -1
 end
 
 -- Without Pro the answer never changes, so check less often.
@@ -96,7 +114,7 @@ function Offline()
 end
 
 function Scroll(dir)
-	if not api then return end
+	if not active() then return end
 	if not enabled or bright == 0 then
 		if dir < 0 then return end
 		enabled = true
@@ -123,7 +141,26 @@ local function patch(path, body)
 	return '-s -m 3 -X PATCH -H Content-Type:application/json -d ' .. escaped .. ' http://localhost:' .. port .. '/api/v1/lighting/' .. path
 end
 
+-- Free mode: apply the effect with the color scaled to the brightness.
+local function sendEffect()
+	local hex = SKIN:GetVariable('SignalRGBColor', '00BBFF'):gsub('^#', '')
+	if not hex:match('^%x%x%x%x%x%x$') then hex = '00BBFF' end
+	local k = (enabled and bright > 0) and bright / 100 or 0
+	local color = ''
+	for i = 1, 5, 2 do
+		local v = tonumber(hex:sub(i, i + 1), 16)
+		color = color .. string.format('%02X', math.floor(v * k + 0.5))
+	end
+	local name = effect:gsub('[^%w]', function(c) return string.format('%%%02X', c:byte()) end)
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'SignalRGBBright', tostring(enabled and bright or 0), SKIN:GetVariable('@') .. 'State.inc')
+	SKIN:Bang('"signalrgb://effect/apply/' .. name .. '?color=%23' .. color .. '&breathe=false"')
+end
+
 function Send()
+	if not api and effectMode then
+		sendEffect()
+		return
+	end
 	local parts = {}
 	if enabled and bright > 0 and bright ~= sentBright then
 		parts[#parts + 1] = patch('global_brightness', '{"global_brightness":' .. bright .. '}')

@@ -14,3 +14,11 @@ SignalRGBStep=5
 SignalRGBApi=auto
 ; Port of SignalRGB's local API.
 SignalRGBPort=16038
+
+; Free mode (no SignalRGB Pro): the skin applies this effect with the
+; signalrgb://effect/apply link and sets brightness by scaling its color.
+; Needs an effect with a "color" property, such as Solid Color. Empty =
+; launcher only. Set the color to match the one you use in SignalRGB.
+SignalRGBEffect=Solid Color
+; Full-brightness color, six hex digits, no #.
+SignalRGBColor=00BBFF
