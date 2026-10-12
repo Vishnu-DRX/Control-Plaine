@@ -1,12 +1,19 @@
 -- Control-Plaine | FanControl
--- Averages the fan sensors HWiNFO reports to the registry (Gadget reporting),
--- runs the MAX / normal profile switch, and keeps the MAX state in step with
--- the config Fan Control is actually using (Configurations\CACHE).
+-- Averages the fan duty (%) Fan Control reports, runs the MAX / normal profile
+-- switch, and keeps the MAX state in step with the config Fan Control is
+-- actually using (Configurations\CACHE).
+-- The numbers come from %TEMP%\ControlPlaine-fans.txt, written every 2 s by
+-- Scripts\FanControlSensors.ps1, which runs as the \ControlPlaine\FanSensors
+-- task (Fan Control's sensor feed only answers admin programs). The file is
+--   ts|<unix seconds>
+--   <id>|Fan|<RPM>   and   <id>|Control|<percent>
+-- or error|<message>.
 
-local MAXFANS = 8
-local fans = {}        -- { measure, maxRPM }
-local mode, ignoreStopped, useTasks
-local exe, configDir, cacheFile
+local ignoreStopped, useTasks
+local exe, configDir, cacheFile, sensorFile
+local lastStart = 0    -- when the reader task was last started
+local STALE = 15       -- s without a new ts before the reader is started again
+local RETRY = 30       -- s between starts
 local maxOn = 0
 local holdUntil = 0    -- ignore CACHE until then (a switch is in flight)
 local ticks = 0
@@ -75,7 +82,6 @@ local function run(task, args)
 end
 
 function Initialize()
-	mode = var('FanControlMode', 'rpm'):lower()
 	ignoreStopped = tonumber(var('FanControlIgnoreStopped', '1')) == 1
 	useTasks = tonumber(var('FanControlUseTasks', '1')) == 1
 	exe = var('FanControlPath')
@@ -83,50 +89,62 @@ function Initialize()
 	configDir = dir .. 'Configurations'
 	cacheFile = configDir .. '\\CACHE'
 
-	local indexes = split(var('FanControlIndexes'))
-	local rpms = split(var('FanControlMaxRPM'))
-	for i = 1, MAXFANS do
-		local name = 'mFan' .. i
-		local idx = tonumber(indexes[i])
-		if idx then
-			SKIN:Bang('!SetOption', name, 'RegValue', 'ValueRaw' .. idx)
-			SKIN:Bang('!EnableMeasure', name)
-			fans[#fans + 1] = { measure = SKIN:GetMeasure(name), maxRPM = tonumber(rpms[i]) }
-		else
-			SKIN:Bang('!DisableMeasure', name)
-		end
-	end
+	sensorFile = (os.getenv('TEMP') or '') .. '\\ControlPlaine-fans.txt'
+	startReader()
 
 	maxOn = tonumber(var('FanControlMaxOn', '0')) == 1 and 1 or 0
 	syncMax()
 	showMax()
 end
 
--- Average % of the reported fans, or nil when no sensor has a value.
+-- Start the reader task when it is not producing a fresh file.
+function startReader()
+	if not useTasks then return end
+	local now = os.time()
+	if now - lastStart < RETRY then return end
+	lastStart = now
+	SKIN:Bang('!UpdateMeasure', 'mSensors')
+	SKIN:Bang('!CommandMeasure', 'mSensors', 'Run')
+end
+
+-- Parses the sensor file. Returns the average duty (%) of the fans that are
+-- turning, or nil plus a reason.
 local function average()
+	local f = io.open(sensorFile, 'rb')
+	if not f then
+		startReader()
+		return nil, 'No fan data yet. Run tools\\fan-tasks.ps1 as admin (needs PowerShell 7).'
+	end
+	local text = f:read('*a')
+	f:close()
+	local err = text:match('^error|([^\r\n]*)')
+	if err then
+		startReader()
+		return nil, err
+	end
+	local ts = tonumber(text:match('ts|(%d+)'))
+	if not ts or os.time() - ts > STALE then startReader() end
+	local rpm, duty = {}, {}
+	for id, kind, value in text:gmatch('([^|\r\n]+)|(%a+)|([^\r\n]*)') do
+		local v = tonumber(value)
+		if kind == 'Fan' then rpm[id] = v
+		elseif kind == 'Control' and v then duty[id] = v end
+	end
 	local sum, count = 0, 0
-	for _, fan in ipairs(fans) do
-		-- HWiNFO stores values as text; a missing value reads as ''.
-		local v = tonumber((fan.measure:GetStringValue() or ''):match('[%d%.]+') or '')
-		if v and not (ignoreStopped and v == 0) then
-			local pct
-			if mode == 'duty' then
-				pct = v
-			elseif fan.maxRPM and fan.maxRPM > 0 then
-				pct = v / fan.maxRPM * 100
-			end
-			if pct then
-				sum = sum + math.min(pct, 100)
-				count = count + 1
-			end
+	for id, pct in pairs(duty) do
+		-- A control and its fan share an id apart from /control vs /fan.
+		local spinning = rpm[(id:gsub('/control', '/fan'))]
+		if not (ignoreStopped and spinning == 0) then
+			sum = sum + math.min(pct, 100)
+			count = count + 1
 		end
 	end
-	if count == 0 then return nil end
+	if count == 0 then return nil, 'Fan Control reports no fan speeds.' end
 	return sum / count
 end
 
 function Update()
-	local avg = average()
+	local avg, why = average()
 	if maxOn == 1 then
 		setVar('FanText', '100%')
 		setVar('FanTip', 'All fans at 100%')
@@ -135,7 +153,7 @@ function Update()
 		setVar('FanTip', 'Average fan speed')
 	else
 		setVar('FanText', '--')
-		setVar('FanTip', 'No fan sensor. In HWiNFO, turn on Gadget reporting for the fans and set FanControlIndexes.')
+		setVar('FanTip', why or 'No fan data')
 	end
 	-- Every 10 s, follow config changes made in the Fan Control window.
 	ticks = ticks + 1

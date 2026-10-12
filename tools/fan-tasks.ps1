@@ -8,6 +8,11 @@
 #   \ControlPlaine\FanMax     FanControl.exe -c <Max config>
 #   \ControlPlaine\FanNormal  FanControl.exe -c <Normal config>
 #   \ControlPlaine\FanOpen    FanControl.exe -w   (show the window)
+#   \ControlPlaine\FanSensors pwsh.exe FanControlSensors.ps1 (live fan speeds)
+# The last one needs PowerShell 7 (winget install Microsoft.PowerShell): Fan
+# Control's sensor feed only answers admin programs, and its DLLs are .NET 10.
+# It writes %TEMP%\ControlPlaine-fans.txt for the skin and stops by itself once
+# Rainmeter has been closed for 30 s.
 # It also creates the Max config if it does not exist yet: a copy of the normal
 # config with every enabled fan on manual control at 100%.
 # Run it again after changing the program path or profile names.
@@ -69,5 +74,21 @@ foreach ($name in $tasks.Keys) {
     Register-ScheduledTask -TaskPath '\ControlPlaine\' -TaskName $name -Action $action -Principal $principal `
         -Settings $settings -Description 'Control-Plaine Fan Control skin' -Force | Out-Null
     Write-Host "Task \ControlPlaine\$name -> FanControl.exe $($tasks[$name])"
+}
+# ---- Sensor reader (needs PowerShell 7) ----
+$script = Join-Path (Split-Path -Parent $PSScriptRoot) '@Resources\Scripts\FanControlSensors.ps1'
+$pwsh = Get-Command pwsh.exe -ErrorAction SilentlyContinue
+if (-not $pwsh) {
+    Write-Warning 'PowerShell 7 (pwsh.exe) not found, so no FanSensors task was made. Install it (winget install Microsoft.PowerShell) and run this script again.'
+} elseif (-not (Test-Path $script)) {
+    Write-Warning "No $script, so no FanSensors task was made."
+} else {
+    # pwsh.exe is the Store (MSIX) alias: it resolves for this user, so the task runs as this user.
+    $out = Join-Path $env:TEMP 'ControlPlaine-fans.txt'
+    $arg = "-NoProfile -WindowStyle Hidden -File `"$script`" -Out `"$out`" -FanControlDir `"$dir`""
+    $action = New-ScheduledTaskAction -Execute 'pwsh.exe' -Argument $arg
+    Register-ScheduledTask -TaskPath '\ControlPlaine\' -TaskName 'FanSensors' -Action $action -Principal $principal `
+        -Settings $settings -Description 'Control-Plaine Fan Control skin: live fan speeds' -Force | Out-Null
+    Write-Host "Task \ControlPlaine\FanSensors -> pwsh.exe $arg"
 }
 Write-Host 'Done. Refresh the Fan Control skin.'
