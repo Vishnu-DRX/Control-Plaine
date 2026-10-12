@@ -17,7 +17,7 @@ local lastBright = 50      -- brightness to come back to after OFF
 local holdUntil = 0        -- ignore reads until then (a change is in flight)
 local misses = 0
 local sentBright, sentEnabled
-local step, port, apiAllowed, effect
+local step, port, apiAllowed, effect, moveEffect
 
 local function setVar(name, value)
 	SKIN:Bang('!SetVariable', name, tostring(value))
@@ -25,24 +25,6 @@ end
 
 local function scale()
 	return tonumber(SKIN:ParseFormula('(' .. SKIN:GetVariable('Scale', '1') .. ')')) or 1
-end
-
--- Ring fill: an arc from 12 o'clock, a full circle at 100, nothing at 0.
-local function ringShape()
-	local s = scale()
-	local c = tonumber(SKIN:GetVariable('RingC')) * s
-	local r = tonumber(SKIN:GetVariable('RingR')) * s
-	local w = tonumber(SKIN:GetVariable('RingWidth')) * s
-	local value = enabled and bright / 100 or 0
-	local stroke = string.format(' | Fill Color 0,0,0,0 | StrokeWidth %.2f | Stroke Color #Accent#,(255*#Reveal#*#ApiMode#) | StrokeStartCap Round | StrokeEndCap Round', w)
-	if value <= 0 then
-		return 'Ellipse 0,0,0 | StrokeWidth 0'
-	elseif value >= 0.999 then
-		return string.format('Ellipse %.2f,%.2f,%.2f', c, c, r) .. stroke
-	end
-	local a = 2 * math.pi * value
-	return string.format('Arc %.2f,%.2f,%.2f,%.2f,0,0,%d', c, c - r,
-		c + r * math.sin(a), c - r * math.cos(a), a > math.pi and 1 or 0) .. stroke
 end
 
 -- Ring, scroll and brightness text are live with the API or in free mode.
@@ -53,8 +35,13 @@ end
 local function show()
 	setVar('ApiMode', active() and 1 or 0)
 	setVar('IconTint', (active() and enabled and bright > 0) and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
-	setVar('BrightText', (enabled and bright > 0) and (bright .. '%') or 'OFF')
-	SKIN:Bang('!SetOption', 'Ring', 'Shape2', ringShape())
+	local name = SKIN:GetVariable('SignalRGBLabel', 'Case lights')
+	if not active() then
+		setVar('BrightText', 'SignalRGB')
+	else
+		setVar('BrightText', name .. ' ' .. ((enabled and bright > 0) and (bright .. '%') or 'OFF'))
+	end
+	setVar('MoveOn', moveEffect ~= '' and 1 or 0)
 	SKIN:Bang('!UpdateMeter', '*')
 	SKIN:Bang('!Redraw')
 end
@@ -67,6 +54,7 @@ function Initialize()
 		SKIN:Bang('!DisableMeasure', 'mApi')
 	end
 	effect = SKIN:GetVariable('SignalRGBEffect', 'Solid Color')
+	moveEffect = SKIN:GetVariable('SignalRGBMoveEffect', '')
 	effectMode = effect ~= ''
 	if effectMode then
 		bright = math.max(0, math.min(100, tonumber(SKIN:GetVariable('SignalRGBBright', '100')) or 100))
@@ -141,6 +129,19 @@ local function patch(path, body)
 	return '-s -m 3 -X PATCH -H Content-Type:application/json -d ' .. escaped .. ' http://localhost:' .. port .. '/api/v1/lighting/' .. path
 end
 
+-- Opens signalrgb://effect/apply/<name>?<params> and hides SignalRGB's window
+-- again (SignalRGBApply.ps1). Spaces and the like in the name are %-escaped.
+local function apply(name, params)
+	local escaped = name:gsub('[^%w]', function(c) return string.format('%%%02X', c:byte()) end)
+	local url = 'signalrgb://effect/apply/' .. escaped
+	if params and params ~= '' then url = url .. '?' .. params end
+	local script = SKIN:GetVariable('@') .. 'Scripts\\SignalRGBApply.ps1'
+	SKIN:Bang('!SetOption', 'mApply', 'Parameter',
+		'-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "' .. script .. '" -Url "' .. url .. '"')
+	SKIN:Bang('!UpdateMeasure', 'mApply')
+	SKIN:Bang('!CommandMeasure', 'mApply', 'Run')
+end
+
 -- Free mode: apply the effect with the color scaled to the brightness.
 local function sendEffect()
 	local hex = SKIN:GetVariable('SignalRGBColor', '00BBFF'):gsub('^#', '')
@@ -151,9 +152,8 @@ local function sendEffect()
 		local v = tonumber(hex:sub(i, i + 1), 16)
 		color = color .. string.format('%02X', math.floor(v * k + 0.5))
 	end
-	local name = effect:gsub('[^%w]', function(c) return string.format('%%%02X', c:byte()) end)
 	SKIN:Bang('!WriteKeyValue', 'Variables', 'SignalRGBBright', tostring(enabled and bright or 0), SKIN:GetVariable('@') .. 'State.inc')
-	SKIN:Bang('"signalrgb://effect/apply/' .. name .. '?color=%23' .. color .. '&breathe=false"')
+	apply(effect, 'color=%23' .. color .. '&breathe=false')
 end
 
 function Send()
@@ -193,4 +193,10 @@ function Open()
 	else
 		SKIN:Bang('"' .. target .. '"')
 	end
+end
+
+-- The double arrow: start the move effect, with SignalRGBMoveParams if any.
+function Move()
+	if moveEffect == '' then return end
+	apply(moveEffect, SKIN:GetVariable('SignalRGBMoveParams', ''))
 end

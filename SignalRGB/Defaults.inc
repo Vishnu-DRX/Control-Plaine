@@ -20,5 +20,12 @@ SignalRGBPort=16038
 ; Needs an effect with a "color" property, such as Solid Color. Empty =
 ; launcher only. Set the color to match the one you use in SignalRGB.
 SignalRGBEffect=Solid Color
-; Full-brightness color, six hex digits, no #.
-SignalRGBColor=00BBFF
+; Full-brightness color, six hex digits, no # (cyan).
+SignalRGBColor=00FFFF
+
+; Text before the percentage.
+SignalRGBLabel=Case lights
+; The double arrow starts this effect (empty hides the arrow) with these
+; link parameters, e.g. speed=60&scale=2.
+SignalRGBMoveEffect=Cyan Move
+SignalRGBMoveParams=
