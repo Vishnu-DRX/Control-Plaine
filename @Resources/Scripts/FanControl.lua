@@ -191,6 +191,7 @@ local function finish()
 	setVar('Busy', 0)
 	setVar('StatusText', '')
 	SKIN:Bang('!UpdateMeter', 'Status')
+	SKIN:Bang('!UpdateMeter', 'Snow')
 	if maxOn == 1 then
 		showText('100%', 'All fans at 100%')
 	elseif lastAvg then
@@ -215,7 +216,7 @@ function Ramp()
 		maxOn == 1 and 'Fans speeding up' or 'Fans slowing down')
 	local settled
 	if maxOn == 1 then
-		settled = shown >= 100 and lastAvg and lastAvg >= 97
+		settled = shown >= 100
 	else
 		local cfg = readCache()
 		settled = target and math.abs(shown - target) < 1 and elapsed >= 4
@@ -246,6 +247,7 @@ function ToggleMax()
 	setVar('Busy', 1)
 	setVar('StatusText', maxOn == 1 and 'Speeding up' or 'Slowing down')
 	SKIN:Bang('!UpdateMeter', 'Status')
+	SKIN:Bang('!UpdateMeter', 'Snow')
 	spin:start()
 	SKIN:Bang('!CommandMeasure', 'mRamp', 'Stop 1')
 	SKIN:Bang('!CommandMeasure', 'mRamp', 'Execute 1')
