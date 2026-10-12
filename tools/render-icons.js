@@ -22,6 +22,7 @@ const BOX = {
   'controller-xbox': 44, 'controller-dualsense': 44, // Controllers CtlIcon 33
   'wheel-moza': 44,
   'gauge': 28,                                       // WiFi speed test button
+  'snowflake': 28,                                   // FanControl MAX switch
   'arrow-down': 16, 'arrow-up': 16,                  // WiFi speed test result
 };
 

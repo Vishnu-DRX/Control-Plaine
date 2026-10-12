@@ -54,9 +54,9 @@ local function color(meter, token, alpha)
 	SKIN:Bang('!SetOption', meter, 'FontColor', value)
 end
 
--- The name shows on hover, and stays while a speed test runs (Hold) until its
--- result replaces it (Result).
-local NAME_REST = '(#*AlphaHover*#*Max(#*Reveal*#,#*Hold*#)*(1-#*Result*#))'
+-- The name shows on hover and is hidden while a speed test runs or its result
+-- shows (Hold), then comes back as Hold fades.
+local NAME_REST = '(#*AlphaHover*#*#*Reveal*#*(1-#*Hold*#))'
 local NAME_WARN = '(#*AlphaValue*#+(#*AlphaHover*#-#*AlphaValue*#)*#*Reveal*#)'
 local NAME_MAX = 15     -- characters kept of a long network name
 
@@ -201,16 +201,18 @@ function Finished()
 	if not testing then return end
 	SKIN:Bang('!CommandMeasure', 'mSpeedTimer', 'Stop 1')
 	spin:stop()
-	local down, up
+	local down, up, ping
 	for _, line in ipairs(readLines()) do
 		if line:match('"type":"(%a+)"') == 'result' then
 			down, up = mbps(line, 'download'), mbps(line, 'upload')
+			ping = line:match('"ping":{[^}]-"latency":([%d%.]+)')
 		end
 	end
-	if down and up then
+	if down and up and ping then
 		setText('Live', '')
 		setText('Down', tostring(down))
 		setText('Up', up .. ' Mbps')
+		setText('Ping', 'Ping ' .. math.floor(tonumber(ping) + 0.5) .. ' ms')
 		SKIN:Bang('!SetVariable', 'Result', '1')
 	else
 		SKIN:Bang('!SetOption', 'Live', 'FontColor', '#*Warn*#,(#*AlphaHover*#*Max(#*Reveal*#,#*Hold*#))')
@@ -243,6 +245,7 @@ function HoldStep()
 	setText('Live', '')
 	setText('Down', '')
 	setText('Up', '')
+	setText('Ping', '')
 	setHold(0)
 	restTip()
 end
