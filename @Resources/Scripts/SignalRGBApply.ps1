@@ -29,15 +29,19 @@ $cb = [ControlPlaine.SgWin+EnumProc]{
     $wpid = [uint32]0
     [void][ControlPlaine.SgWin]::GetWindowThreadProcessId($h, [ref]$wpid)
     if ($script:pids -contains $wpid -and [ControlPlaine.SgWin]::IsWindowVisible($h) -and
-        [ControlPlaine.SgWin]::GetWindow($h, 4) -eq [System.IntPtr]::Zero -and
-        -not [ControlPlaine.SgWin]::IsIconic($h)) {
-        if ($script:hide) { [void][ControlPlaine.SgWin]::ShowWindow($h, 0) }
-        $script:seen++
+        [ControlPlaine.SgWin]::GetWindow($h, 4) -eq [System.IntPtr]::Zero) {
+        if ($script:hide) {
+            # Also a minimized one: it may be about to be restored.
+            [void][ControlPlaine.SgWin]::ShowWindow($h, 0)
+            $script:seen++
+        } elseif (-not [ControlPlaine.SgWin]::IsIconic($h)) {
+            $script:seen++
+        }
     }
     return $true
 }
 
-$script:pids = @(Get-Process -Name $Name -ErrorAction SilentlyContinue | ForEach-Object { [uint32]$_.Id })
+$script:pids = @([System.Diagnostics.Process]::GetProcessesByName($Name) | ForEach-Object { [uint32]$_.Id })
 [void][ControlPlaine.SgWin]::EnumWindows($cb, [System.IntPtr]::Zero)
 $alreadyOpen = $script:seen -gt 0
 $script:hide = -not $alreadyOpen
@@ -51,8 +55,8 @@ if ($alreadyOpen) { exit 0 }
 $deadline = (Get-Date).AddSeconds($Seconds)
 $lastPids = Get-Date
 while ((Get-Date) -lt $deadline) {
-    if ($script:pids.Count -eq 0 -or ((Get-Date) - $lastPids).TotalMilliseconds -gt 250) {
-        $script:pids = @(Get-Process -Name $Name -ErrorAction SilentlyContinue | ForEach-Object { [uint32]$_.Id })
+    if ($script:pids.Count -eq 0 -or ((Get-Date) - $lastPids).TotalMilliseconds -gt 1000) {
+        $script:pids = @([System.Diagnostics.Process]::GetProcessesByName($Name) | ForEach-Object { [uint32]$_.Id })
         $lastPids = Get-Date
     }
     if ($script:pids.Count -gt 0) {

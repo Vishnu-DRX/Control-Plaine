@@ -11,6 +11,7 @@
 
 local api = false          -- true while the API answers with a lighting state
 local effectMode = false   -- free mode drives an effect with URLs
+local mode = 'solid'       -- free mode: solid (SignalRGBEffect) or move (SignalRGBMoveEffect)
 local enabled = false
 local bright = 0           -- 0 to 100
 local lastBright = 50      -- brightness to come back to after OFF
@@ -34,7 +35,10 @@ end
 
 local function show()
 	setVar('ApiMode', active() and 1 or 0)
-	setVar('IconTint', (active() and enabled and bright > 0) and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
+	-- Accent while the lights are on; in free mode only while the move effect runs.
+	local lit = active() and enabled and bright > 0
+	if effectMode and not api then lit = lit and mode == 'move' end
+	setVar('IconTint', lit and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
 	local name = SKIN:GetVariable('SignalRGBLabel', 'Case lights')
 	if not active() then
 		setVar('BrightText', 'SignalRGB')
@@ -56,6 +60,7 @@ function Initialize()
 	effect = SKIN:GetVariable('SignalRGBEffect', 'Solid Color')
 	moveEffect = SKIN:GetVariable('SignalRGBMoveEffect', '')
 	effectMode = effect ~= ''
+	if moveEffect ~= '' and SKIN:GetVariable('SignalRGBMode', 'solid') == 'move' then mode = 'move' end
 	if effectMode then
 		bright = math.max(0, math.min(100, tonumber(SKIN:GetVariable('SignalRGBBright', '100')) or 100))
 		enabled = bright > 0
@@ -142,18 +147,40 @@ local function apply(name, params)
 	SKIN:Bang('!CommandMeasure', 'mApply', 'Run')
 end
 
--- Free mode: apply the effect with the color scaled to the brightness.
-local function sendEffect()
-	local hex = SKIN:GetVariable('SignalRGBColor', '00BBFF'):gsub('^#', '')
-	if not hex:match('^%x%x%x%x%x%x$') then hex = '00BBFF' end
-	local k = (enabled and bright > 0) and bright / 100 or 0
-	local color = ''
+-- "RRGGBB" scaled by k (0 to 1), same format.
+local function scaled(hex, k)
+	local out = ''
 	for i = 1, 5, 2 do
 		local v = tonumber(hex:sub(i, i + 1), 16)
-		color = color .. string.format('%02X', math.floor(v * k + 0.5))
+		out = out .. string.format('%02X', math.floor(v * k + 0.5))
 	end
-	SKIN:Bang('!WriteKeyValue', 'Variables', 'SignalRGBBright', tostring(enabled and bright or 0), SKIN:GetVariable('@') .. 'State.inc')
-	apply(effect, 'color=%23' .. color .. '&breathe=false')
+	return out
+end
+
+-- Free mode: apply the current effect (solid, or the move effect when it was
+-- chosen) with its color scaled to the brightness, so scrolling never changes
+-- which effect runs.
+local function sendEffect()
+	local k = (enabled and bright > 0) and bright / 100 or 0
+	local state = SKIN:GetVariable('@') .. 'State.inc'
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'SignalRGBBright', tostring(enabled and bright or 0), state)
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'SignalRGBMode', mode, state)
+	if mode == 'move' and moveEffect ~= '' then
+		local params = SKIN:GetVariable('SignalRGBMoveParams', '')
+		local base = params:match('color1=%%23(%x%x%x%x%x%x)')
+		if base then
+			params = params:gsub('color1=%%23%x%x%x%x%x%x', function() return 'color1=%23' .. scaled(base, k) end)
+		else
+			local hex = SKIN:GetVariable('SignalRGBColor', '00BBFF'):gsub('^#', '')
+			if not hex:match('^%x%x%x%x%x%x$') then hex = '00BBFF' end
+			params = (params ~= '' and (params .. '&') or '') .. 'color1=%23' .. scaled(hex, k)
+		end
+		apply(moveEffect, params)
+		return
+	end
+	local hex = SKIN:GetVariable('SignalRGBColor', '00BBFF'):gsub('^#', '')
+	if not hex:match('^%x%x%x%x%x%x$') then hex = '00BBFF' end
+	apply(effect, 'color=%23' .. scaled(hex, k) .. '&breathe=false')
 end
 
 function Send()
@@ -195,8 +222,19 @@ function Open()
 	end
 end
 
--- The double arrow: start the move effect, with SignalRGBMoveParams if any.
+-- The double arrow: switch between the solid color and the move effect
+-- (SignalRGBMoveEffect / SignalRGBMoveParams). Lights come on if they were off.
 function Move()
 	if moveEffect == '' then return end
-	apply(moveEffect, SKIN:GetVariable('SignalRGBMoveParams', ''))
+	if api or not effectMode then
+		apply(moveEffect, SKIN:GetVariable('SignalRGBMoveParams', ''))
+		return
+	end
+	mode = (mode == 'move') and 'solid' or 'move'
+	if not enabled or bright == 0 then
+		enabled = true
+		bright = lastBright
+	end
+	show()
+	sendEffect()
 end
