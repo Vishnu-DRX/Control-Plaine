@@ -83,12 +83,12 @@ if (-not $pwsh) {
 } elseif (-not (Test-Path $script)) {
     Write-Warning "No $script, so no FanSensors task was made."
 } else {
-    # pwsh.exe is the Store (MSIX) alias: it resolves for this user, so the task runs as this user.
+    # pwsh.exe may be the Store (MSIX) alias, which Task Scheduler can't find by name: use its full path.
     $out = Join-Path $env:TEMP 'ControlPlaine-fans.txt'
     $arg = "-NoProfile -WindowStyle Hidden -File `"$script`" -Out `"$out`" -FanControlDir `"$dir`""
-    $action = New-ScheduledTaskAction -Execute 'pwsh.exe' -Argument $arg
+    $action = New-ScheduledTaskAction -Execute $pwsh.Source -Argument $arg
     Register-ScheduledTask -TaskPath '\ControlPlaine\' -TaskName 'FanSensors' -Action $action -Principal $principal `
         -Settings $settings -Description 'Control-Plaine Fan Control skin: live fan speeds' -Force | Out-Null
-    Write-Host "Task \ControlPlaine\FanSensors -> pwsh.exe $arg"
+    Write-Host "Task \ControlPlaine\FanSensors -> $($pwsh.Source) $arg"
 }
 Write-Host 'Done. Refresh the Fan Control skin.'
