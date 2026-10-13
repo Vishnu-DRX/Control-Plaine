@@ -19,7 +19,8 @@
 local Spinner = {}
 Spinner.__index = Spinner
 
--- Size at scale 1 (px): radius and stroke. The meter is 2*(R+W) square.
+-- Size at scale 1 (px): radius and stroke, rounded to whole pixels when drawn.
+-- The meter is 2*(R+W) square.
 local R, W, STEP = 5, 1.5, 30
 
 function Spinner.new(meter, timer)
@@ -28,7 +29,8 @@ end
 
 function Spinner:draw()
 	local s = tonumber(SKIN:ParseFormula('(' .. SKIN:GetVariable('Sz', SKIN:GetVariable('Scale', '1')) .. ')')) or 1
-	local r, w = R * s, W * s
+	local r = math.floor(R * s + 0.5)
+	local w = math.max(1, math.floor(W * s + 0.5))   -- whole pixels, so the arc keeps one weight
 	local c = r + w
 	local a1, a2 = math.rad(self.angle), math.rad(self.angle + 270)
 	local shape = string.format(
