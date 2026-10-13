@@ -158,7 +158,7 @@ end
 
 local function showText(text, tip)
 	setVar('FanText', text)
-	setVar('FanTip', tip)
+	setVar('FanTip', '')
 	SKIN:Bang('!UpdateMeter', 'Value')
 	SKIN:Bang('!Redraw')
 end
@@ -170,10 +170,10 @@ function Update()
 		-- Ramp() owns the text until the switch is done.
 	elseif maxOn == 1 then
 		setVar('FanText', '100%')
-		setVar('FanTip', 'All fans at 100%')
+		setVar('FanTip', '')
 	elseif avg then
 		setVar('FanText', string.format('%d%%', math.floor(avg + 0.5)))
-		setVar('FanTip', 'Average fan speed')
+		setVar('FanTip', '')
 	else
 		setVar('FanText', '--')
 		setVar('FanTip', why or 'No fan data')
