@@ -66,11 +66,11 @@ From the canvas board (sizes at Scale 1; multiply everything by `#Scale#`):
 ### Alpha and hover
 
 - Skin-level `Reveal` (hover fade in `Core.inc`) as in every skin.
-- Lua keeps `HoverRow` (0 = none). Each `RowNHit` has `MouseOverAction=[!SetVariable HoverRow N][!UpdateMeterGroup Rows][!Redraw]` and `MouseLeaveAction` back to 0.
-- Row alpha: `HoverRow=0` -> icon `AlphaDetail`, battery text `AlphaValue`; hovered row -> `AlphaHover`; other rows while one is hovered -> `AlphaDim` (Core.inc, 60% of the rest level).
+- `LastRow` (0 = none yet) is set by each `RowNHit` `MouseOverAction=[!SetVariable LastRow N][!UpdateMeterGroup Reveal][!Redraw]`; it is never reset on leave, so the fade-out keeps the same row.
+- Row alpha, all blended by `#Reveal#`: rest = icon `AlphaDetail`, battery `AlphaValue`; the last hovered row moves to `AlphaHover`, other rows to `AlphaDim` (60% of the rest level).
 - Battery group visible when: `Bat >= 0` and (`Bat < ControllersBatteryShow` or `Reveal > 0`). At rest only low ones show; on hover over the skin every known battery fades in with `Reveal`. Unknown battery (`-1`) never shows.
-- Name visible only on the hovered row (alpha `AlphaHover` when `HoverRow=N`, else 0). Names are fixed per kind: `XBOX`, `DUALSENSE` (`DUALSENSE EDGE` for PID 0DF2), `MOZA R3`, `CONTROLLER`.
-- Each `RowNHit` has `MouseActionCursor=1` and `ToolTipText` (`Open DSX`, `Open Pit House`, `Open Bluetooth settings`).
+- Name visible only on the last hovered row (`LastRow=N`), alpha `AlphaHover * Reveal`, so it fades in and out with the skin like the others; the battery glyph and percent sit to the right of the name (X = name right edge + 10 / + 36), icon brightness and dimming also follow `Reveal`. Names are fixed per kind: `XBOX`, `DUALSENSE` (`DUALSENSE EDGE` for PID 0DF2), `MOZA R3`, `CONTROLLER`.
+- Each `RowNHit` has `MouseActionCursor=1` and `ToolTipText` (only `Open Bluetooth settings` / `Open controller settings` for other controllers; none for DSX and the Moza app).
 
 ### Show / hide
 
