@@ -140,8 +140,9 @@ local function paint()
 	if slot then place('Label', iconCentre(slot)) end
 
 	-- Link row: CANCEL for the scheduled action, SCHEDULE for any other.
-	-- It sits at a fixed spot (the middle of the skin) so it never moves;
-	-- the label above says which icon it belongs to.
+	-- It sits under the focused icon and switches position when the focus
+	-- changes. It is never hidden while the mouse is on the skin (the focus
+	-- only clears in Exit()), so it does not fade out and in between icons.
 	-- CANCEL stays visible at rest, like the countdown above it.
 	local linkKeep = 0
 	if focus and focus == sched.action then
@@ -157,7 +158,7 @@ local function paint()
 	SKIN:Bang('!SetVariable', 'LinkKeep', linkKeep)
 	if linkKey and slotOf(linkKey) then
 		SKIN:Bang('!ShowMeter', 'Link')
-		place('Link', num('SkinW') * scale() / 2)
+		place('Link', iconCentre(slotOf(linkKey)))
 	else
 		SKIN:Bang('!HideMeter', 'Link')
 	end
@@ -310,8 +311,8 @@ local function keyOf(el)
 end
 
 -- The focused icon is the last one the mouse entered. It stays focused while
--- the mouse is anywhere on the skin (so it can travel to the fixed link) and
--- is cleared by Exit().
+-- the mouse is anywhere on the skin (so it can travel down to its link, even
+-- when the link sits under a neighbouring column) and is cleared by Exit().
 function Over(el)
 	if el == 'link' then return end
 	local h = keyOf(el)
