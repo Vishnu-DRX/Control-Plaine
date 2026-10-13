@@ -179,5 +179,5 @@ Original controller art instead of the Lucide gamepad, `PLAYNITE` label, skip-sp
 - Week on/off uses two detail meters with `Hidden=(1-#DayDateWeek#)` / `Hidden=#DayDateWeek#`.
 - The reference meters (`RefDay`, `RefText`) are transparent, not `Hidden=1`, so their width is always measured.
 - `PlayniteSkipSplash` defaults to 1 (Vishnu's old skin always skipped the splash).
-- Icons added: `trash-empty.png` (from `docs/icons/trash-empty.svg`, rendered by `tools/render-icons.js`), `playnite-controller.png` (original art, unchanged).
+- Icons added: `trash-empty.png` (from `docs/icons/trash-empty.svg`, rendered by `tools/render-icons.py`), `playnite-controller.png` (original art, unchanged).
 - Feedback 2026-10-11 (Vishnu): the bin shows only the size (no file count), in Warn orange above `RecycleBinWarnGB` (default 10); EMPTY sits on the size line, left of the size, on hover. `RecycleBinShowSize` and its Settings row are gone (the size is now the whole line).

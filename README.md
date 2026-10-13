@@ -47,7 +47,7 @@ Rules:
 5. Every clickable thing has a hand cursor and, where it is not obvious, a tooltip.
 6. Personal paths go in `User.inc`, never in a skin.
 
-Icons are line icons based on [Lucide](https://lucide.dev) (ISC licence), rendered white at 96 px and tinted in Rainmeter.
+Icons are line icons based on [Lucide](https://lucide.dev) (ISC licence), rendered white by `tools/render-icons.py` at the exact pixel size each skin shows them (strokes on whole pixels, one size and weight for the app skins) and tinted in Rainmeter.
 
 ## Checks
 
