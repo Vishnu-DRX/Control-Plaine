@@ -14,3 +14,18 @@ SignalRGBStep=5
 SignalRGBApi=auto
 ; Port of SignalRGB's local API.
 SignalRGBPort=16038
+
+; Free mode (no SignalRGB Pro): the skin applies this effect with the
+; signalrgb://effect/apply link and sets brightness by scaling its color.
+; Needs an effect with a "color" property, such as Solid Color. Empty =
+; launcher only. Set the color to match the one you use in SignalRGB.
+SignalRGBEffect=Solid Color
+; Full-brightness color, six hex digits, no # (Vishnu's cyan).
+SignalRGBColor=00AE57
+
+; Text before the percentage.
+SignalRGBLabel=Case lights
+; The double arrow starts this effect (empty hides the arrow) with these
+; link parameters (# is %23, a space %20), e.g. speed=60.
+SignalRGBMoveEffect=Side to Side
+SignalRGBMoveParams=direction=All%20Directions&color1=%2300AE57&color2=%23000000&speed=11&rainbow=false

@@ -1,17 +1,24 @@
 -- Control-Plaine | SignalRGB
 -- Reads lighting state from SignalRGB's local API and sends brightness and
 -- on/off changes with curl. The API is SignalRGB Pro only: anything that is not
--- a lighting state (403 "Missing Permission", an error, no answer) puts the
--- skin in launcher mode, and it keeps checking so it recovers on its own.
+-- a lighting state (403 "Missing Permission", an error, no answer) drops the
+-- skin to free mode, and it keeps checking so it recovers on its own.
+--
+-- Free mode (no Pro): the application URL signalrgb://effect/apply/<effect>
+-- is open to everyone. Solid Color takes a color, so brightness is the color
+-- scaled toward black and 0 is black. The skin remembers what it sent (the
+-- free tier cannot be read back). SignalRGBEffect= (empty) means launcher only.
 
 local api = false          -- true while the API answers with a lighting state
+local effectMode = false   -- free mode drives an effect with URLs
+local mode = 'solid'       -- free mode: solid (SignalRGBEffect) or move (SignalRGBMoveEffect)
 local enabled = false
 local bright = 0           -- 0 to 100
 local lastBright = 50      -- brightness to come back to after OFF
 local holdUntil = 0        -- ignore reads until then (a change is in flight)
 local misses = 0
 local sentBright, sentEnabled
-local step, port, apiAllowed
+local step, port, apiAllowed, effect, moveEffect
 
 local function setVar(name, value)
 	SKIN:Bang('!SetVariable', name, tostring(value))
@@ -21,29 +28,24 @@ local function scale()
 	return tonumber(SKIN:ParseFormula('(' .. SKIN:GetVariable('Scale', '1') .. ')')) or 1
 end
 
--- Ring fill: an arc from 12 o'clock, a full circle at 100, nothing at 0.
-local function ringShape()
-	local s = scale()
-	local c = tonumber(SKIN:GetVariable('RingC')) * s
-	local r = tonumber(SKIN:GetVariable('RingR')) * s
-	local w = tonumber(SKIN:GetVariable('RingWidth')) * s
-	local value = enabled and bright / 100 or 0
-	local stroke = string.format(' | Fill Color 0,0,0,0 | StrokeWidth %.2f | Stroke Color #Accent#,(255*#Reveal#*#ApiMode#) | StrokeStartCap Round | StrokeEndCap Round', w)
-	if value <= 0 then
-		return 'Ellipse 0,0,0 | StrokeWidth 0'
-	elseif value >= 0.999 then
-		return string.format('Ellipse %.2f,%.2f,%.2f', c, c, r) .. stroke
-	end
-	local a = 2 * math.pi * value
-	return string.format('Arc %.2f,%.2f,%.2f,%.2f,0,0,%d', c, c - r,
-		c + r * math.sin(a), c - r * math.cos(a), a > math.pi and 1 or 0) .. stroke
+-- Ring, scroll and brightness text are live with the API or in free mode.
+local function active()
+	return api or effectMode
 end
 
 local function show()
-	setVar('ApiMode', api and 1 or 0)
-	setVar('IconTint', (api and enabled and bright > 0) and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
-	setVar('BrightText', (enabled and bright > 0) and (bright .. '%') or 'OFF')
-	SKIN:Bang('!SetOption', 'Ring', 'Shape2', ringShape())
+	setVar('ApiMode', active() and 1 or 0)
+	-- Accent while the lights are on; in free mode only while the move effect runs.
+	local lit = active() and enabled and bright > 0
+	if effectMode and not api then lit = lit and mode == 'move' end
+	setVar('IconTint', lit and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
+	local name = SKIN:GetVariable('SignalRGBLabel', 'Case lights')
+	if not active() then
+		setVar('BrightText', 'SignalRGB')
+	else
+		setVar('BrightText', name .. ' ' .. ((enabled and bright > 0) and (bright .. '%') or 'OFF'))
+	end
+	setVar('MoveOn', moveEffect ~= '' and 1 or 0)
 	SKIN:Bang('!UpdateMeter', '*')
 	SKIN:Bang('!Redraw')
 end
@@ -55,13 +57,22 @@ function Initialize()
 	if not apiAllowed then
 		SKIN:Bang('!DisableMeasure', 'mApi')
 	end
+	effect = SKIN:GetVariable('SignalRGBEffect', 'Solid Color')
+	moveEffect = SKIN:GetVariable('SignalRGBMoveEffect', '')
+	effectMode = effect ~= ''
+	if moveEffect ~= '' and SKIN:GetVariable('SignalRGBMode', 'solid') == 'move' then mode = 'move' end
+	if effectMode then
+		bright = math.max(0, math.min(100, tonumber(SKIN:GetVariable('SignalRGBBright', '100')) or 100))
+		enabled = bright > 0
+		if bright > 0 then lastBright = bright end
+	end
 	show()
 end
 
 function Update()
 	-- The accent can change while running (Core.inc follows Windows).
-	if api then show() end
-	return api and (enabled and bright or 0) or -1
+	if active() then show() end
+	return active() and (enabled and bright or 0) or -1
 end
 
 -- Without Pro the answer never changes, so check less often.
@@ -96,7 +107,7 @@ function Offline()
 end
 
 function Scroll(dir)
-	if not api then return end
+	if not active() then return end
 	if not enabled or bright == 0 then
 		if dir < 0 then return end
 		enabled = true
@@ -123,7 +134,60 @@ local function patch(path, body)
 	return '-s -m 3 -X PATCH -H Content-Type:application/json -d ' .. escaped .. ' http://localhost:' .. port .. '/api/v1/lighting/' .. path
 end
 
+-- Opens signalrgb://effect/apply/<name>?<params> and hides SignalRGB's window
+-- again (SignalRGBApply.ps1). Spaces and the like in the name are %-escaped.
+local function apply(name, params)
+	local escaped = name:gsub('[^%w]', function(c) return string.format('%%%02X', c:byte()) end)
+	local url = 'signalrgb://effect/apply/' .. escaped
+	if params and params ~= '' then url = url .. '?' .. params end
+	local script = SKIN:GetVariable('@') .. 'Scripts\\SignalRGBApply.ps1'
+	SKIN:Bang('!SetOption', 'mApply', 'Parameter',
+		'/c start "" /b powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "' .. script .. '" -Url "' .. url .. '"')
+	SKIN:Bang('!UpdateMeasure', 'mApply')
+	SKIN:Bang('!CommandMeasure', 'mApply', 'Run')
+end
+
+-- "RRGGBB" scaled by k (0 to 1), same format.
+local function scaled(hex, k)
+	local out = ''
+	for i = 1, 5, 2 do
+		local v = tonumber(hex:sub(i, i + 1), 16)
+		out = out .. string.format('%02X', math.floor(v * k + 0.5))
+	end
+	return out
+end
+
+-- Free mode: apply the current effect (solid, or the move effect when it was
+-- chosen) with its color scaled to the brightness, so scrolling never changes
+-- which effect runs.
+local function sendEffect()
+	local k = (enabled and bright > 0) and bright / 100 or 0
+	local state = SKIN:GetVariable('@') .. 'State.inc'
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'SignalRGBBright', tostring(enabled and bright or 0), state)
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'SignalRGBMode', mode, state)
+	if mode == 'move' and moveEffect ~= '' then
+		local params = SKIN:GetVariable('SignalRGBMoveParams', '')
+		local base = params:match('color1=%%23(%x%x%x%x%x%x)')
+		if base then
+			params = params:gsub('color1=%%23%x%x%x%x%x%x', function() return 'color1=%23' .. scaled(base, k) end)
+		else
+			local hex = SKIN:GetVariable('SignalRGBColor', '00BBFF'):gsub('^#', '')
+			if not hex:match('^%x%x%x%x%x%x$') then hex = '00BBFF' end
+			params = (params ~= '' and (params .. '&') or '') .. 'color1=%23' .. scaled(hex, k)
+		end
+		apply(moveEffect, params)
+		return
+	end
+	local hex = SKIN:GetVariable('SignalRGBColor', '00BBFF'):gsub('^#', '')
+	if not hex:match('^%x%x%x%x%x%x$') then hex = '00BBFF' end
+	apply(effect, 'color=%23' .. scaled(hex, k) .. '&breathe=false')
+end
+
 function Send()
+	if not api and effectMode then
+		sendEffect()
+		return
+	end
 	local parts = {}
 	if enabled and bright > 0 and bright ~= sentBright then
 		parts[#parts + 1] = patch('global_brightness', '{"global_brightness":' .. bright .. '}')
@@ -156,4 +220,21 @@ function Open()
 	else
 		SKIN:Bang('"' .. target .. '"')
 	end
+end
+
+-- The double arrow: switch between the solid color and the move effect
+-- (SignalRGBMoveEffect / SignalRGBMoveParams). Lights come on if they were off.
+function Move()
+	if moveEffect == '' then return end
+	if api or not effectMode then
+		apply(moveEffect, SKIN:GetVariable('SignalRGBMoveParams', ''))
+		return
+	end
+	mode = (mode == 'move') and 'solid' or 'move'
+	if not enabled or bright == 0 then
+		enabled = true
+		bright = lastBright
+	end
+	show()
+	sendEffect()
 end
