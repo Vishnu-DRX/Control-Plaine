@@ -64,7 +64,7 @@ RingTrack=Fill Color 0,0,0,0 | StrokeWidth (#RingWidth#*#Scale#) | Stroke Color 
 RingFill=Fill Color 0,0,0,0 | StrokeWidth (#RingWidth#*#Scale#) | Stroke Color #RingColor#,255 | StrokeStartCap Round | StrokeEndCap Round
 ; Visual icon size; every icon PNG is a IconBox square with IconPad of
 ; transparent margin around the icon. PNGs are stored at the size they are
-; shown (tools/render-icons.js), so Rainmeter never resamples them.
+; shown (tools/render-icons.py), so Rainmeter never resamples them.
 IconSize=24
 IconPad=4
 IconBox=32
