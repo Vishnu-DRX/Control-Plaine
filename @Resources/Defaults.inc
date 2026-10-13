@@ -6,6 +6,9 @@
 [Variables]
 ; Size of every skin, 0.5 to 3.0 (Settings shows it as a percent).
 Scale=1
+; Extra size for Controllers, Fan Control, DeepCool, Wi-Fi and SignalRGB only,
+; on top of Scale (1 = none). Those skins define Sz=(#Scale#*#SizeBoost#).
+SizeBoost=1.25
 ; 1 = follow the Windows accent colour, 0 = use AccentColor.
 AccentFollowWindows=1
 ; Custom accent (R,G,B). Also the start value before Windows is read.
