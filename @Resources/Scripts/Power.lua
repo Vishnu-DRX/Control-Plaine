@@ -6,12 +6,10 @@
 -- The schedule is stored in @Resources\State.inc so it survives a refresh.
 
 local NAME = { hibernate = 'HIBERNATE', sleep = 'SLEEP', shutdown = 'SHUT DOWN', restart = 'RESTART', lock = 'LOCK' }
-local TASK = { hibernate = true, sleep = true }
+local TASK = { hibernate = true, sleep = true, lock = true }
 local PICK_MIN, PICK_MAX, PICK_STEP = 15, 1440, 15
 
 local slots          -- slot number -> action key
-local over = {}      -- hovered elements ('c1', 'i2', 'link') -> true
-local last           -- element entered most recently
 local hovered, armed, linkKey
 local picking, pickMinutes
 local errorText
@@ -101,10 +99,10 @@ local function paint()
 		place('PickTitle', cx)
 		place('PickValue', cx)
 		place('PickSet', cx)
+		-- Up/down arrow just right of the value: it scrolls.
 		local v = SKIN:GetMeter('PickValue')
-		SKIN:Bang('!SetVariable', 'PickBoxW', math.floor(v:GetW() + 20 * s))
-		SKIN:Bang('!SetVariable', 'PickBoxH', math.floor(v:GetH() + 4 * s))
-		SKIN:Bang('!SetOption', 'PickBox', 'X', math.floor(v:GetX() - 10 * s))
+		SKIN:Bang('!SetOption', 'PickArrow', 'X', math.floor(v:GetX() + v:GetW() + 8 * s))
+		SKIN:Bang('!SetOption', 'PickArrow', 'Y', math.floor(v:GetY() + (v:GetH() - 16 * s) / 2))
 		SKIN:Bang('!UpdateMeterGroup', 'Pick')
 		SKIN:Bang('!Redraw')
 		return
@@ -141,14 +139,16 @@ local function paint()
 	SKIN:Bang('!SetOption', 'Label', 'Text', text)
 	if slot then place('Label', iconCentre(slot)) end
 
-	-- Link row: CANCEL under the scheduled icon, SCHEDULE under any other (not lock).
+	-- Link row: CANCEL for the scheduled action, SCHEDULE for any other.
+	-- It sits at a fixed spot (the middle of the skin) so it never moves;
+	-- the label above says which icon it belongs to.
 	-- CANCEL stays visible at rest, like the countdown above it.
 	local linkKeep = 0
 	if focus and focus == sched.action then
 		linkKey = focus
 		linkKeep = 1
 		SKIN:Bang('!SetOption', 'Link', 'Text', 'CANCEL')
-	elseif focus and focus ~= 'lock' then
+	elseif focus then
 		linkKey = focus
 		SKIN:Bang('!SetOption', 'Link', 'Text', 'SCHEDULE')
 	else
@@ -157,7 +157,7 @@ local function paint()
 	SKIN:Bang('!SetVariable', 'LinkKeep', linkKeep)
 	if linkKey and slotOf(linkKey) then
 		SKIN:Bang('!ShowMeter', 'Link')
-		place('Link', iconCentre(slotOf(linkKey)))
+		place('Link', num('SkinW') * scale() / 2)
 	else
 		SKIN:Bang('!HideMeter', 'Link')
 	end
@@ -306,32 +306,22 @@ end
 -- ---------- mouse ----------
 
 local function keyOf(el)
-	if el == 'link' then return linkKey end
 	return slots[tonumber(el:sub(2))]
 end
 
-local function refreshHover()
-	local h
-	if last and over[last] then
-		h = keyOf(last)
-	else
-		for el in pairs(over) do h = keyOf(el) break end
-	end
-	if h ~= hovered then
+-- The focused icon is the last one the mouse entered. It stays focused while
+-- the mouse is anywhere on the skin (so it can travel to the fixed link) and
+-- is cleared by Exit().
+function Over(el)
+	if el == 'link' then return end
+	local h = keyOf(el)
+	if h and h ~= hovered then
 		hovered = h
 		paint()
 	end
 end
 
-function Over(el)
-	over[el] = true
-	last = el
-	refreshHover()
-end
-
 function Out(el)
-	over[el] = nil
-	refreshHover()
 end
 
 function Enter()
@@ -339,7 +329,6 @@ function Enter()
 end
 
 function Exit()
-	over, last = {}, nil
 	hovered = nil
 	if picking then
 		SKIN:Bang('!CommandMeasure', 'mTimer', 'Stop 2')
