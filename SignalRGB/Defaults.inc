@@ -28,4 +28,4 @@ SignalRGBLabel=Case lights
 ; The double arrow starts this effect (empty hides the arrow) with these
 ; link parameters (# is %23, a space %20), e.g. speed=60.
 SignalRGBMoveEffect=Side to Side
-SignalRGBMoveParams=direction=Side%20to%20Side&color1=%2300AE57&color2=%23000000&speed=11&rainbow=false
+SignalRGBMoveParams=direction=All%20Directions&color1=%2300AE57&color2=%23000000&speed=11&rainbow=false
