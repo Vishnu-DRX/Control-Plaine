@@ -27,7 +27,7 @@ function Spinner.new(meter, timer)
 end
 
 function Spinner:draw()
-	local s = tonumber(SKIN:ParseFormula('(' .. SKIN:GetVariable('Scale', '1') .. ')')) or 1
+	local s = tonumber(SKIN:ParseFormula('(' .. SKIN:GetVariable('Sz', SKIN:GetVariable('Scale', '1')) .. ')')) or 1
 	local r, w = R * s, W * s
 	local c = r + w
 	local a1, a2 = math.rad(self.angle), math.rad(self.angle + 270)
