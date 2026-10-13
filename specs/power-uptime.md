@@ -28,7 +28,7 @@ row 1  label      HIBERNATE / CLICK AGAIN / SHUT DOWN IN 58 M
 row 2  icons      [hib] [shut] [restart] [lock]
 row 3  link       SCHEDULE / CANCEL
 ```
-Picker mode replaces rows 1 to 3 with `SHUT DOWN IN` / value box `3 H 15 M` / `SET` (plus a small `BACK` or click-icon-to-close, see Picker).
+Picker mode replaces rows 1 to 3 with `SHUT DOWN IN` / time `3 H 15 M` with a small up/down arrow beside it (no outline box; the arrow shows it scrolls) / `SET` (plus a small `BACK` or click-icon-to-close, see Picker).
 
 Order of icons: hibernate (or sleep, setting), shut down, restart, lock, as in the design.
 
@@ -47,6 +47,8 @@ All commands are `RunCommand` measures with `State=Hide` (no console window). Lu
 | Shut down | `shutdown.exe /s /t 0` | second click |
 | Restart | `shutdown.exe /r /t 0` | second click |
 | Lock | `rundll32.exe user32.dll,LockWorkStation` | no |
+
+Every action has SCHEDULE, lock included. SCHEDULE / CANCEL sit at one fixed spot (middle of the skin) and apply to the icon last hovered, so the link never moves; the label above names the icon. A scheduled lock is a one-time task `ControlPlaineLock` (`rundll32.exe user32.dll,LockWorkStation`), made like the hibernate and sleep tasks.
 
 Sleep note: the current skin uses `rundll32 powrprof.dll,SetSuspendState 0,1,0`, which **hibernates** when hibernation is on. With Hibernate now its own button, Sleep must be a real sleep, hence the PowerShell call.
 
