@@ -17,7 +17,7 @@ local goneAt            -- when the process was first missing during a close
 local proc, spin
 
 local function label()
-	return SKIN:GetVariable('DeepCoolLabel', 'screen'):lower() == 'screen' and 'Show case screen' or 'Show DeepCool'
+	return SKIN:GetVariable('DeepCoolLabel', 'screen'):lower() == 'screen' and 'Case screen' or 'DeepCool'
 end
 
 local function show()
