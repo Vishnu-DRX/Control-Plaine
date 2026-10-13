@@ -7,12 +7,15 @@ icons), white, no shadow. Rainmeter tints the white with ImageTint. At a Scale
 other than 1 the PNGs are resampled, so re-render with ICON_SCALE=<Scale> for
 the sharpest result.
 
-Two things keep straight lines on whole pixels instead of smeared over three:
-  * every stroke width is rounded to a whole number of pixels, and
-  * each icon is rendered at a range of sub-pixel offsets (at most half a
-    pixel either way) and the one with the fewest half-covered pixels is kept.
-    Lucide's coordinates sit on .5 as often as on whole units, so no single
-    fixed offset suits every icon.
+Sizes and stroke widths follow the rules of tools/render-icons.js (keep the two in
+step; this one adds the offset search) (2.2 units
+becomes 2 px; boosted icons keep their line weight in px; the rest are as
+drawn). On top of that each icon is rendered at a range of sub-pixel offsets
+(at most half a pixel either way) and the one with the fewest half-covered
+pixels is kept: Lucide's coordinates sit on .5 as often as on whole units, so
+no single fixed offset suits every icon, and a stroke on a half pixel is what
+makes lines look soft. Variants that swap in one slot (the Wi-Fi icons) share
+one offset.
 
 Dev-time only: python tools/render-icons.py
 (needs `pip install playwright pillow numpy` and Chromium, either the one
@@ -37,8 +40,8 @@ SCALE = float(os.environ.get('ICON_SCALE', 1))
 # @Resources\Defaults.inc.
 BOOST = 1.25
 APP = {'airplane', 'arrow-down', 'arrow-up', 'deepcool', 'ethernet', 'fan', 'gauge',
-       'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'signalrgb', 'snowflake', 'wifi',
-       'wifi-1', 'wifi-2', 'wifi-no-internet-badge'}
+       'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'snowflake', 'wifi', 'wifi-1',
+       'wifi-2', 'wifi-no-internet-badge'}
 APP_SCALE = SCALE * BOOST   # the Controllers canvas below is boosted too
 
 # Box size (px at scale 1) per icon; everything else uses IconBox (32).
@@ -50,28 +53,30 @@ BOX = {
     'arrow-down': 16, 'arrow-up': 16,        # WiFi speed test result
 }
 
-# The row icons of Fan Control, SignalRGB, DeepCool, Wi-Fi and Controllers are
-# drawn to one size and one line weight, so they read as a set: each glyph is
-# scaled until its longer side (stroke included) is MATCH_PX px, and every
-# stroke is MATCH_STROKE px. A wide glyph (a gamepad, Wi-Fi) is therefore
-# shorter than a tall one, as in any icon set, but none is bigger or bolder.
-MATCH = {'fan', 'signalrgb', 'deepcool', 'wifi', 'wifi-1', 'wifi-2', 'wifi-no-internet-badge',
-         'ethernet', 'airplane', 'globe-disconnected'}
-# Variants drawn on the same grid as another icon (same size, same position),
-# so swapping them in the skin changes nothing but the glyph.
-SAME_GRID = {'wifi-1': 'wifi', 'wifi-2': 'wifi', 'wifi-no-internet-badge': 'wifi'}
-MATCH_PX = 28
-MATCH_STROKE = 2
-# Wi-Fi is three thin arcs and a dot: at the common weight it carries about
-# 60% of the ink of the others and reads dimmer, so its strokes are one pixel
-# heavier. (px at scale 1; the variants share the wifi grid.)
-STROKE_EXTRA = {'wifi': 1, 'wifi-1': 1, 'wifi-2': 1}
-# The Controllers icons share one canvas: IconBox high like every other row and
-# as wide as the widest glyph plus the same side margin the 40 px boxes above
-# give a 28 px glyph. The glyphs sit that margin from the left edge and are
-# centred vertically, so the skin lines up with the others (icon at 0,0, text
-# at width + 4).
+# Controllers icons are drawn larger than the rest (CTL px per 24-unit icon)
+# and fitted to one common canvas: IconBox high like every other row, as wide
+# as the widest glyph plus IconPad each side. Each glyph sits IconPad from the
+# left edge and centred vertically, so the three icons share a left edge and
+# the skin lines up with the others (icon at 0,0, text at width + 4).
 FIT = ['controller-xbox', 'controller-dualsense', 'wheel-moza']
+CTL = 33
+PAD = 4
+# Trimmed so the three glyphs match the 28 px of the other row icons (a wide
+# gamepad or wheel drawn at CTL px per unit is 36-39 px wide).
+TRIM = {'controller-xbox': 0.8, 'controller-dualsense': 0.75, 'wheel-moza': 0.85}
+
+# Line weight in px for the row icons that sit side by side in the app skins
+# (the Controllers glyphs get the 2 px of the Fan Control, DeepCool ... icons
+# instead of 2.3-2.6 px) and for Wi-Fi, three thin arcs that carry about half
+# the ink of the others at 2 px and read dimmer.
+FIT_STROKE = 2
+STROKE_PX = {'wifi': 3, 'wifi-1': 3, 'wifi-2': 3}
+
+# Icons that are not rendered from an SVG (the app's own bitmap logo).
+SKIP = {'signalrgb'}
+# Variants that swap into one slot share one sub-pixel offset, so they do not
+# jump when the skin changes icon.
+SAME_SHIFT = {'wifi-1': 'wifi', 'wifi-2': 'wifi', 'wifi-no-internet-badge': 'wifi'}
 
 # Sub-pixel offsets tried per axis, in px. Kept within half a pixel so an icon
 # never drifts visibly off centre.
@@ -82,20 +87,11 @@ def strip(svg):
     return re.sub(r'<metadata>[\s\S]*?</metadata>', '', svg)
 
 
-def snap_strokes(svg, k):
-    """Round every stroke-width to whole pixels (k = px per user unit)."""
-    def fix(m):
-        px = max(1, round(float(m.group(1)) * k))
-        return 'stroke-width="%s"' % (px / k)
-    return re.sub(r'stroke-width="([\d.]+)"', fix, svg)
-
-
 def with_view(svg, w, h, vx, vy, vw, vh):
     """Give the root <svg> a w x h px box showing the user-space rectangle
     vx vy vw vh (so a sub-pixel shift is just a different vx, vy)."""
     def root(m):
-        tag = m.group(0)
-        tag = re.sub(r'\s(width|height|viewBox)="[^"]*"', '', tag)
+        tag = re.sub(r'\s(width|height|viewBox)="[^"]*"', '', m.group(0))
         return tag[:-1] + ' width="%s" height="%s" viewBox="%s %s %s %s" ' \
             'style="display:block;overflow:visible">' % (w, h, vx, vy, vw, vh)
     return re.sub(r'<svg\b[^>]*>', root, svg, count=1)
@@ -103,12 +99,12 @@ def with_view(svg, w, h, vx, vy, vw, vh):
 
 def measure(page, svg):
     page.set_content('<html><body>%s</body></html>' % svg)
-    return page.evaluate('''() => {
+    return page.evaluate("""() => {
         const el = document.querySelector('svg');
         const b = el.getBBox();
         return {x: b.x, y: b.y, w: b.width, h: b.height,
                 sw: parseFloat(el.getAttribute('stroke-width') || '0')};
-    }''')
+    }""")
 
 
 def roughness(a):
@@ -120,8 +116,7 @@ def roughness(a):
 
 def best_of(page, cells, w, h, force=None):
     """cells: list of (dx, dy, svg). Renders them on one sheet and returns the
-    PNG bytes of the least rough one, plus its roughness, the roughness of the
-    unshifted one and the shift chosen."""
+    least rough tile, its roughness, the unshifted one's and the shift."""
     cols = len(STEPS)
     rows = math.ceil(len(cells) / cols)
     divs = ''.join(
@@ -138,10 +133,10 @@ def best_of(page, cells, w, h, force=None):
         r = roughness(np.array(tile)[:, :, 3])
         if dx == 0 and dy == 0:
             base = r
-        # Prefer the smaller shift when roughness is (nearly) the same.
-        score = r + 25 * (abs(dx) + abs(dy))
         if force is not None and (dx, dy) != force:
             continue
+        # Prefer the smaller shift when roughness is (nearly) the same.
+        score = r + 25 * (abs(dx) + abs(dy))
         if best is None or score < best[0]:
             best = (score, r, tile, dx, dy)
     return best[2], best[1], base, best[3], best[4]
@@ -149,6 +144,7 @@ def best_of(page, cells, w, h, force=None):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    shifts = {}
     with sync_playwright() as p:
         opts = {}
         if os.environ.get('CHROMIUM_PATH'):
@@ -156,76 +152,69 @@ def main():
         browser = p.chromium.launch(**opts)
         page = browser.new_page()
 
-        # ---- Row icons drawn to one size (Controllers share a canvas) ----
-        stroke_px = max(1, round(MATCH_STROKE * SCALE))
-        target = MATCH_PX * SCALE
-        pad = round((32 * APP_SCALE - target) / 2)
+        def save(name, cw, ch, cells):
+            tile, r, base, dx, dy = best_of(page, cells, cw, ch, shifts.get(SAME_SHIFT.get(name)))
+            shifts[name] = (dx, dy)
+            tile.save(OUT / (name + '.png'))
+            print('%s.png %dx%d  rough %.0f -> %.0f  shift %+.3f,%+.3f' % (name, cw, ch, base, r, dx, dy))
 
-        def matched(name):
-            """(svg, glyph w, glyph h, k, bbox, stroke px) with strokes and size matched."""
+        # ---- Controllers: one canvas, glyphs fitted to it ----
+        fit = {}
+        for name in FIT:
             svg = strip((SRC / (name + '.svg')).read_text(encoding='utf8'))
-            ref = SAME_GRID.get(name, name)
-            m = measure(page, strip((SRC / (ref + '.svg')).read_text(encoding='utf8')))
+            m = measure(page, svg)
+            k = CTL * APP_SCALE / 24 * TRIM.get(name, 1)
+            if m['sw']:
+                svg = re.sub(r'stroke-width="[\d.]+"', 'stroke-width="%s"' % (FIT_STROKE * SCALE / k), svg)
+                m['sw'] = FIT_STROKE * SCALE / k
+            fit[name] = (svg, m, k)
+        fit_w = math.ceil(max((m['w'] + m['sw']) * k for _, m, k in fit.values()) + 2 * PAD * APP_SCALE)
+        fit_h = round(32 * APP_SCALE)
+        for name in FIT:
+            svg, m, k = fit[name]
             sw = m['sw']
-            spx = stroke_px + round(STROKE_EXTRA.get(name, 0) * SCALE)
-            span = max(m['w'], m['h'])
-            k = (target - (spx if sw else 0)) / span
-            svg = re.sub(r'stroke-width="[\d.]+"', 'stroke-width="%s"' % (spx / k), svg)
-            ex = spx if sw else 0
-            return svg, m['w'] * k + ex, m['h'] * k + ex, k, m, spx
-
-        shifts = {}
-
-        def render(name, svg, k, m, cw, ch, left, top, spx):
-            ex = (spx / k) / 2 if m['sw'] else 0
+            gh = (m['h'] + sw) * k
+            left, top = round(PAD * APP_SCALE), round((fit_h - gh) / 2)
             cells = []
             for dy in STEPS:
                 for dx in STEPS:
                     # The glyph's top-left (bbox minus half a stroke) lands at
                     # (left + dx, top + dy) px.
-                    vx = m['x'] - ex - (left + dx) / k
-                    vy = m['y'] - ex - (top + dy) / k
-                    cells.append((dx, dy, with_view(svg, cw, ch, vx, vy, cw / k, ch / k)))
-            ref = SAME_GRID.get(name)
-            tile, r, base, dx, dy = best_of(page, cells, cw, ch, shifts.get(ref))
-            shifts[name] = (dx, dy)
-            tile.save(OUT / (name + '.png'))
-            print('%s.png %dx%d  rough %.0f -> %.0f  shift %+.3f,%+.3f' % (name, cw, ch, base, r, dx, dy))
-
-        fit = {n: matched(n) for n in FIT}
-        fit_w = math.ceil(max(g[1] for g in fit.values()) + 2 * pad)
-        fit_h = round(32 * APP_SCALE)
-        for name, (svg, gw, gh, k, m, spx) in fit.items():
-            render(name, svg, k, m, fit_w, fit_h, pad, (fit_h - gh) / 2, spx)
-        box = round(32 * APP_SCALE)
-        for name in sorted(MATCH):
-            svg, gw, gh, k, m, spx = matched(name)
-            if name == 'deepcool':
-                # Block logo: edges snap to whole pixels.
-                svg = svg.replace('fill="#fff" stroke="none"',
-                                  'fill="#fff" stroke="none" shape-rendering="crispEdges"')
-            render(name, svg, k, m, box, box, (box - gw) / 2, (box - gh) / 2, spx)
+                    vx = m['x'] - sw / 2 - (left + dx) / k
+                    vy = m['y'] - sw / 2 - (top + dy) / k
+                    cells.append((dx, dy, with_view(svg, fit_w, fit_h, vx, vy, fit_w / k, fit_h / k)))
+            save(name, fit_w, fit_h, cells)
 
         # ---- Everything else: icon centred in a square box ----
-        for f in sorted(SRC.glob('*.svg')):
+        files = sorted(SRC.glob('*.svg'), key=lambda f: (f.stem in SAME_SHIFT, f.stem))
+        for f in files:
             name = f.stem
-            if name in FIT or name in MATCH:
+            if name in FIT or name in SKIP:
                 continue
             box = round(BOX.get(name, 32) * (APP_SCALE if name in APP else SCALE))
-            icon = box * 3 / 4
+            # The DeepCool logo sits on a 3-unit grid: 4 px cells keep every
+            # block the same size.
+            icon = round(box * 0.8) if name == 'deepcool' else box * 3 / 4
             k = icon / 24
             svg = strip(f.read_text(encoding='utf8'))
             # Block logos on a pixel grid (deepcool) snap to whole pixels.
             svg = svg.replace('fill="#fff" stroke="none"', 'fill="#fff" stroke="none" shape-rendering="crispEdges"')
-            svg = snap_strokes(svg, k)
+
+            def stroke(m, name=name, icon=icon):
+                w = m.group(1)
+                if w != '2.2' and name not in APP:
+                    return m.group(0)
+                # 2.2 units snaps to 2 px; boosted icons keep their line
+                # weight in px, only the shape grows.
+                px = STROKE_PX.get(name, 2 if w == '2.2' else float(w))
+                return 'stroke-width="%s"' % (px * SCALE * 24 / icon)
+            svg = re.sub(r'stroke-width="([\d.]+)"', stroke, svg)
             lead = (box - icon) / 2
             cells = []
             for dy in STEPS:
                 for dx in STEPS:
                     cells.append((dx, dy, with_view(svg, box, box, -(lead + dx) / k, -(lead + dy) / k, box / k, box / k)))
-            tile, r, base, dx, dy = best_of(page, cells, box, box)
-            tile.save(OUT / (name + '.png'))
-            print('%s.png %d  rough %.0f -> %.0f  shift %+.3f,%+.3f' % (name, box, base, r, dx, dy))
+            save(name, box, box, cells)
         browser.close()
 
 

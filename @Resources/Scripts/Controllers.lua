@@ -36,9 +36,9 @@ end
 local function target(kind)
 	local other = var('ControllersOther')
 	if kind == 'dualsense' and var('ControllersDualSenseApp') ~= '' then
-		return var('ControllersDualSenseApp'), 'Open DSX'
+		return var('ControllersDualSenseApp'), ''
 	elseif kind == 'moza' and var('ControllersWheelApp') ~= '' then
-		return var('ControllersWheelApp'), 'Open Pit House'
+		return var('ControllersWheelApp'), ''
 	end
 	if other:lower() == 'ms-settings:bluetooth' then
 		return other, 'Open Bluetooth settings'

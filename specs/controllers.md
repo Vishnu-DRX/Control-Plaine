@@ -56,7 +56,7 @@ From the canvas board (sizes at Scale 1; multiply everything by `#Scale#`):
 ```
 
 - Rows: up to `MaxRows=4` fixed rows (`Row1..Row4`), each built from: `RowNHit` (`MeterStyle=sHit`, full-row rectangle), `RowNIcon` (Image, `sIcon`), `RowNBat` (Shape battery glyph), `RowNPct` (String), `RowNName` (String). Row N top = `(N-1)*50`.
-- Icon: same grid as the other skins. Each row is IconBox (32 px) high, 40 px pitch; the icon sits at X=0, Y=row top, and the hit area is 230 x 32 at 0,0 of the row. The controller icons are one 32 x 32 canvas (a 28 px glyph, 2 px strokes, 3 px margin, vertically centred; `tools/render-icons.py` FIT list), so `W=(#CtlW#*#Scale#)`, `H=(#IconBox#*#Scale#)`. Battery glyph at X=CtlW+4, percent at CtlW+30, name after the percent (or at CtlW+4 with no battery), all centred on row top + 16.
+- Icon: same grid as the other skins. Each row is IconBox (32 px) high, 40 px pitch; the icon sits at X=0, Y=row top, and the hit area is 230 x 32 at 0,0 of the row. The controller icons are one canvas, 39.2 x 32 at scale 1 (49 x 40 px rendered for SizeBoost 1.25; `PreserveAspectRatio=1` so they never stretch) (glyph about 33 px, 4 px left pad, vertically centred; `tools/render-icons.py` FIT list), so `W=(#CtlW#*#Scale#)`, `H=(#IconBox#*#Scale#)`. Battery glyph at X=CtlW+4, percent at CtlW+30, name after the percent (or at CtlW+4 with no battery), all centred on row top + 16.
 - Battery glyph (Shape), same geometry as the canvas: outline `Rectangle 0.5,0.5,17,9,2` stroke 1; nub `Rectangle 18.2,3,1.5,4,0.5` filled; level `Rectangle 2,2,(Max(Bat,8)*0.14),6,1` filled (8% floor so a near-empty bar is still visible). Charging: a filled bolt polygon cut out of the level with `Combine ... | Exclude`.
 - Text: percent and name both `MeterStyle=sDetail` (9.5 px semibold, tracked, upper case, shadow); the canvas's 9/10 px both round to it. Tracking on the trailing side only (`CharacterSpacing | 0 | t`): DirectWrite applies it per letter, so both sides doubles the gap.
 - Gaps: icon box to battery 12, glyph to percent 6, battery group to name 12. Lua sets `RowNName` X explicitly, because the battery group may be hidden (Moza, unknown battery) and the name must then sit right after the icon.
@@ -66,11 +66,11 @@ From the canvas board (sizes at Scale 1; multiply everything by `#Scale#`):
 ### Alpha and hover
 
 - Skin-level `Reveal` (hover fade in `Core.inc`) as in every skin.
-- Lua keeps `HoverRow` (0 = none). Each `RowNHit` has `MouseOverAction=[!SetVariable HoverRow N][!UpdateMeterGroup Rows][!Redraw]` and `MouseLeaveAction` back to 0.
-- Row alpha: `HoverRow=0` -> icon `AlphaDetail`, battery text `AlphaValue`; hovered row -> `AlphaHover`; other rows while one is hovered -> `AlphaDim` (Core.inc, 60% of the rest level).
+- `LastRow` (0 = none yet) is set by each `RowNHit` `MouseOverAction=[!SetVariable LastRow N][!UpdateMeterGroup Reveal][!Redraw]`; it is never reset on leave, so the fade-out keeps the same row.
+- Row alpha, all blended by `#Reveal#`: rest = icon `AlphaDetail`, battery `AlphaValue`; the last hovered row moves to `AlphaHover`, other rows to `AlphaDim` (60% of the rest level).
 - Battery group visible when: `Bat >= 0` and (`Bat < ControllersBatteryShow` or `Reveal > 0`). At rest only low ones show; on hover over the skin every known battery fades in with `Reveal`. Unknown battery (`-1`) never shows.
-- Name visible only on the hovered row (alpha `AlphaHover` when `HoverRow=N`, else 0). Names are fixed per kind: `XBOX`, `DUALSENSE` (`DUALSENSE EDGE` for PID 0DF2), `MOZA`, `CONTROLLER`.
-- Each `RowNHit` has `MouseActionCursor=1` and `ToolTipText` (`Open DSX`, `Open Pit House`, `Open Bluetooth settings`).
+- Name visible only on the last hovered row (`LastRow=N`), alpha `AlphaHover * Reveal`, so it fades in and out with the skin like the others; the battery glyph and percent sit to the right of the name (X = name right edge + 10 / + 36), icon brightness and dimming also follow `Reveal`. Names are fixed per kind: `XBOX`, `DUALSENSE` (`DUALSENSE EDGE` for PID 0DF2), `MOZA R3`, `CONTROLLER`.
+- Each `RowNHit` has `MouseActionCursor=1` and `ToolTipText` (only `Open Bluetooth settings` / `Open controller settings` for other controllers; none for DSX and the Moza app).
 
 ### Show / hide
 
@@ -128,7 +128,7 @@ ASCII, one device per line, `|`-separated, plus a version line:
 v1
 xbox|XBOX|80|0
 dualsense|DUALSENSE|40|1
-moza|MOZA|-1|0
+moza|MOZA R3|-1|0
 ```
 
 Fields: kind, display name, battery 0-100 or -1 unknown, charging 0/1. Lua splits with `gmatch('[^|]+')`; no JSON needed.

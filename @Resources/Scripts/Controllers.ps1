@@ -269,7 +269,7 @@ function Get-Controllers {
 		$name = switch ($kind) {
 			'xbox' { 'XBOX' }
 			'dualsense' { if ($prod -eq '0DF2') { 'DUALSENSE EDGE' } else { 'DUALSENSE' } }
-			'moza' { 'MOZA' }
+			'moza' { 'MOZA R3' }
 			default { 'CONTROLLER' }
 		}
 		$found[$key] = [pscustomobject]@{

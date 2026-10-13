@@ -38,9 +38,9 @@ Rules: monitored values are always visible (volume %, output device, bin count/s
 
 ### Power
 - Rest: four icons in a row at 60%: hibernate, shut down, restart, lock (`power-*.svg`, old Phenix style). No uptime here.
-- Hover an icon: it brightens, its name shows above (HIBERNATE / SHUT DOWN / RESTART / LOCK) and a SCHEDULE link shows below (not for lock).
+- Hover an icon: it brightens, its name shows above (HIBERNATE / SHUT DOWN / RESTART / LOCK) and a SCHEDULE link shows below at a fixed spot (every action has it, lock included; it applies to the icon last hovered).
 - Shut down and restart need a second click: first click turns the icon orange with CLICK AGAIN above; times out after about 3 s.
-- SCHEDULE opens a picker: `SHUT DOWN IN` / value box `3 H 15 M` / SET link. Scroll changes the value in 15-minute steps, minimum 15 M, maximum 24 H. No range text is shown.
+- SCHEDULE opens a picker: `SHUT DOWN IN` / time `3 H 15 M` with an up/down arrow beside it (no outline box) / SET link. Scroll changes the value in 15-minute steps, minimum 15 M, maximum 24 H. No range text is shown.
 - While scheduled: icon in accent, `SHUT DOWN IN` + countdown (`58 M`) in accent, CANCEL link. The countdown stays visible at rest.
 - Commands: shut down `shutdown /s /t N`, restart `shutdown /r /t N`, cancel `shutdown /a`. Hibernate now `shutdown /h`; scheduled hibernate via a one-time task: `schtasks /create /tn ControlPlaineHibernate /sc once /st HH:MM /sd DATE /tr "shutdown /h" /f`, cancel with `schtasks /delete /tn ControlPlaineHibernate /f` (no admin needed, verify). Lock `rundll32 user32.dll,LockWorkStation`.
 - Persist the scheduled time in a variable so the countdown survives a Rainmeter refresh.
@@ -120,7 +120,7 @@ Rules: monitored values are always visible (volume %, output device, bin count/s
 - Hidden unless a game controller or wheel is connected (USB or Bluetooth). Only game controllers are listed, nothing else.
 - Vertical list, one row per device: icon, then battery. Icons: `controller-xbox.svg` (Fluent, MIT), `controller-dualsense.svg`, `wheel-moza.svg` (D-shaped, flat bottom). Vishnu may want AI-generated icon art later; keep the same simple outline style.
 - Battery: at rest only shown when below 50% (setting). On hover every device's battery shows. Low (under 15%) in orange, charging in accent with a bolt. Wheel has no battery.
-- Hover a row: it brightens, others dim, and its name shows (`XBOX`, `DUALSENSE`, `MOZA`).
+- Hover a row: it brightens, others dim, and its name shows (`XBOX`, `DUALSENSE`, `MOZA R3`).
 - Click: DualSense opens DSX; Moza opens Moza Pit House; any other controller opens its Windows device settings (`ms-settings:bluetooth`).
 - Detection: PnP devices by vendor ID (Xbox 045E, Sony 054C, Moza 346E; verify), e.g. a small PowerShell or Lua helper run on a timer.
 - Battery: Xbox over Bluetooth exposes battery to Windows (Bluetooth battery property). DualSense does not; it needs a HID read of the input report, which may be blocked while DSX holds the controller. Verify, and show nothing rather than a wrong value.
