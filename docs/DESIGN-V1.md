@@ -120,7 +120,7 @@ Rules: monitored values are always visible (volume %, output device, bin count/s
 - Hidden unless a game controller or wheel is connected (USB or Bluetooth). Only game controllers are listed, nothing else.
 - Vertical list, one row per device: icon, then battery. Icons: `controller-xbox.svg` (Fluent, MIT), `controller-dualsense.svg`, `wheel-moza.svg` (D-shaped, flat bottom). Vishnu may want AI-generated icon art later; keep the same simple outline style.
 - Battery: at rest only shown when below 50% (setting). On hover every device's battery shows. Low (under 15%) in orange, charging in accent with a bolt. Wheel has no battery.
-- Hover a row: it brightens, others dim, and its name shows (`XBOX`, `DUALSENSE`, `MOZA`).
+- Hover a row: it brightens, others dim, and its name shows (`XBOX`, `DUALSENSE`, `MOZA R3`).
 - Click: DualSense opens DSX; Moza opens Moza Pit House; any other controller opens its Windows device settings (`ms-settings:bluetooth`).
 - Detection: PnP devices by vendor ID (Xbox 045E, Sony 054C, Moza 346E; verify), e.g. a small PowerShell or Lua helper run on a timer.
 - Battery: Xbox over Bluetooth exposes battery to Windows (Bluetooth battery property). DualSense does not; it needs a HID read of the input report, which may be blocked while DSX holds the controller. Verify, and show nothing rather than a wrong value.

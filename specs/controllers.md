@@ -69,7 +69,7 @@ From the canvas board (sizes at Scale 1; multiply everything by `#Scale#`):
 - Lua keeps `HoverRow` (0 = none). Each `RowNHit` has `MouseOverAction=[!SetVariable HoverRow N][!UpdateMeterGroup Rows][!Redraw]` and `MouseLeaveAction` back to 0.
 - Row alpha: `HoverRow=0` -> icon `AlphaDetail`, battery text `AlphaValue`; hovered row -> `AlphaHover`; other rows while one is hovered -> `AlphaDim` (Core.inc, 60% of the rest level).
 - Battery group visible when: `Bat >= 0` and (`Bat < ControllersBatteryShow` or `Reveal > 0`). At rest only low ones show; on hover over the skin every known battery fades in with `Reveal`. Unknown battery (`-1`) never shows.
-- Name visible only on the hovered row (alpha `AlphaHover` when `HoverRow=N`, else 0). Names are fixed per kind: `XBOX`, `DUALSENSE` (`DUALSENSE EDGE` for PID 0DF2), `MOZA`, `CONTROLLER`.
+- Name visible only on the hovered row (alpha `AlphaHover` when `HoverRow=N`, else 0). Names are fixed per kind: `XBOX`, `DUALSENSE` (`DUALSENSE EDGE` for PID 0DF2), `MOZA R3`, `CONTROLLER`.
 - Each `RowNHit` has `MouseActionCursor=1` and `ToolTipText` (`Open DSX`, `Open Pit House`, `Open Bluetooth settings`).
 
 ### Show / hide
@@ -128,7 +128,7 @@ ASCII, one device per line, `|`-separated, plus a version line:
 v1
 xbox|XBOX|80|0
 dualsense|DUALSENSE|40|1
-moza|MOZA|-1|0
+moza|MOZA R3|-1|0
 ```
 
 Fields: kind, display name, battery 0-100 or -1 unknown, charging 0/1. Lua splits with `gmatch('[^|]+')`; no JSON needed.
