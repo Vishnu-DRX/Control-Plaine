@@ -15,6 +15,9 @@
 
 [Variables]
 ; Defined here, after User.inc, so they see the user's settings.
+; Size of this skin. A skin that opts in to SizeBoost redefines it after
+; including this file: Sz=(#Scale#*#SizeBoost#)
+Sz=#Scale#
 Accent=#AccentColor#
 AlphaDetail=(#RestBrightness#*2.55)
 AlphaValue=(Min(255,(#RestBrightness#+20)*2.55))

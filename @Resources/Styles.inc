@@ -17,7 +17,7 @@ StringCase=Upper
 StringEffect=None
 AntiAlias=1
 DynamicVariables=1
-FontSize=(#SizeDisplay#*#Scale#)
+FontSize=(#SizeDisplay#*#Sz#)
 FontWeight=#WeightDisplay#
 FontColor=#Ink#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
@@ -30,7 +30,7 @@ StringCase=Upper
 StringEffect=None
 AntiAlias=1
 DynamicVariables=1
-FontSize=(#SizeValue#*#Scale#)
+FontSize=(#SizeValue#*#Sz#)
 FontWeight=#WeightValue#
 FontColor=#Ink#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
@@ -43,7 +43,7 @@ StringCase=Upper
 StringEffect=None
 AntiAlias=1
 DynamicVariables=1
-FontSize=(#SizeTitle#*#Scale#)
+FontSize=(#SizeTitle#*#Sz#)
 FontWeight=#WeightTitle#
 FontColor=#Ink#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
@@ -56,7 +56,7 @@ StringCase=Upper
 StringEffect=None
 AntiAlias=1
 DynamicVariables=1
-FontSize=(#SizeDetail#*#Scale#)
+FontSize=(#SizeDetail#*#Sz#)
 FontWeight=#WeightDetail#
 FontColor=#Ink#,(#AlphaDetail#+(#AlphaHover#-#AlphaDetail#)*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaDetail#+(#AlphaHover#-#AlphaDetail#)*#Reveal#)*#ShadowK#)
@@ -69,7 +69,7 @@ StringCase=Upper
 StringEffect=None
 AntiAlias=1
 DynamicVariables=1
-FontSize=(#SizeDetail#*#Scale#)
+FontSize=(#SizeDetail#*#Sz#)
 FontWeight=#WeightDetail#
 FontColor=#Ink#,(#AlphaHover#*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaHover#*#Reveal#)*#ShadowK#)
@@ -83,7 +83,7 @@ StringCase=Upper
 StringEffect=None
 AntiAlias=1
 DynamicVariables=1
-FontSize=(#SizeDetail#*#Scale#)
+FontSize=(#SizeDetail#*#Sz#)
 FontWeight=#WeightDetail#
 FontColor=#Ink#,(#AlphaHover#*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaHover#*#Reveal#)*#ShadowK#)
@@ -102,14 +102,16 @@ FontColor=#Accent#,(#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)
 FontEffectColor=#ShadowRGB#,((#AlphaValue#+(#AlphaHover#-#AlphaValue#)*#Reveal#)*#ShadowK#)
 ImageTint=#Accent#
 
+; Sizes in these styles use #Sz#, the skin's size: #Scale#, times #SizeBoost# in
+; the skins that opt in (see Core.inc). Use #Sz# in a skin's own meters too.
 ; Icons. PNGs are IconBox squares with IconPad of margin (holding the shadow),
 ; so put the meter IconPad up and left of where the visible icon starts:
 ;   X=((x-#IconPad#)*#Scale#)
 ; sIcon brightens on its own hover (rows of icons: set ImageAlpha from Lua or
 ; the meter's MouseOverAction). sIconFade brightens with the whole skin.
 [sIcon]
-W=(#IconBox#*#Scale#)
-H=(#IconBox#*#Scale#)
+W=(#IconBox#*#Sz#)
+H=(#IconBox#*#Sz#)
 ImageTint=#Ink#
 ImageAlpha=#AlphaDetail#
 SolidColor=0,0,0,1
@@ -118,8 +120,8 @@ MouseActionCursor=1
 DynamicVariables=1
 
 [sIconFade]
-W=(#IconBox#*#Scale#)
-H=(#IconBox#*#Scale#)
+W=(#IconBox#*#Sz#)
+H=(#IconBox#*#Sz#)
 ImageTint=#Ink#
 ImageAlpha=(#AlphaDetail#+(#AlphaHover#-#AlphaDetail#)*#Reveal#)
 SolidColor=0,0,0,1
@@ -149,7 +151,7 @@ DynamicVariables=1
 ; ---- Legacy v1 style, used by the v1 skins until they are rebuilt ----
 [sText]
 FontFace=#FontUI#
-FontSize=(#SizeM#*#Scale#)
+FontSize=(#SizeM#*#Sz#)
 FontColor=#Ink#,#AlphaHover#
 FontEffectColor=#ShadowRGB#,(#AlphaHover#*#ShadowK#)
 AntiAlias=1
