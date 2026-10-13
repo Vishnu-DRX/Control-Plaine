@@ -15,6 +15,14 @@ const root = join(__dirname, '..');
 const src = join(root, 'docs', 'icons');
 const out = join(root, '@Resources', 'Icons');
 const scale = Number(process.env.ICON_SCALE || 1);
+// Extra size of the skins that use SizeBoost (Controllers, DeepCool, Fan
+// Control, SignalRGB, Wi-Fi): keep in step with SizeBoost in
+// @Resources\Defaults.inc.
+const BOOST = 1.25;
+const APP = new Set(['airplane', 'arrow-down', 'arrow-up', 'deepcool', 'ethernet', 'fan', 'gauge',
+  'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'snowflake', 'wifi', 'wifi-1', 'wifi-2',
+  'wifi-no-internet-badge']);
+const appScale = scale * BOOST;   // the Controllers canvas below is boosted too
 
 // Box size (px at scale 1) per icon; everything else uses IconBox (32).
 const BOX = {
@@ -46,7 +54,7 @@ async function measure(browser, name) {
     return { x: b.x, y: b.y, w: b.width, h: b.height, sw: parseFloat(el.getAttribute('stroke-width') || '0') };
   });
   await page.close();
-  const k = CTL * scale / 24;
+  const k = CTL * appScale / 24;
   return { svg, vb: [m.x - m.sw / 2, m.y - m.sw / 2, m.w + m.sw, m.h + m.sw], k };
 }
 
@@ -56,8 +64,8 @@ const browser = await chromium.launch(
 
 const fit = {};
 for (const name of FIT) fit[name] = await measure(browser, name);
-const fitW = Math.ceil(Math.max(...FIT.map(n => fit[n].vb[2] * fit[n].k)) + 2 * PAD * scale);
-const fitH = Math.round(32 * scale);
+const fitW = Math.ceil(Math.max(...FIT.map(n => fit[n].vb[2] * fit[n].k)) + 2 * PAD * appScale);
+const fitH = Math.round(32 * appScale);
 for (const name of FIT) {
   const { svg, vb, k } = fit[name];
   const w = vb[2] * k, h = vb[3] * k;
@@ -67,7 +75,7 @@ for (const name of FIT) {
     .replace(/width="24" height="24"/, `width="${w}" height="${h}"`);
   await page.setContent(`<html><body style="margin:0;background:transparent">
     <div style="position:relative;width:${fitW}px;height:${fitH}px">
-    <div style="position:absolute;left:${Math.round(PAD * scale)}px;top:${Math.round((fitH - h) / 2)}px">${body}</div></div></body></html>`);
+    <div style="position:absolute;left:${Math.round(PAD * appScale)}px;top:${Math.round((fitH - h) / 2)}px">${body}</div></div></body></html>`);
   await page.locator('div').first().screenshot({ path: join(out, name + '.png'), omitBackground: true });
   await page.close();
   console.log(name + '.png', fitW + 'x' + fitH);
@@ -76,11 +84,13 @@ for (const name of FIT) {
 for (const file of readdirSync(src).filter(f => f.endsWith('.svg')).sort()) {
   const name = basename(file, '.svg');
   if (FIT.includes(name)) continue;
-  const box = Math.round((BOX[name] || 32) * scale);
+  const box = Math.round((BOX[name] || 32) * (APP.has(name) ? appScale : scale));
   const icon = box * 3 / 4;
   const page = await browser.newPage({ viewport: { width: box, height: box } });
   const svg = readFileSync(join(src, file), 'utf8')
     .replace(/<metadata>[\s\S]*?<\/metadata>/, '')
+    // Block logos on a pixel grid (deepcool) snap to whole pixels instead of blurring.
+    .replace('fill="#fff" stroke="none"', 'fill="#fff" stroke="none" shape-rendering="crispEdges"')
     .replace(/width="24" height="24"/, `width="${icon}" height="${icon}"`)
     // 2.2 units is 2.2 px at 24 px: snap to 2 px so straight lines land on
     // whole pixels instead of smearing over three.

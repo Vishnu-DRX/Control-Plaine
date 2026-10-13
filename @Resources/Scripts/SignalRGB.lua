@@ -25,7 +25,7 @@ local function setVar(name, value)
 end
 
 local function scale()
-	return tonumber(SKIN:ParseFormula('(' .. SKIN:GetVariable('Scale', '1') .. ')')) or 1
+	return tonumber(SKIN:ParseFormula('(' .. SKIN:GetVariable('Sz', SKIN:GetVariable('Scale', '1')) .. ')')) or 1
 end
 
 -- Ring, scroll and brightness text are live with the API or in free mode.
