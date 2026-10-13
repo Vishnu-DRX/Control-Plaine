@@ -11,7 +11,7 @@ DeepCoolProcess=DeepCool.exe
 DeepCoolStartHidden=1
 ; Extra arguments passed when starting the app (none known for DeepCool).
 DeepCoolArgs=
-; Hover label: screen (CASE SCREEN ON / OFF) or app (DEEPCOOL ON / OFF).
+; Hover label: screen (SHOW CASE SCREEN) or app (SHOW DEEPCOOL).
 DeepCoolLabel=screen
 ; Seconds STOPPING TELEMETRY stays after the app has exited: the case screen takes about
 ; this long to actually go dark.

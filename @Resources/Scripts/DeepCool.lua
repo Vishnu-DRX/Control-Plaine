@@ -17,7 +17,7 @@ local goneAt            -- when the process was first missing during a close
 local proc, spin
 
 local function label()
-	return SKIN:GetVariable('DeepCoolLabel', 'screen'):lower() == 'screen' and 'Case screen' or 'DeepCool'
+	return SKIN:GetVariable('DeepCoolLabel', 'screen'):lower() == 'screen' and 'Show case screen' or 'Show DeepCool'
 end
 
 local function show()
@@ -28,7 +28,8 @@ local function show()
 	elseif pending == 'stop' then
 		text, tip = 'Stopping telemetry', 'Closing DeepCool'
 	else
-		text = label() .. (running and ' on' or ' off')
+		-- On or off is told by the logo (accent while the app runs).
+		text = label()
 		tip = running and 'Close DeepCool' or 'Start DeepCool'
 	end
 	SKIN:Bang('!SetVariable', 'IconTint', (running and not pending) and accent or ink)
@@ -37,6 +38,7 @@ local function show()
 	SKIN:Bang('!SetOption', 'Icon', 'ToolTipText', tip)
 	SKIN:Bang('!UpdateMeter', 'Icon')
 	SKIN:Bang('!UpdateMeter', 'State')
+	SKIN:Bang('!UpdateMeter', 'Bulb')
 	SKIN:Bang('!UpdateMeter', 'Spinner')
 	SKIN:Bang('!Redraw')
 	if pending then spin:start() else spin:stop() end
