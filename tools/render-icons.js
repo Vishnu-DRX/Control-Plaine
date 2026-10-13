@@ -41,6 +41,8 @@ const BOX = {
 const FIT = ['controller-xbox', 'controller-dualsense', 'wheel-moza'];
 const CTL = 33;
 const PAD = 4;
+// The wheel reads larger than the pads at the same size: draw it a bit smaller.
+const TRIM = { 'wheel-moza': 0.9 };
 
 // Glyph size in px (stroke included) at CTL px per 24 units, and the viewBox
 // that crops the SVG to it.
@@ -54,7 +56,7 @@ async function measure(browser, name) {
     return { x: b.x, y: b.y, w: b.width, h: b.height, sw: parseFloat(el.getAttribute('stroke-width') || '0') };
   });
   await page.close();
-  const k = CTL * appScale / 24;
+  const k = CTL * appScale / 24 * (TRIM[name] || 1);
   return { svg, vb: [m.x - m.sw / 2, m.y - m.sw / 2, m.w + m.sw, m.h + m.sw], k };
 }
 
