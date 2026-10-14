@@ -41,10 +41,13 @@ local function setVar(name, value)
 	SKIN:Bang('!SetVariable', name, tostring(value))
 end
 
+local hovered = false  -- mouse is over the fan icon
+
 local function showMax()
 	setVar('MaxOn', maxOn)
 	local tint = maxOn == 1 and var('Accent') or var('Ink')
-	setVar('IconTint', tint)
+	-- The fan icon takes the accent colour while hovered, like the Power icons.
+	setVar('IconTint', hovered and var('Accent') or tint)
 	setVar('SnowTint', tint)
 	setVar('SnowTip', maxOn == 1 and 'Back to normal' or 'All fans to 100%')
 	SKIN:Bang('!UpdateMeter', 'Icon')
@@ -252,6 +255,12 @@ function ToggleMax()
 	SKIN:Bang('!CommandMeasure', 'mRamp', 'Stop 1')
 	SKIN:Bang('!CommandMeasure', 'mRamp', 'Execute 1')
 	Ramp()
+end
+
+-- Mouse over / off the fan icon (MouseOverAction / MouseLeaveAction).
+function Hover(on)
+	hovered = on == 1
+	showMax()
 end
 
 function Open()
