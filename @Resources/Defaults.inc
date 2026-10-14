@@ -16,8 +16,10 @@ AccentColor=0,229,255
 ; How bright details and icons are when not hovered, 30 to 90 (%).
 ; Values (volume %, titles) sit 20 points above this.
 RestBrightness=60
-; Hide every skin while a full-screen app is in front.
-HideFullScreen=1
+; Hide every skin while a full-screen app is in front. Off by default: the
+; check follows the foreground window on any monitor, so a game or video on
+; the main monitor would also hide skins sitting on a second one.
+HideFullScreen=0
 ; Stop skins from being dragged (Settings applies it with !DraggableGroup).
 LockPositions=0
 
