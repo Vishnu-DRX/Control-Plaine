@@ -58,7 +58,41 @@ end
 -- shows (Hold), then comes back as Hold fades.
 local NAME_REST = '(#*AlphaHover*#*#*Reveal*#*(1-#*Hold*#))'
 local NAME_WARN = '(#*AlphaValue*#+(#*AlphaHover*#-#*AlphaValue*#)*#*Reveal*#)'
-local NAME_MAX = 15     -- characters kept of a long network name
+-- The name and the speed test icon beside it must fit in the skin's fixed width
+-- (LineW, which already holds the longest speed test result): name + 8 gap + 24
+-- icon. Width is estimated per letter (the name is shown in capitals, 7.25 pt
+-- semibold plus 2.4 tracking; EM is calibrated so "SAVARI GIRI GIRI" comes to the
+-- ~122 px it measured at on a real screenshot) so that
+-- narrow and wide letters count fairly.
+local NAME_BUDGET = 226  -- design px for the name (LineW 262 - 8 - 24, a little spare)
+local EM, TRACK = 11.1, 2.4
+local function nameWidth(text)
+	local w = 0
+	for c in text:upper():gmatch('.') do
+		local em = 0.62
+		if c:find('[I%.,:;\'!|]') then em = 0.28
+		elseif c == ' ' then em = 0.27
+		elseif c:find('[%d]') then em = 0.55
+		elseif c:find('[JLT1]') then em = 0.52
+		elseif c:find('[M@%%]') then em = 0.85
+		elseif c == 'W' then em = 0.92 end
+		w = w + em * EM + TRACK
+	end
+	return w
+end
+
+-- Cut a long name to the budget, with an ellipsis. ASCII only (other scripts
+-- are left as WiFiStatus gives them).
+local function fitName(text)
+	if text:find('[\128-\255]') or nameWidth(text) <= NAME_BUDGET then return text end
+	local dots = nameWidth('...')
+	for n = #text - 1, 1, -1 do
+		if nameWidth(text:sub(1, n)) + dots <= NAME_BUDGET then
+			return text:sub(1, n):gsub('%s+$', '') .. '...'
+		end
+	end
+	return text
+end
 
 local hold = 0           -- mirrors the Hold variable while it fades
 
@@ -117,8 +151,7 @@ function Update()
 			icon = (q >= 67 or q <= 0) and 'wifi' or (q >= 34 and 'wifi-2' or 'wifi-1')
 			text = m.mSSID:GetStringValue()
 			if text == '' or text == '-1' then text = 'Wi-Fi' end
-			-- Cut long ASCII names so the speed test fits on the line.
-			if #text > NAME_MAX and not text:find('[\128-\255]') then text = text:sub(1, NAME_MAX - 1) .. '...' end
+			text = fitName(text)
 		end
 	elseif m.mAirplane:GetValue() == 1 then
 		icon, text = 'airplane', 'Airplane mode'
