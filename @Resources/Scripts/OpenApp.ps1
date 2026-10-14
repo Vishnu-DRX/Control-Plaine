@@ -4,16 +4,19 @@
 # If a process named -Process already has a window, that window is brought to
 # the front. If it runs without a window (in the tray) nothing is started, as
 # Steam would refuse a game that is already running. Otherwise -Target is
-# opened. With no -Process the target is simply opened.
+# opened. With no -Process the target is simply opened. -DryRun only prints
+# what it would do.
 param(
     [Parameter(Mandatory = $true)][string]$Target,
-    [string]$Process = ''
+    [string]$Process = '',
+    [switch]$DryRun
 )
 
 if ($Process) {
     $running = @(Get-Process -Name $Process -ErrorAction SilentlyContinue)
     if ($running.Count -gt 0) {
         $proc = $running | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
+        if ($DryRun) { Write-Output "running; would focus window: $(if ($proc) { $proc.MainWindowTitle } else { '(none, do nothing)' })"; exit 0 }
         if ($proc) {
             Add-Type -Namespace CP -Name Win -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
@@ -32,4 +35,5 @@ if ($Process) {
         exit 0
     }
 }
+if ($DryRun) { Write-Output "not running; would start: $Target"; exit 0 }
 Start-Process -FilePath $Target
