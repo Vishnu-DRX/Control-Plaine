@@ -56,6 +56,8 @@ end
 
 -- EMPTY link. EmptyBin shows Windows' confirm dialog; EmptyBinSilent does not.
 function Empty()
+	-- The link may hide under the mouse, so no leave event: reset its colour.
+	SKIN:Bang('!SetVariable', 'EmptyInk', SKIN:GetVariable('Ink'))
 	SKIN:Bang('!CommandMeasure', 'mCount',
 		on('RecycleBinConfirm') and 'EmptyBin' or 'EmptyBinSilent')
 	SKIN:Bang('!UpdateMeasure', 'mCount')
