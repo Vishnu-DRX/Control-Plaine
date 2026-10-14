@@ -106,23 +106,20 @@ local function paint()
 		end
 		SKIN:Bang('!SetOption', 'PickValue', 'Text', hm(pickMinutes))
 		SKIN:Bang('!UpdateMeter', 'PickValue')
-		-- Row: arrow, time, then SET on the same line (SET's width never changes).
-		SKIN:Bang('!UpdateMeter', 'PickSet')
-		local setW = SKIN:GetMeter('PickSet'):GetW()
-		local arrowW, gap, setGap = 8 * s, 8 * s, 14 * s
+		-- Left block: title, then arrow + time. The X and tick sit in a right
+		-- column, each level with its row (X with the title, tick with the time).
+		local arrowW, gap = 8 * s, 8 * s
 		local titleW = SKIN:GetMeter('PickTitle'):GetW()
-		local blockW = math.max(titleW, arrowW + gap + pickValueW + setGap + setW)
+		local blockW = math.max(titleW, arrowW + gap + pickValueW)
 		local x0 = math.floor(math.max(0, (num('SkinW') * s - blockW) / 2))
 		SKIN:Bang('!SetOption', 'PickTitle', 'X', x0)
 		SKIN:Bang('!SetOption', 'PickValue', 'X', math.floor(x0 + arrowW + gap))
-		-- Scroll arrow on the left, vertically centred on the value.
 		local v = SKIN:GetMeter('PickValue')
+		local ttl = SKIN:GetMeter('PickTitle')
 		SKIN:Bang('!SetOption', 'PickArrow', 'X', x0)
 		SKIN:Bang('!SetOption', 'PickArrow', 'Y', math.floor(v:GetY() + (v:GetH() - 16 * s) / 2))
-		-- SET after the longest-time width, vertically centred on the time.
-		local set = SKIN:GetMeter('PickSet')
-		SKIN:Bang('!SetOption', 'PickSet', 'X', math.floor(x0 + arrowW + gap + pickValueW + setGap))
-		SKIN:Bang('!SetOption', 'PickSet', 'Y', math.floor(v:GetY() + (v:GetH() - set:GetH()) / 2))
+		SKIN:Bang('!SetOption', 'PickClose', 'Y', math.floor(ttl:GetY() + (ttl:GetH() - 18 * s) / 2))
+		SKIN:Bang('!SetOption', 'PickSet', 'Y', math.floor(v:GetY() + (v:GetH() - 18 * s) / 2))
 		SKIN:Bang('!UpdateMeterGroup', 'Pick')
 		SKIN:Bang('!Redraw')
 		return

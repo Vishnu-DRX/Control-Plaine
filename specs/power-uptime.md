@@ -28,7 +28,7 @@ row 1  label      HIBERNATE / CLICK AGAIN / SHUT DOWN IN 58 M
 row 2  icons      [hib] [shut] [restart] [lock]
 row 3  link       SCHEDULE / CANCEL
 ```
-Picker mode replaces rows 1 to 3 with `SHUT DOWN IN` / time `3 H 15 M` with a small vertical double-ended arrow (one connected shape, like a vertical <->) on its left (no outline box; the arrow shows it scrolls). SET sits on the same line as the time, to its right, after the reserved time width. Arrow, title, time and SET are left-aligned in one block centred once and sized for the longest time (`23 H 45 M`), so scrolling never changes any width or position. / `SET` (plus a small `BACK` or click-icon-to-close, see Picker).
+Picker mode replaces rows 1 to 3 with `SHUT DOWN IN` / time `3 H 15 M` with a small vertical double-ended arrow (one connected shape, like a vertical <->) on its left (no outline box; the arrow shows it scrolls). An X (cancel) sits level with the title and a tick (schedule, replaces the SET text) level with the time, in one right column, same size and stroke. Arrow, title and time are left-aligned in one block centred once and sized for the longest time (`23 H 45 M`), so scrolling never changes any width or position. / `SET` (plus a small `BACK` or click-icon-to-close, see Picker).
 
 Order of icons: hibernate (or sleep, setting), shut down, restart, lock, as in the design.
 
@@ -60,7 +60,7 @@ Second click (when `PowerConfirm=1`, the default; `0` runs shut down and restart
 - SCHEDULE on a column opens picker mode for that action; value starts at `PowerPickerStart` minutes (default 60).
 - `MouseScrollUpAction` on the value box: +15 min; down: -15 min; clamp 15 to 1440. No wrap.
 - Display: `45 M`, `1 H`, `3 H 15 M`, `24 H`. Title: `HIBERNATE IN` / `SHUT DOWN IN` / `RESTART IN`.
-- SET schedules and returns to normal mode. Clicking the action's icon again, or leaving the skin for 3 s (ActionTimer), closes the picker without scheduling.
+- The tick schedules and returns to normal mode. Clicking the action's icon again, or leaving the skin for 3 s (ActionTimer), closes the picker without scheduling.
 
 **One schedule at a time.** Windows allows only one pending `shutdown /t` (a second returns error 1190), and three parallel countdowns would not fit the layout. Setting a new schedule replaces the old one: cancel old, then set new.
 
