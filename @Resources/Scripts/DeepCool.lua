@@ -11,7 +11,6 @@ local SETTLE = 3        -- s the process must run before a start counts as done
 
 local running = false
 local pending           -- nil, 'start' or 'stop'
-local hovered = false  -- mouse is over the icon
 local since = 0         -- when pending began
 local seenAt            -- when the process was first seen during a start
 local goneAt            -- when the process was first missing during a close
@@ -33,8 +32,7 @@ local function show()
 		text = label()
 		tip = running and 'Close DeepCool' or 'Start DeepCool'
 	end
-	-- The icon also takes the accent colour while hovered, like the Power icons.
-	SKIN:Bang('!SetVariable', 'IconTint', ((running and not pending) or hovered) and accent or ink)
+	SKIN:Bang('!SetVariable', 'IconTint', (running and not pending) and accent or ink)
 	SKIN:Bang('!SetVariable', 'Busy', pending and 1 or 0)
 	SKIN:Bang('!SetVariable', 'StateText', text)
 	SKIN:Bang('!SetOption', 'Icon', 'ToolTipText', tip)
@@ -66,12 +64,6 @@ function Update()
 	if pending and now - since > TIMEOUT then pending = nil end
 	show()
 	return running and 1 or 0
-end
-
--- Mouse over / off the icon (MouseOverAction / MouseLeaveAction).
-function Hover(on)
-	hovered = on == 1
-	show()
 end
 
 function Toggle()
