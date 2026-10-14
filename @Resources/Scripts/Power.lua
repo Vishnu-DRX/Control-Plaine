@@ -125,6 +125,11 @@ local function paint()
 		return
 	end
 
+	-- The picker's X and tick go accent while hovered; clear that when the
+	-- picker is closed (a hidden meter gets no mouse-leave).
+	SKIN:Bang('!SetVariable', 'CloseRGB', ink)
+	SKIN:Bang('!SetVariable', 'TickRGB', ink)
+
 	-- Icons.
 	for i, key in pairs(slots) do
 		local tint, alpha = ink, rest
