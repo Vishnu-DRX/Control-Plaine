@@ -28,7 +28,7 @@ row 1  label      HIBERNATE / CLICK AGAIN / SHUT DOWN IN 58 M
 row 2  icons      [hib] [shut] [restart] [lock]
 row 3  link       SCHEDULE / CANCEL
 ```
-Picker mode replaces rows 1 to 3 with `SHUT DOWN IN` / time `3 H 15 M` with a small vertical double-ended arrow (one connected shape, like a vertical <->) on its left (no outline box; the arrow shows it scrolls). Arrow, title, time and SET are left-aligned in one block centred once and sized for the longest time (`23 H 45 M`), so scrolling never changes any width or position. / `SET` (plus a small `BACK` or click-icon-to-close, see Picker).
+Picker mode replaces rows 1 to 3 with `SHUT DOWN IN` / time `3 H 15 M` with a small vertical double-ended arrow (one connected shape, like a vertical <->) on its left (no outline box; the arrow shows it scrolls). SET sits right under the X (cancel) in the top-right corner. Arrow, title and time are left-aligned in one block centred once and sized for the longest time (`23 H 45 M`), so scrolling never changes any width or position. / `SET` (plus a small `BACK` or click-icon-to-close, see Picker).
 
 Order of icons: hibernate (or sleep, setting), shut down, restart, lock, as in the design.
 

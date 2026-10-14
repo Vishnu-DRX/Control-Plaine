@@ -111,7 +111,11 @@ local function paint()
 		local blockW = math.max(titleW, arrowW + gap + pickValueW)
 		local x0 = math.floor(math.max(0, (num('SkinW') * s - blockW) / 2))
 		SKIN:Bang('!SetOption', 'PickTitle', 'X', x0)
-		SKIN:Bang('!SetOption', 'PickSet', 'X', x0)
+		-- SET sits right under the X (top-right corner), centred on it.
+		SKIN:Bang('!UpdateMeter', 'PickSet')
+		local setW = SKIN:GetMeter('PickSet'):GetW()
+		local skinW = num('SkinW') * s
+		SKIN:Bang('!SetOption', 'PickSet', 'X', math.floor(math.min(skinW - setW, skinW - 9 * s - setW / 2)))
 		SKIN:Bang('!SetOption', 'PickValue', 'X', math.floor(x0 + arrowW + gap))
 		-- Scroll arrow on the left, vertically centred on the value.
 		local v = SKIN:GetMeter('PickValue')
