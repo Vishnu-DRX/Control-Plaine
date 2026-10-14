@@ -133,7 +133,7 @@ local function paint()
 		elseif key == sched.action then
 			tint, alpha = accent, lit
 		elseif key == hovered then
-			alpha = lit
+			tint, alpha = accent, lit
 		end
 		SKIN:Bang('!SetVariable', 'Tint' .. i, tint)
 		SKIN:Bang('!SetVariable', 'Alpha' .. i, alpha)
