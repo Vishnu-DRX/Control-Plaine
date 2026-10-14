@@ -49,7 +49,6 @@ local function showMax()
 	setVar('IconTint', tint)
 	-- The snowflake also takes the accent colour while hovered.
 	setVar('SnowTint', snowHovered and var('Accent') or tint)
-	setVar('SnowTip', maxOn == 1 and 'Back to normal' or 'All fans to 100%')
 	SKIN:Bang('!UpdateMeter', 'Icon')
 	SKIN:Bang('!UpdateMeter', 'Snow')
 	SKIN:Bang('!Redraw')
