@@ -108,9 +108,9 @@ local function setHold(v)
 	SKIN:Bang('!Redraw')
 end
 
-local function restTip()
+-- Look for speedtest.exe again (it may have been installed since the last test).
+local function findAgain()
 	exe = findExe()
-	SKIN:Bang('!SetOption', 'Gauge', 'ToolTipText', exe and 'Speed test' or 'Install speedtest')
 end
 
 -- ---------- lifecycle ----------
@@ -125,8 +125,11 @@ function Initialize()
 	local click = SKIN:GetVariable('WiFiClick', 'settings')
 	if click == '' or click:lower() == 'settings' then click = 'ms-settings:network-wifi' end
 	SKIN:Bang('!SetVariable', 'OpenTarget', click)
+	if click == 'ms-settings:network-wifi' then
+		SKIN:Bang('!SetOption', 'Icon', 'ToolTipText', 'Wi-Fi settings')
+	end
 
-	restTip()
+	findAgain()
 end
 
 -- Same order as the taskbar: a live connection wins, then airplane mode.
@@ -190,7 +193,7 @@ end
 
 function LinkClick()
 	if testing then return end
-	restTip()
+	findAgain()
 	if not exe then
 		SKIN:Bang('["' .. INSTALL_URL .. '"]')
 		return
@@ -282,5 +285,5 @@ function HoldStep()
 	setText('Up', '')
 	setText('Ping', '')
 	setHold(0)
-	restTip()
+	findAgain()
 end
