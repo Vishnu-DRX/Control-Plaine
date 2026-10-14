@@ -32,18 +32,19 @@ function Initialize()
 	lastKick = os.time()
 end
 
--- Where a row's click goes, and its tooltip.
+-- Where a row's click goes, its tooltip and, when a second copy of the app
+-- must not be started, the process name to look for first (OpenApp.ps1).
 local function target(kind)
 	local other = var('ControllersOther')
 	if kind == 'dualsense' and var('ControllersDualSenseApp') ~= '' then
-		return var('ControllersDualSenseApp'), ''
+		return var('ControllersDualSenseApp'), '', 'DSX'
 	elseif kind == 'moza' and var('ControllersWheelApp') ~= '' then
-		return var('ControllersWheelApp'), ''
+		return var('ControllersWheelApp'), '', ''
 	end
 	if other:lower() == 'ms-settings:bluetooth' then
-		return other, 'Open Bluetooth settings'
+		return other, 'Open Bluetooth settings', ''
 	end
-	return other, 'Open controller settings'
+	return other, 'Open controller settings', ''
 end
 
 local function apply(devices, look)
@@ -58,7 +59,7 @@ local function apply(devices, look)
 			elseif d.bat >= 0 and d.bat < low then
 				color = look.warn
 			end
-			local click, tip = target(d.kind)
+			local click, tip, proc = target(d.kind)
 			SKIN:Bang('!SetVariable', p .. 'Icon', ICONS[d.kind] or ICONS.other)
 			SKIN:Bang('!SetVariable', p .. 'Bat', tostring(d.bat))
 			SKIN:Bang('!SetVariable', p .. 'Chg', tostring(d.chg))
@@ -66,6 +67,7 @@ local function apply(devices, look)
 			SKIN:Bang('!SetVariable', p .. 'Color', color)
 			SKIN:Bang('!SetVariable', p .. 'Target', click)
 			SKIN:Bang('!SetVariable', p .. 'Tip', tip)
+			SKIN:Bang('!SetVariable', p .. 'Proc', proc)
 		end
 	end
 	count = math.min(#devices, MAX_ROWS)

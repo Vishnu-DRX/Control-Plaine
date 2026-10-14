@@ -145,7 +145,7 @@ function Get-Prop([string]$id, [string]$key) {
 	return $null
 }
 
-# Parents up to the first real bus node, cached per device.
+# Parents up to the first real bus node (a root hub plus its parent), cached per device.
 $chains = @{}
 function Get-Chain([string]$id) {
 	if ($chains.ContainsKey($id)) { return $chains[$id] }
@@ -155,7 +155,14 @@ function Get-Chain([string]$id) {
 		$parent = Get-Prop $current $KeyParent
 		if (-not $parent) { break }
 		$chain += $parent
-		if ($parent -match '^(PCI|ACPI|BTH|USB\\ROOT_HUB|HTREE)') { break }
+		# A root hub is followed one more hop: a real one sits under PCI, DSX's ViGEm
+		# virtual pad's under ROOT\USB (which the caller drops).
+		if ($parent -match '^USB\\ROOT_HUB') {
+			$up = Get-Prop $parent $KeyParent
+			if ($up) { $chain += $up }
+			break
+		}
+		if ($parent -match '^(PCI|ACPI|BTH|HTREE)') { break }
 		$current = $parent
 	}
 	$chains[$id] = $chain
