@@ -13,6 +13,7 @@ local slots          -- slot number -> action key
 local hovered, armed, linkKey
 local picking, pickMinutes
 local errorText
+local pickValueW   -- width of the longest picker time, measured once
 local sched = { action = '', at = 0, boot = 0 }
 local checked = false
 local queue = {}     -- commands waiting to run: { measure, args, ok, after, failText }
@@ -92,16 +93,29 @@ local function paint()
 	SKIN:Bang(picking and '!ShowMeterGroup' or '!HideMeterGroup', 'Pick')
 
 	if picking then
+		-- Everything is left-aligned in one block that is centred once, and the
+		-- value gets room for the longest time (23 H 45 M) up front, so
+		-- scrolling from 1 H to 1 H 15 M never moves or resizes anything.
 		local s = scale()
-		local cx = num('SkinW') * s / 2
 		SKIN:Bang('!SetOption', 'PickTitle', 'Text', NAME[picking] .. ' IN')
+		SKIN:Bang('!UpdateMeter', 'PickTitle')
+		if not pickValueW then
+			SKIN:Bang('!SetOption', 'PickValue', 'Text', '23 H 45 M')
+			SKIN:Bang('!UpdateMeter', 'PickValue')
+			pickValueW = SKIN:GetMeter('PickValue'):GetW()
+		end
 		SKIN:Bang('!SetOption', 'PickValue', 'Text', hm(pickMinutes))
-		place('PickTitle', cx)
-		place('PickValue', cx)
-		place('PickSet', cx)
-		-- Up/down arrow just right of the value: it scrolls.
+		SKIN:Bang('!UpdateMeter', 'PickValue')
+		local arrowW, gap = 8 * s, 8 * s
+		local titleW = SKIN:GetMeter('PickTitle'):GetW()
+		local blockW = math.max(titleW, arrowW + gap + pickValueW)
+		local x0 = math.floor(math.max(0, (num('SkinW') * s - blockW) / 2))
+		SKIN:Bang('!SetOption', 'PickTitle', 'X', x0)
+		SKIN:Bang('!SetOption', 'PickSet', 'X', x0)
+		SKIN:Bang('!SetOption', 'PickValue', 'X', math.floor(x0 + arrowW + gap))
+		-- Scroll arrow on the left, vertically centred on the value.
 		local v = SKIN:GetMeter('PickValue')
-		SKIN:Bang('!SetOption', 'PickArrow', 'X', math.floor(v:GetX() + v:GetW() + 8 * s))
+		SKIN:Bang('!SetOption', 'PickArrow', 'X', x0)
 		SKIN:Bang('!SetOption', 'PickArrow', 'Y', math.floor(v:GetY() + (v:GetH() - 16 * s) / 2))
 		SKIN:Bang('!UpdateMeterGroup', 'Pick')
 		SKIN:Bang('!Redraw')
