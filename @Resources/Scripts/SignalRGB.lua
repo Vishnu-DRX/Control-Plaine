@@ -33,15 +33,12 @@ local function active()
 	return api or effectMode
 end
 
-local hovered = false  -- mouse is over the icon
-
 local function show()
 	setVar('ApiMode', active() and 1 or 0)
 	-- Accent while the lights are on; in free mode only while the move effect runs.
 	local lit = active() and enabled and bright > 0
 	if effectMode and not api then lit = lit and mode == 'move' end
-	-- The icon also takes the accent colour while hovered, like the Power icons.
-	setVar('IconTint', (lit or hovered) and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
+	setVar('IconTint', lit and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
 	local name = SKIN:GetVariable('SignalRGBLabel', 'Case lights')
 	if not active() then
 		setVar('BrightText', 'SignalRGB')
@@ -209,12 +206,6 @@ function Send()
 end
 
 -- Click: SignalRGBPath, or with auto the launcher from the signalrgb:// registration.
--- Mouse over / off the icon (MouseOverAction / MouseLeaveAction).
-function Hover(on)
-	hovered = on == 1
-	show()
-end
-
 function Open()
 	local target = SKIN:GetVariable('SignalRGBPath', 'auto')
 	if target == '' or target:lower() == 'auto' then

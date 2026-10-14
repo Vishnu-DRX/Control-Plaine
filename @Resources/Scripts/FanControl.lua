@@ -41,14 +41,14 @@ local function setVar(name, value)
 	SKIN:Bang('!SetVariable', name, tostring(value))
 end
 
-local hovered = false  -- mouse is over the fan icon
+local snowHovered = false  -- mouse is over the snowflake
 
 local function showMax()
 	setVar('MaxOn', maxOn)
 	local tint = maxOn == 1 and var('Accent') or var('Ink')
-	-- The fan icon takes the accent colour while hovered, like the Power icons.
-	setVar('IconTint', hovered and var('Accent') or tint)
-	setVar('SnowTint', tint)
+	setVar('IconTint', tint)
+	-- The snowflake also takes the accent colour while hovered.
+	setVar('SnowTint', snowHovered and var('Accent') or tint)
 	setVar('SnowTip', maxOn == 1 and 'Back to normal' or 'All fans to 100%')
 	SKIN:Bang('!UpdateMeter', 'Icon')
 	SKIN:Bang('!UpdateMeter', 'Snow')
@@ -257,9 +257,9 @@ function ToggleMax()
 	Ramp()
 end
 
--- Mouse over / off the fan icon (MouseOverAction / MouseLeaveAction).
-function Hover(on)
-	hovered = on == 1
+-- Mouse over / off the snowflake (MouseOverAction / MouseLeaveAction).
+function HoverSnow(on)
+	snowHovered = on == 1
 	showMax()
 end
 
