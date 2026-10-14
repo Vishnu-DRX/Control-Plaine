@@ -196,6 +196,8 @@ function LinkClick()
 		return
 	end
 	testing = true
+	-- The icon hides under the mouse, so no leave event: reset its colour.
+	SKIN:Bang('!SetVariable', 'GaugeInk', SKIN:GetVariable('Ink'))
 	os.remove(out)
 	-- "call" keeps cmd from stripping the quotes around the paths.
 	SKIN:Bang('!SetOption', 'mSpeedRun', 'Parameter', 'call "' .. exe ..
