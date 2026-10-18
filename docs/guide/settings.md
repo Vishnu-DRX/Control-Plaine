@@ -19,6 +19,10 @@ Right-click any Control-Plaine skin and choose **Control-Plaine settings**. One 
 
 The last five rows of General (SKINS FOR, LIGHT MODE BOOST, ACCENT DARKENING, HIDE IN FULL SCREEN, LOCK POSITIONS) are one line each to fit the window: hover the label for what it does. The Settings window itself always keeps its dark look, whatever you choose.
 
+**RUN SETUP AGAIN** (at the right of the LOCK POSITIONS row) restarts the [first-time setup](first-time-setup.md).
+
+A loaded skin that is missing something it needs gets an amber **!** at its tab, left of its name in the SKINS list (hover for the reason) and a line at the top of its page, SETUP NEEDED or SOME FEATURES OFF. Click the mark to open the setup for that skin. HIDE IN FULL SCREEN gets the mark when the IsFullScreen plugin is missing. Details in [first-time-setup.md](first-time-setup.md).
+
 If `User.inc` holds a setting no skin uses any more, a line at the right of the SKINS heading on General says so and links to the Advanced tab.
 
 ## Advanced
@@ -45,7 +49,7 @@ Every skin also has a TOOLTIPS row on its own page (`<Skin>Tooltips`, 1 = toolti
 
 ## Not settings
 
-`@Resources\State.inc` holds runtime state the skins write themselves (for example a pending power schedule). Leave it alone.
+`@Resources\State.inc` holds runtime state the skins write themselves (for example a pending power schedule) and whether the first-time setup is done (`SetupDone`, plus `Onb...` keys while it runs). Leave it alone, or delete the `SetupDone` line to see the setup again.
 
 ## What the path and text boxes accept
 

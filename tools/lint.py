@@ -128,25 +128,29 @@ def check_layout(rel, text):
             continue
         nxt = secs[i + 1][1] if i + 1 < len(secs) else ''
         full = style.group(1) == 'sRowLabel' and 'MeterStyle=sRowDesc' in nxt
-        rows.append((int(y.group(1)), ROW_FULL if full else ROW_LINE, name))
+        group = re.search(r'^Group=(\w+)', body, re.M)
+        rows.append((int(y.group(1)), ROW_FULL if full else ROW_LINE, name, group.group(1) if group else ''))
     inc = includes(text)
 
     def var(key):
         m = re.search(rf'^{key}=(\d+)\s*$', text, re.M)
         return int(m.group(1)) if m else None
     if '#@#Settings\\Align.inc' in inc:
-        rows += [(52, ROW_FULL, 'ALIGN'), (116, ROW_FULL, 'DETAILS')]
+        rows += [(52, ROW_FULL, 'ALIGN', ''), (116, ROW_FULL, 'DETAILS', '')]
     if '#@#Settings\\Theme.inc' in inc and var('ThemeY') is not None:
-        rows.append((var('ThemeY'), ROW_FULL, 'COLOURS'))
+        rows.append((var('ThemeY'), ROW_FULL, 'COLOURS', ''))
     if '#@#Settings\\Tooltips.inc' in inc and var('TipY') is not None:
-        rows.append((var('TipY'), ROW_LINE if var('TipCompact') == 1 else ROW_FULL, 'TOOLTIPS'))
-    rows.sort()
-    for (y, h, name), (y2, _, name2) in zip(rows, rows[1:]):
-        if y + h > y2:
-            problems.append(f'{rel}: row {name} (Y={y}, {h} high) overlaps {name2} (Y={y2})')
-    if rows and rows[-1][0] + rows[-1][1] > PANEL_ROWS_END:
-        y, h, name = rows[-1]
-        problems.append(f'{rel}: row {name} (Y={y}, {h} high) ends below Y={PANEL_ROWS_END}, outside the panel')
+        rows.append((var('TipY'), ROW_LINE if var('TipCompact') == 1 else ROW_FULL, 'TOOLTIPS', ''))
+    # Rows of different meter Groups are never on screen together (the
+    # onboarding steps), so each group is checked on its own.
+    for group in sorted({r[3] for r in rows}):
+        grows = sorted(r[:3] for r in rows if r[3] == group)
+        for (y, h, name), (y2, _, name2) in zip(grows, grows[1:]):
+            if y + h > y2:
+                problems.append(f'{rel}: row {name} (Y={y}, {h} high) overlaps {name2} (Y={y2})')
+        if grows and grows[-1][0] + grows[-1][1] > PANEL_ROWS_END:
+            y, h, name = grows[-1]
+            problems.append(f'{rel}: row {name} (Y={y}, {h} high) ends below Y={PANEL_ROWS_END}, outside the panel')
 
 
 for path in sorted(ROOT.rglob('*')):
@@ -288,6 +292,167 @@ for name in SKIN_FOLDERS:
             and re.search(r'^TipY=\d+\s*$', ptext, re.M)
             and '#@#Settings\\Tooltips.inc' in includes(ptext)):
         problems.append(f'Settings/{name}.ini: T4 needs TipKey={name}Tooltips, TipY and @include of #@#Settings\\Tooltips.inc')
+
+# O8, O12, O13, GD1, GD6: first-run setup, install helpers and needs. See
+# @Resources/Setup/NeedsList.lua (what each skin needs), Helpers.txt (the
+# allow-list of install commands) and Scripts/Needs.lua, Onboarding.lua.
+SETUP = ROOT / '@Resources' / 'Setup'
+SCRIPTS = ROOT / '@Resources' / 'Scripts'
+HELPER_KEYS = {'label', 'reason', 'required_for', 'optional_for', 'program', 'args', 'elevated',
+               'verify', 'source', 'restart', 'installer'}
+
+
+def parse_helpers(text):
+    found, cur = {}, None
+    for line in text.splitlines():
+        if not line.strip() or line.lstrip().startswith(';'):
+            continue
+        m = re.match(r'^\[([\w-]+)\]\s*$', line)
+        if m:
+            cur = found.setdefault(m.group(1), {'verify': []})
+            continue
+        kv = re.match(r'^(\w+)=(.*)$', line)
+        if not kv or cur is None:
+            problems.append(f'@Resources/Setup/Helpers.txt: cannot read line: {line.strip()}')
+        elif kv.group(1) == 'verify':
+            cur['verify'].append(kv.group(2))
+        else:
+            cur[kv.group(1)] = kv.group(2)
+    return found
+
+
+def parse_needs(text):
+    """{skin: [{id, level, feature, helper, keys}]} read from the text of NeedsList.lua."""
+    found, skin = {}, None
+    for line in text.splitlines():
+        m = re.match(r'^\t(\w+) = \{(\},?)?\s*$', line)
+        if m:
+            skin = m.group(1)
+            found[skin] = []
+            continue
+        m = re.match(r"^\t\t\{ id = '(\w+)'", line)
+        if m and skin:
+            found[skin].append({'id': m.group(1), 'text': line})
+        elif skin and found[skin] and line.startswith('\t\t  '):
+            found[skin][-1]['text'] += '\n' + line
+    for skin_needs in found.values():
+        for n in skin_needs:
+            body = n['text']
+            n['level'] = (re.search(r"level = '(\w+)'", body) or [None, None])[1]
+            n['feature'] = (re.search(r"feature = '(\w+)'", body) or [None, None])[1]
+            n['helper'] = (re.search(r"helper = '([\w-]+)'", body) or [None, None])[1]
+            n['keys'] = set(re.findall(r"\b(?:key|path|target|beside|var) = '(\w+)'", body))
+            for group in re.findall(r"nonempty = \{([^}]*)\}", body):
+                n['keys'] |= set(re.findall(r"'(\w+)'", group))
+    return found
+
+
+helpers_file, needs_file = SETUP / 'Helpers.txt', SETUP / 'NeedsList.lua'
+helpers, needs = {}, {}
+if not helpers_file.exists() or not needs_file.exists():
+    problems.append('@Resources/Setup: needs Helpers.txt and NeedsList.lua')
+else:
+    helpers = parse_helpers(helpers_file.read_text('ascii', 'replace'))
+    needs = parse_needs(needs_file.read_text('ascii', 'replace'))
+    for hid, h in helpers.items():
+        missing = HELPER_KEYS - set(h)
+        if missing:
+            problems.append(f'Helpers.txt [{hid}]: missing {", ".join(sorted(missing))}')
+            continue
+        if not h['program'].strip() or not h['verify']:
+            problems.append(f'Helpers.txt [{hid}]: needs a program and at least one verify')
+        if h['elevated'] not in ('0', '1') or h['restart'] not in ('0', '1') or h['installer'] not in ('0', '1'):
+            problems.append(f'Helpers.txt [{hid}]: elevated, restart and installer are 0 or 1')
+        if h['installer'] == '1' and h['elevated'] == '1':
+            problems.append(f'Helpers.txt [{hid}]: the installer never runs an elevated helper')
+        for v in h['verify']:
+            if not re.match(r'^(file|path):\S', v):
+                problems.append(f'Helpers.txt [{hid}]: verify must be file:<path> or path:<name>: {v}')
+        for token in re.findall(r'\{(\w+)\}', h['args']):
+            if token != 'ROOT':
+                problems.append(f'Helpers.txt [{hid}]: only {{ROOT}} may be substituted in args, found {{{token}}}')
+        for skin in re.split(r'\s*,\s*', h['required_for'] + ',' + h['optional_for']):
+            if skin and skin not in SKIN_FOLDERS + ['General']:
+                problems.append(f'Helpers.txt [{hid}]: unknown skin {skin}')
+        for script in re.findall(r'\{ROOT\}([\w\\.-]+)', h['args']):
+            if not (ROOT / script.replace('\\', '/')).exists():
+                problems.append(f'Helpers.txt [{hid}]: {script} does not exist in the repo')
+    json_skins = []
+    try:
+        import json
+        json_skins = [s['folder'] for s in json.loads((ROOT / 'docs' / 'skins.json').read_text('ascii'))['skins']]
+    except (OSError, ValueError, KeyError):
+        pass
+    for name in sorted(set(SKIN_FOLDERS) | set(json_skins) | {'General'}):
+        if name not in needs:
+            problems.append(f'NeedsList.lua: no entry for {name} (an empty list is fine)')
+    for name in needs:
+        if name not in SKIN_FOLDERS + ['General']:
+            problems.append(f'NeedsList.lua: entry {name} is not a skin folder')
+    ungated = {}
+    for name, skin_needs in needs.items():
+        seen = set()
+        dfile = ROOT / name / 'Defaults.inc'
+        skin_defaults = dfile.read_text('ascii', 'replace') if dfile.exists() else ''
+        ini = ROOT / name / f'{name}.ini'
+        ini_text = ini.read_text('ascii', 'replace') if ini.exists() else ''
+        for n in skin_needs:
+            where = f'NeedsList.lua {name}/{n["id"]}'
+            if n['id'] in seen:
+                problems.append(f'{where}: duplicate id')
+            seen.add(n['id'])
+            if n['level'] not in ('mandatory', 'optional'):
+                problems.append(f'{where}: level must be mandatory or optional')
+            if n['level'] == 'mandatory' and n['feature']:
+                problems.append(f'{where}: a mandatory need has no feature (it blocks the skin)')
+            if n['helper'] and n['helper'] not in helpers:
+                problems.append(f'{where}: helper {n["helper"]} is not in Helpers.txt')
+            for key in sorted(n['keys']):
+                if key not in defined:
+                    problems.append(f'{where}: key {key} has no default in a Defaults.inc')
+            if n['feature'] and name != 'General':
+                flag = f'{name}Has{n["feature"]}'
+                used = re.search(rf'#\*?{flag}\*?#', ini_text)
+                if used and not re.search(rf'^{flag}=[01]\s*$', skin_defaults, re.M):
+                    problems.append(f'{name}/Defaults.inc: GD1 needs {flag}=1 (the skin gates on it)')
+                if not used:
+                    ungated.setdefault(name, []).append(n['feature'])
+        declared = {n['feature'] for n in skin_needs}
+        for m in re.finditer(rf'#\*?{name}Has(\w+?)\*?#', ini_text):
+            if m.group(1) not in declared:
+                problems.append(f'{name}/{name}.ini: GD1 {name}Has{m.group(1)} is not declared in NeedsList.lua')
+    # GD1/GD2: a declared optional feature must be gated in the skin. The
+    # per-skin gating edits are separate packages, so this only warns until
+    # they have merged. Flip GATING_FAILS then.
+    GATING_FAILS = False
+    for name, features in sorted(ungated.items()):
+        msg = f'{name}/{name}.ini: GD1 optional features not gated yet (<Skin>Has<Feature>): {", ".join(features)}'
+        if GATING_FAILS:
+            problems.append(msg)
+        else:
+            print('warning: ' + msg)
+
+# Onboarding.ini only calls Onboarding.lua functions that exist, and the
+# detection and onboarding scripts run nothing and write no files (GD6, O9).
+onb_ini = ROOT / 'Settings' / 'Onboarding.ini'
+onb_lua = SCRIPTS / 'Onboarding.lua'
+if onb_ini.exists() and onb_lua.exists():
+    lua_text = onb_lua.read_text('ascii', 'replace')
+    defined_fns = set(re.findall(r'^function (\w+)\(', lua_text, re.M))
+    ini_text = onb_ini.read_text('ascii', 'replace')
+    called = set(re.findall(r'mOnboarding:(\w+)\(', ini_text)) | set(re.findall(r'CommandMeasure mOnboarding "(\w+)\(', ini_text))
+    for fn in sorted(called):
+        if fn not in defined_fns:
+            problems.append(f'Settings/Onboarding.ini: calls {fn}() which Onboarding.lua does not define')
+    if len(re.findall(r'^Plugin=RunCommand', ini_text, re.M)) != 1:
+        problems.append('Settings/Onboarding.ini: exactly one RunCommand measure (mRun, driven by Helpers.txt) is allowed')
+    for lua in (SCRIPTS / 'Needs.lua', onb_lua):
+        body = lua.read_text('ascii', 'replace')
+        for bad in (r'os\.execute', r'io\.popen', r'os\.remove', r'os\.rename', r"io\.open\([^)]*,\s*'[wa]"):
+            if re.search(bad, body):
+                problems.append(f'{lua.relative_to(ROOT)}: GD6 detection and setup must not run or write files ({bad})')
+    if len(re.findall(r"SKIN:Bang\('!SetOption', 'mRun', 'Program'", lua_text)) != 1:
+        problems.append('Onboarding.lua: mRun Program must be set in exactly one place (Run, from Helpers.txt)')
 
 # S11: CLEAN deletes User.inc keys that no listed Defaults file defines, so a
 # skin missing from TABS in Settings.lua would lose its saved settings.
