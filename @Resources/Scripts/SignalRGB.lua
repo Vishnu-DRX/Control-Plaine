@@ -244,7 +244,7 @@ end
 function Open()
 	local target = SKIN:GetVariable('SignalRGBPath', 'auto')
 	if target == '' or target:lower() == 'auto' then
-		local cmd = SKIN:GetMeasure('mProtocol'):GetStringValue() or ''
+		local cmd = SKIN:GetMeasure('mRegSignalRGB'):GetStringValue() or ''
 		target = cmd:match('^"([^"]+)"') or cmd:match('^(%S+)') or ''
 	end
 	if target == '' then return end

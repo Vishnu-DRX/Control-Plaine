@@ -38,7 +38,18 @@ Things the cloud cannot check because they need Rainmeter or a Windows PC. Each 
 
 ## Onboarding (WP-O)
 
-- [ ] First run opens Settings once, placement works, degradation gating hides what is missing. Not started here; waiting for the onboarding PRs to merge.
+- [ ] First run on a fresh profile (no `SetupDone`): `install.ps1` opens Settings once and it shows the onboarding, not two windows; FINISH and SKIP SETUP both write `SetupDone=1` and Settings does not reopen the onboarding afterwards (R5-N16).
+- [ ] Existing profile that only pulled the update and refreshed: what the first Settings open does (R5-N10). With `install.ps1` an existing profile is marked done, and State.inc stays readable if Rainmeter saved it as UTF-16 (R5-N7).
+- [ ] SKINS step: skins whose mandatory need is missing start off with the reason; the ones that are fine stay on. SignalRGB with the default `auto` path is NOT blocked when SignalRGB is installed, and hides about 5 s after load when it is not (R5-N1, R5-N2).
+- [ ] Flags flip live within a minute with no refresh: install Speedtest CLI and the Wi-Fi speed test icon appears; rename the `FanControlMax` profile file and the snowflake hides; a wrong Playnite path hides the skin and a fixed path brings it back.
+- [ ] Fan Control: with the tasks installed, MAX works without UAC and the live fan value shows (the task checks must not read as missing for a normal user, R5-N5); without them MAX asks for UAC and the sensor value is hidden.
+- [ ] Controllers overlay: with `ControllersDualSenseApp`, `ControllersWheelApp` and `ControllersOther` each cleared or pointed at a missing file, hovering the row still reveals the detail, the cursor stays an arrow, there is no tooltip and a click starts nothing; with valid values the click opens the app (R5-N14).
+- [ ] RUN IT FOR ME and COPY COMMAND for the MediaPlayer plugin, Speedtest, IsFullScreen and the fan tasks, with a profile folder that has a space and with one that has an apostrophe: the clipboard text equals the command shown and the helper gets the full argument list, not its first word (R5-N3, R5-N11). The UAC prompt appears for the fan tasks only.
+- [ ] RUN IT FOR ME with the PC offline or the UAC prompt dismissed: the row ends in NOT FOUND AFTER THE RUN with a tail of the output, and the button works again; nothing hangs for the 10 minute timeout.
+- [ ] Placement: one screen, two screens (click the screen word to cycle), a portrait screen and a screen left of the primary (negative X): skins stack on the chosen edge inside the work area, nothing overlaps the taskbar, many skins on a short screen start a second column that is still on screen (R5-N15). The `!Move` positions survive a Rainmeter restart.
+- [ ] Per-skin gates on screen: Power hides SCHEDULE without Task Scheduler, RecycleBin hides EMPTY, Wi-Fi shows plain Wi-Fi when the network name flag is 0, SignalRGB hides the brightness control and the double arrow when their effects are empty and stops polling with `SignalRGBApi=0`, DayDate, Uptime and Volume clicks do nothing when their target is missing, Playnite, FanControl, DeepCool, Volume, RecycleBin and Media hide when BLOCKED and return when fixed.
+- [ ] A program path on an offline network share (`\\server\share\app.exe`) does not freeze Rainmeter (R5-N6). Idle CPU of the 13 skins stays flat over ten minutes with the Settings window closed.
+- [ ] Amber marks in Settings: shown only for loaded skins, the tooltip names the missing items, a click opens the setup for that skin only (fix mode), DONE closes it, and the mark clears by itself within a minute after the fix.
 
 ## Release and public readiness (WP-I, WP-P)
 

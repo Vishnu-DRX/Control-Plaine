@@ -10,7 +10,7 @@ $mediaDll = Join-Path $plugins 'MediaPlayer.dll'
 # (Rainmeter then logs "Unable to load ... error 193"). Replace anything that
 # is not a real DLL (a DLL starts with "MZ").
 if ((Test-Path $mediaDll) -and
-    (-join [char[]](Get-Content $mediaDll -Encoding Byte -TotalCount 2)) -ne 'MZ') {
+    (-join [char[]]([IO.File]::ReadAllBytes($mediaDll) | Select-Object -First 2)) -ne 'MZ') {
     Remove-Item $mediaDll
     Write-Host "Removed a broken MediaPlayer.dll."
 }
