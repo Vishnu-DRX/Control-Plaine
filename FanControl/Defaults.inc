@@ -9,6 +9,9 @@ FanControlAlign=left
 ; hover shows the text and snowflake only while hovered, always keeps them
 ; visible. DetailsAll in Settings can override it.
 FanControlDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+FanControlTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 FanControlTooltips=1
 ; Fan Control program (FanControl.exe). Its configs are in the Configurations

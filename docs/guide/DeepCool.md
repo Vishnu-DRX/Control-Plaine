@@ -6,7 +6,7 @@ A switch for the DeepCool app that drives the case screen.
 
 ## At rest and on hover
 
-- **At rest:** The DeepCool logo: accent while the app runs, grey when closed.
+- **At rest:** The DeepCool logo: accent while the app runs, otherwise the ink colour (white or black, per COLOURS).
 - **On hover:** CASE SCREEN (or DEEPCOOL) and a bulb. With `DeepCoolDetails=always` they stay visible.
 - **Left or right:** `DeepCoolAlign=right` mirrors the skin inside the same box: label and bulb first, logo last. The skin never moves or resizes.
 
@@ -17,7 +17,7 @@ A switch for the DeepCool app that drives the case screen.
 
 ## Settings
 
-Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Besides the options below, every skin has `DeepCoolTooltips` (the TOOLTIPS row on this skin's page: 1 = show its tooltips, 0 = hide them all; default 1; `TooltipsAll` on the Advanced tab can force all skins on or off). Global options (size, accent, brightness, alignment where available) are on [Settings](settings.md).
+Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Besides the options below, every skin has `DeepCoolTooltips` (the TOOLTIPS row, one line on this page: 1 = show its tooltips, 0 = hide them all; default 1; `TooltipsAll` on the Advanced tab can force all skins on or off). Global options (size, accent, brightness, alignment where available) are on [Settings](settings.md).
 
 > Defaults below were read from `DeepCool/Defaults.inc` when this page was written. The file is the source of truth; if they differ, trust the file and fix this page.
 
@@ -25,6 +25,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | --- | --- | --- |
 | `DeepCoolAlign` | `left` | `left`: logo first, text after it. `right`: the mirror image (text first, logo last). The global AlignAll can override it. |
 | `DeepCoolDetails` | `hover` | `hover`: label and bulb show while hovered. `always`: they stay visible. The global DetailsAll can override it. |
+| `DeepCoolTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin, `light` = black skin. |
 | `DeepCoolPath` | `C:\DeepCool\DeepCool.exe` | The program that drives the case screen. |
 | `DeepCoolProcess` | `DeepCool.exe` | Process name used to tell if it is running. |
 | `DeepCoolStartHidden` | `1` | Open straight to the tray, no window. |
