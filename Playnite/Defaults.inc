@@ -18,3 +18,9 @@ PlayniteTooltips=1
 PlaynitePath=%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe
 ; Open Playnite without its splash screen.
 PlayniteSkipSplash=1
+
+; ---- Runtime, not settings ----
+; Set by Playnite.lua from Setup\NeedsList.lua at load and about once a
+; minute. BLOCKED (PlaynitePath not found) hides the skin.
+PlayniteNeedState=OK
+PlayniteNeedBlocked=0

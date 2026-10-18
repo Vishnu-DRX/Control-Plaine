@@ -31,3 +31,12 @@ ControllersPoll=3
 ControllersBatteryPoll=60
 ; Port of the DSX mod server (DSX settings: incoming UDP).
 ControllersDsxPort=6969
+
+; ---- Runtime, not settings ----
+; Set by Controllers.lua from Setup\NeedsList.lua at load and about once a
+; minute (1 = the function is available). 0 hides its click and tooltip.
+ControllersHasDsx=1
+ControllersHasWheel=1
+ControllersHasOther=1
+ControllersNeedState=OK
+ControllersNeedBlocked=0
