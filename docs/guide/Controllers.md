@@ -41,6 +41,10 @@ The Controllers page has a row for each key above, including COLOURS. In light m
 
 Tested with an Xbox Wireless Controller over Bluetooth, a DualSense with DSX (Steam, v3) and a Moza wheel base with Moza Pit House. A hidden PowerShell helper (`@Resources\Scripts\Controllers.ps1`) finds controllers and writes to `%TEMP%`.
 
+## When something is missing
+
+Controllers checks what it needs at load and about once a minute (files only, nothing is started). If the DualSense app, Pit House or the "other controllers" target in Settings cannot be found, a click on that kind of controller does nothing: no pointer, no tooltip. The row, name and battery still show. If `Scripts\Controllers.ps1` is missing the skin hides itself until you reinstall. Settings shows an amber **!** for each missing item; installing it clears the mark and turns the click back on without a refresh.
+
 ## Known limits
 
 Rainmeter stops the helper when the skin is closed or refreshed.

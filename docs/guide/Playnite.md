@@ -33,6 +33,10 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 Playnite (playnite.link), desktop mode.
 
+## When something is missing
+
+Playnite checks `PlaynitePath` at load and about once a minute (a file check; nothing is started). If the program is not found, the skin hides itself instead of sitting on the desktop doing nothing; Settings shows an amber **!** on its tab. Fix the path or install Playnite and the icon returns within a minute.
+
 ## Known limits
 
 -
