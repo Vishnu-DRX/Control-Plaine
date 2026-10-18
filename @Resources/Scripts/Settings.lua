@@ -41,6 +41,8 @@ local INT_RANGE = {
 -- backslash is dropped: before a closing quote it would escape it.
 local function clean(text)
 	text = tostring(text):gsub('^%s+', ''):gsub('%s+$', '')
+	-- A pasted path is often quoted; one surrounding pair is dropped.
+	text = text:gsub('^"(.*)"$', '%1')
 	if text:find('["\r\n]') then return nil end
 	text = text:gsub('#', '')
 	if #text > 3 then text = text:gsub('\\+$', '') end

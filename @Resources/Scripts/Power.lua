@@ -2,7 +2,7 @@
 -- Owns every piece of state in the Power skin: which icon is hovered, the
 -- armed second click, the schedule picker and the scheduled action.
 -- Commands run through RunCommand measures in Power.ini (mShut for
--- shutdown.exe, mPS for Power.ps1, mLock); each one calls Done() when it ends.
+-- shutdown.exe, mPS for Power.ps1, mLock); each one calls Done(name) when it ends.
 -- The schedule is stored in @Resources\State.inc so it survives a refresh.
 
 local NAME = { hibernate = 'HIBERNATE', sleep = 'SLEEP', shutdown = 'SHUT DOWN', restart = 'RESTART', lock = 'LOCK' }
@@ -18,6 +18,8 @@ local sched = { action = '', at = 0, boot = 0 }
 local checked = false
 local queue = {}     -- commands waiting to run: { measure, args, ok, after, failText }
 local running
+-- measure name -> true while a step the watchdog gave up on may still finish
+local abandoned = {}
 
 -- ---------- helpers ----------
 
@@ -224,7 +226,12 @@ local function showError(text)
 end
 
 -- Called by the RunCommand measures when their program exits.
-function Done()
+function Done(which)
+	-- A step the watchdog gave up on ends late: its result belongs to nothing.
+	if which and abandoned[which] then
+		abandoned[which] = nil
+		return
+	end
 	local step = running
 	running = nil
 	if not step then return end
@@ -321,9 +328,12 @@ end
 
 function Update()
 	-- A hung PowerShell or Task Scheduler call must not block the queue for
-	-- good. Sleep is exempt: it does not return until the PC wakes.
-	if running and running.args ~= 'sleep' and os.time() - running.started > 30 then
+	-- good. Sleep and hibernate are exempt: they do not return until the PC
+	-- wakes, and the clock jumps meanwhile.
+	if running and running.args ~= 'sleep' and running.args ~= '/h'
+			and os.time() - running.started > 30 then
 		local step = running
+		abandoned[step.measure] = true
 		running, queue = nil, {}
 		if step.failText then showError(step.failText) end
 	end
