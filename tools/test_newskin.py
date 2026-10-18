@@ -5,7 +5,8 @@ Run: python tools/test_newskin.py
 Copies the repo into a temp directory, generates a throwaway skin there, checks
 the generated files, runs that copy's tools/lint.py (1) as generated and (2)
 after the shared registration steps that the script deliberately does not do
-(SKIN_FOLDERS, TABS, the Settings tab, the General toggle), applied here
+(SKIN_FOLDERS, TABS, the Settings tab, the General toggle, skins.json, the
+layout, the INDEX), applied here
 programmatically. Nothing is written to the real repo. Standard library only.
 """
 import importlib.util
@@ -66,6 +67,12 @@ def register(copy, name):
               f"LeftMouseUpAction=[!CommandMeasure mSettings \"SkinOn('{name}')\"]\n")
     with general.open('a', encoding='ascii', newline='\n') as f:
         f.write(toggle)
+    skins = copy / 'docs' / 'skins.json'
+    edit(skins, r'(\n  \])', f',\n    {{"folder": "{name}", "name": "{name}", "oneLiner": "x", "guide": "docs/guide/{name}.md"}}\\1')
+    with (copy / 'tools' / 'layout' / 'Control-Plaine.layout').open('a', encoding='ascii', newline='\n') as f:
+        f.write(f'\n[Control-Plaine\\{name}]\nActive=1\nWindowX=24\nWindowY=24\n')
+    with (copy / 'docs' / 'INDEX.md').open('a', encoding='ascii', newline='\n') as f:
+        f.write(f'\n[guide/{name}.md](guide/{name}.md)\n')
 
 
 def main():
@@ -86,9 +93,12 @@ def main():
             check('{{' not in text, f'{p.name}: unfilled placeholder')
             check(SKIN in text, f'{p.name}: skin name missing')
 
-        # Generated files only: lint passes before any shared registration.
+        # Generated files only: before the shared registration the only complaints
+        # are the skin-list agreement (I1) and the INDEX (I2), so the new skin
+        # cannot be forgotten.
         code, problems = lint(copy)
-        check(code == 0, f'lint after generate (unregistered): {problems[:5]}')
+        check(code == 1 and all(': I1 ' in p or p.startswith('I1:') or ': I2 ' in p for p in problems) and problems,
+              f'lint after generate (unregistered) should only ask for registration: {problems[:5]}')
 
         # With the registration steps applied, the per-skin checks (tooltips T3/T4,
         # Defaults and Settings page present) apply to the new skin as well.

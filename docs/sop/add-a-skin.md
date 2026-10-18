@@ -64,7 +64,7 @@ Do these as small appends and check ownership first ([change-a-shared-file.md](c
 - [ ] `docs/guide/<Name>.md`: replace every TODO; defaults match `<Name>/Defaults.inc` (the file wins). Required by the DD5 rule in CLAUDE.md: a PR that changes what a user sees or can set updates the guide in the same PR.
 - [ ] `docs/skins.json`: add the entry (it feeds the README and the site). `README.md`: add the Skins table row. `docs/INDEX.md`: add the guide to the skin list. `docs/guide/settings.md` only if it lists the skin's rows.
 - [ ] `site/index.html`: add a card with an illustration built from the skin's own icons and the tokens in `Theme.inc` (see `site/README.md`). Do not publish the site; that waits for Vishnu's go.
-- [ ] `CHANGELOG.md` and `Layouts/`: integration-owned. Do not edit unless asked; put the suggested lines in the PR body ([../dev/release.md](../dev/release.md)).
+- [ ] `CHANGELOG.md` and `tools/layout/Control-Plaine.layout`: integration-owned. Do not edit unless asked, but lint I1 fails until the skin has a layout section, so agree the lines with the owner first; put the suggested lines in the PR body ([../dev/release.md](../dev/release.md)).
 
 ## 8. Verify and open the PR
 
