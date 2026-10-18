@@ -7,7 +7,7 @@ The day name over the date. Click to open the calendar.
 ## At rest and on hover
 
 - **At rest:** The day name (large) over the date line.
-- **On hover:** Brightens. Tooltip: Open calendar.
+- **On hover:** Brightens (the date line appears if you chose DATE LINE = hover). Tooltip: Open calendar.
 
 ## Actions
 
@@ -22,8 +22,12 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
-| `DayDateClick` | `calendar` | What a click opens: `calendar`, or any program, file or URI. |
-| `DayDateAlign` | `right` | Which side the text lines up to: `left` or `right`. |
+| `DayDateAlign` | `left` | Which edge the two lines line up to: `left` or `right`. The skin keeps the same size and place on both. (It used to be `right`; the lines now start on the left.) |
+| `DayDateDetails` | `hover` | `hover`: dim at rest, brighter on hover. `always`: both lines stay at the hover brightness. |
+| `DayDateDateLine` | `show` | `show`: the small date line is always visible. `hover`: it is hidden until the mouse is over the skin. |
+| `DayDateClick` | `calendar` | What a click opens: `calendar`, or any program, file or URI (CUSTOM in Settings). |
+
+The global `AlignAll` and `DetailsAll` (General) override `DayDateAlign` and `DayDateDetails`. `DetailsAll=always` also shows the date line, because everything then rests at the hover level. `DayDateDateLine` is not changed by either.
 
 ## Requirements
 
