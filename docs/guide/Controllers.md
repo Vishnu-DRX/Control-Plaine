@@ -23,6 +23,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `ControllersTheme` | `auto` | Colours for this skin (COLOURS row): `auto` follows the global SKINS FOR choice on General, `dark` is white (for dark wallpapers), `light` is black (for light wallpapers). |
 | `ControllersAlign` | `left` | `left` or `right`: which screen edge it sits on. `AlignAll` in Settings can override it. |
 | `ControllersDetails` | `hover` | `hover` shows every battery and the hovered name only while hovered; `always` keeps them (and every name) visible. `DetailsAll` can override it. |
 | `ControllersBatteryShow` | `50` | At rest, a battery shows only under this (%). |
@@ -34,7 +35,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | `ControllersBatteryPoll` | `60` | Seconds between battery reads (Xbox Bluetooth, DualSense without DSX). |
 | `ControllersDsxPort` | `6969` | Port of the DSX mod server (DSX settings: incoming UDP). |
 
-The Controllers page has a row for each key above. `ControllersPoll`, `ControllersBatteryPoll` and `ControllersDsxPort` are under ADVANCED at the bottom; they are rarely changed.
+The Controllers page has a row for each key above, including COLOURS. In light mode the charging bolt is drawn white on the black battery fill. `ControllersPoll`, `ControllersBatteryPoll` and `ControllersDsxPort` are under ADVANCED at the bottom; they are rarely changed.
 
 ## Requirements
 

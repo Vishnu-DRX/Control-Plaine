@@ -10,6 +10,9 @@ ControllersAlign=left
 ; hover shows every battery and the hovered name only while hovered, always
 ; keeps them visible. DetailsAll in Settings can override it.
 ControllersDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black. COLOURS in Settings.
+ControllersTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 ControllersTooltips=1
 ; At rest, battery shows only under this (%).
