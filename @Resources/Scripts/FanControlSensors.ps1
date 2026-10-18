@@ -3,19 +3,20 @@
 # over its local IPC pipe, for the FanControl skin. Read-only: it only calls
 # SensorsRPC GetAllSensors (Fan Control does not implement ReadSensorValues).
 #   pwsh -NoProfile -WindowStyle Hidden -File FanControlSensors.ps1 [-Poll 2]
-#        [-Out "%TEMP%\ControlPlaine-fans.txt"]
+#        [-Out "%ProgramData%\ControlPlaine\FanControl\fans.txt"]
 # Output, rewritten atomically every poll:
 #   ts|<unix seconds>
 #   <Identifier>|Fan|<RPM>          one line per fan sensor
 #   <Identifier>|Control|<percent>  one line per control (empty if no value)
 # or "error|<message>" while Fan Control is not reachable (retried every 5 s).
 # Fan Control runs elevated and its pipe only admits elevated clients, so this
-# runs from the \ControlPlaine\FanSensors task (tools\fan-tasks.ps1). Needs
+# runs from the \ControlPlaine\FanSensors task (tools\fan-tasks.ps1), which
+# runs a copy of this script from a folder only administrators can write. Needs
 # PowerShell 7 (Fan Control's DLLs are .NET 10). One instance at a time; exits
 # once no Rainmeter.exe has been running for 30 s.
 param(
     [double]$Poll = 2,
-    [string]$Out = (Join-Path $env:TEMP 'ControlPlaine-fans.txt'),
+    [string]$Out = (Join-Path $env:ProgramData 'ControlPlaine\FanControl\fans.txt'),
     [string]$Pipe = 'FanControl',
     [string]$FanControlDir = 'C:\Program Files (x86)\FanControl',
     [int]$RainmeterGrace = 30

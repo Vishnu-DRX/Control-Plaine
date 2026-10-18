@@ -109,6 +109,17 @@ def main():
         # The status text's left edge on the left is its right edge (anchor) on the right.
         check(abs(L['st'] + R['st'] - L['box']) <= 1.0, f'status mirrors (scale {scale}): {L["st"]} {R["st"]}')
         check(abs(L['spin'] + R['spin'] + L['spw'] - L['box']) <= 1.0, f'spinner mirrors (scale {scale})')
+    # Elevated helper: the FanSensors task must run a copy kept in an
+    # admin-only folder, never a file under the Skins checkout ($PSScriptRoot).
+    tasks = (ROOT / 'tools' / 'fan-tasks.ps1').read_text('ascii', 'replace')
+    arg = re.search(r'^\s*\$arg = (.+)$', tasks, re.M)
+    check(arg is not None, 'fan-tasks.ps1 builds the FanSensors argument line')
+    if arg:
+        check('PSScriptRoot' not in arg.group(1) and '$source' not in arg.group(1),
+              'FanSensors task must not run a file from the Skins folder')
+    check("$script = Join-Path $data" in tasks, 'FanSensors task runs the protected copy')
+    check('IgnoreNew' in tasks, 'FanSensors task allows one instance')
+    check('TEMP' not in tasks.replace('# ', ''), 'elevated reader output is not in %TEMP%')
     print('| scale | side | box W | icon X | value anchor X | snowflake X | status X | spinner X |')
     print('| --- | --- | --- | --- | --- | --- | --- | --- |')
     for r in rows:
