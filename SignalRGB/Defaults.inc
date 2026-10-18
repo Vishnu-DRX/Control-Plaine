@@ -40,3 +40,9 @@ SignalRGBLabel=Case lights
 ; link parameters (# is %23, a space %20), e.g. speed=60.
 SignalRGBMoveEffect=Side to Side
 SignalRGBMoveParams=direction=All%20Directions&color1=%2300AE57&color2=%23000000&speed=11&rainbow=false
+
+; ---- Runtime, not settings ----
+; Written by SignalRGB.lua to @Resources\State.inc; these are the
+; start values for a fresh install.
+SignalRGBBright=100
+SignalRGBMode=solid

@@ -40,8 +40,7 @@ AlphaHover=250
 AlphaOff=115
 
 ; ---- Type ----
-; Win10 or a PC without Segoe UI Variable: set FontFace=Segoe UI in User.inc.
-FontFace=Segoe UI Variable Display
+; FontFace (Segoe UI Variable Display or Segoe UI) is a setting: see Defaults.inc.
 ; Display: 52px, Day-Date day name.
 SizeDisplay=39
 WeightDisplay=400
@@ -80,21 +79,4 @@ IconBox=32
 ; A fade is FadeSteps steps of FadeStep ms (12 x 15 = 180 ms).
 FadeStep=15
 FadeSteps=12
-; Wait before revealed detail hides after the mouse leaves.
-HideDelay=500
-
-; ---- Legacy v1 names ----
-; Still used by the v1 skins until each is rebuilt. Do not use in new code.
-FontUI=Segoe UI
-FontDisplay=Segoe UI
-SizeXS=9
-SizeS=10
-SizeM=12
-SizeXL=46
-IconGap=10
-AlphaFaint=45
-; Core.inc replaces these from the user's settings.
-AlphaRest=153
-AlphaDetail=153
-AlphaValue=204
-Accent=0,229,255
+; HideDelay (how long revealed detail lingers) is a setting: see Defaults.inc.

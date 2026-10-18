@@ -5,7 +5,7 @@
 -- Meters ask for state with inline Lua: [&mSettings:Fill('Key')].
 
 local TABS = {
-	'General', 'DayDate', 'Power', 'Uptime', 'Volume', 'RecycleBin', 'Playnite',
+	'General', 'Advanced', 'DayDate', 'Power', 'Uptime', 'Volume', 'RecycleBin', 'Playnite',
 	'Media', 'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers',
 }
 
@@ -122,6 +122,8 @@ function Show(key, format)
 		return string.format('%d%%', math.floor(n + 0.5))
 	elseif format == 'scale' and n then
 		return string.format('%d%%', math.floor(n * 100 + 0.5))
+	elseif format == 'ms' and n then
+		return string.format('%d MS', math.floor(n + 0.5))
 	elseif format == 'px' and n then
 		return string.format('%g PX', n)
 	elseif format == 'days' and n then
@@ -235,4 +237,146 @@ function Lock()
 	local on = not On('LockPositions')
 	SKIN:Bang('!DraggableGroup', on and '0' or '1', 'ControlPlaine')
 	Set('LockPositions', on and 1 or 0, 'none')
+end
+
+-- ---------- RESET AND CLEAN UP (Advanced page) ----------
+-- User.inc is written by Rainmeter (!WriteKeyValue) and may be UTF-16 with a
+-- byte order mark. Read it either way and write it back the way it was.
+
+local resetAsking = false
+local unknownCache
+
+local function readFile(path)
+	local f = io.open(path, 'rb')
+	if not f then return nil, false end
+	local raw = f:read('*a')
+	f:close()
+	local wide = raw:sub(1, 2) == '\255\254'
+	if wide then raw = raw:sub(3) end
+	if raw:sub(1, 3) == '\239\187\191' then raw = raw:sub(4) end
+	return (raw:gsub('%z', '')), wide
+end
+
+local function writeFile(path, text, wide)
+	local f = io.open(path, 'wb')
+	if not f then return false end
+	text = text:gsub('\r?\n', '\r\n')
+	if wide then
+		f:write('\255\254', (text:gsub('.', '%0\0')))
+	else
+		f:write(text)
+	end
+	f:close()
+	return true
+end
+
+-- Key names set in a file's [Variables] (every key=value line).
+local function keysOf(text, into)
+	for line in (text or ''):gmatch('[^\r\n]+') do
+		local k = line:match('^%s*([%w_]+)%s*=')
+		if k then into[k:lower()] = true end
+	end
+	return into
+end
+
+local function definedKeys()
+	local defined = {}
+	local at = SKIN:GetVariable('@')
+	local base = SKIN:GetVariable('ROOTCONFIGPATH')
+	keysOf(readFile(at .. 'Defaults.inc'), defined)
+	keysOf(readFile(at .. 'Theme.inc'), defined)
+	for _, name in ipairs(TABS) do
+		keysOf(readFile(base .. name .. '\\Defaults.inc'), defined)
+	end
+	keysOf(readFile(base .. 'SettingsButton\\Defaults.inc'), defined)
+	return defined
+end
+
+-- Keys in User.inc that no Defaults.inc defines (for example a setting that
+-- was renamed or removed). Sorted, original spelling.
+local function unknownKeys()
+	if unknownCache then return unknownCache end
+	local list = {}
+	local text = readFile(userInc)
+	if text then
+		local defined = definedKeys()
+		local seen = {}
+		for line in text:gmatch('[^\r\n]+') do
+			local k = line:match('^%s*([%w_]+)%s*=')
+			if k and not defined[k:lower()] and not seen[k:lower()] then
+				seen[k:lower()] = true
+				list[#list + 1] = k
+			end
+		end
+		table.sort(list)
+	end
+	unknownCache = list
+	return list
+end
+
+-- General page notice, empty when everything in User.inc is known.
+function UnknownNotice()
+	local n = #unknownKeys()
+	if n == 0 then return '' end
+	return string.format('%d UNKNOWN SETTING%s IN USER.INC. CLEAN UP', n, n == 1 and '' or 'S')
+end
+
+-- Advanced page description of the clean-up row.
+function UnknownDesc()
+	local list = unknownKeys()
+	if #list == 0 then return 'No leftover settings found.' end
+	local shown = {}
+	for i = 1, math.min(3, #list) do shown[i] = list[i] end
+	local more = #list > 3 and string.format(' +%d more', #list - 3) or ''
+	return 'No skin uses: ' .. table.concat(shown, ', ') .. more .. '.'
+end
+
+function CleanLabel()
+	return #unknownKeys() > 0 and 'CLEAN' or 'NOTHING TO CLEAN'
+end
+
+function CleanUnknown()
+	local list = unknownKeys()
+	if #list == 0 then return end
+	local drop = {}
+	for _, k in ipairs(list) do drop[k:lower()] = true end
+	local text, wide = readFile(userInc)
+	if not text then return end
+	local out = {}
+	for line in (text .. '\n'):gmatch('([^\r\n]*)\r?\n') do
+		local k = line:match('^%s*([%w_]+)%s*=')
+		if not (k and drop[k:lower()]) then out[#out + 1] = line end
+	end
+	while #out > 0 and out[#out] == '' do out[#out] = nil end
+	writeFile(userInc, table.concat(out, '\n') .. '\n', wide)
+	unknownCache = nil
+	SKIN:Bang('!Refresh')
+end
+
+function ResetLabel()
+	return resetAsking and 'CLICK TO CONFIRM' or 'RESET'
+end
+
+function ResetCancelLabel()
+	return resetAsking and 'CANCEL' or ''
+end
+
+-- First click asks, second click empties User.inc and refreshes everything.
+function Reset()
+	if not resetAsking then
+		resetAsking = true
+		redraw()
+		return
+	end
+	resetAsking = false
+	local _, wide = readFile(userInc)
+	writeFile(userInc, '[Variables]\n', wide)
+	SKIN:Bang('!DraggableGroup', '1', 'ControlPlaine')
+	unknownCache = nil
+	apply('all')
+end
+
+function ResetCancel()
+	resetAsking = false
+	redraw()
 end
