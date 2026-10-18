@@ -21,7 +21,7 @@ The last five rows of General (SKINS FOR, LIGHT MODE BOOST, ACCENT DARKENING, HI
 
 **RUN SETUP AGAIN** (at the right of the LOCK POSITIONS row) restarts the [first-time setup](first-time-setup.md).
 
-A loaded skin that is missing something it needs gets an amber **!** at its tab, left of its name in the SKINS list (hover for the reason) and a line at the top of its page, SETUP NEEDED or SOME FEATURES OFF. Click the mark to open the setup for that skin. HIDE IN FULL SCREEN gets the mark when the IsFullScreen plugin is missing. Details in [first-time-setup.md](first-time-setup.md).
+A loaded skin that is missing something it needs gets an amber **!** at its tab, left of its name in the SKINS list (hover for the reason) and a line at the top of its page, SETUP NEEDED or SOME FEATURES OFF. Click the mark to open the setup for that skin. HIDE IN FULL SCREEN gets the mark when the IsFullScreen plugin is missing, and its switch is greyed out (it does nothing) until the plugin is installed. Details in [first-time-setup.md](first-time-setup.md).
 
 If `User.inc` holds a setting no skin uses any more, a line at the right of the SKINS heading on General says so and links to the Advanced tab.
 

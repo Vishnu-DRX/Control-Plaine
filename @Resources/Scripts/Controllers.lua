@@ -15,6 +15,18 @@ local lastBody, lastLook
 local lastKick = 0
 local count = 0
 
+-- Needs (Setup\NeedsList.lua, Scripts\Needs.lua): which optional functions
+-- exist. Sets ControllersHasDsx, ControllersHasWheel and ControllersHasOther
+-- (0/1), which the click overlays in Controllers.ini follow, and
+-- ControllersNeedBlocked (1 hides the whole skin). Checked at load and about
+-- once a minute; reads files only.
+local Needs, NEEDS
+local lastDetect = 0
+local lastSig
+local blocked = false
+local has = { Dsx = 1, Wheel = 1, Other = 1 }
+local DETECT_EVERY = 60
+
 local function var(name)
 	return SKIN:ReplaceVariables('#' .. name .. '#')
 end
@@ -43,6 +55,9 @@ local function clean(text)
 end
 
 local function target(kind)
+	-- A function that is missing opens nothing (the click overlay is hidden too).
+	local flag = kind == 'dualsense' and has.Dsx or kind == 'moza' and has.Wheel or has.Other
+	if flag == 0 then return '', '', '' end
 	local other = clean(var('ControllersOther'))
 	local dualsense, wheel = clean(var('ControllersDualSenseApp')), clean(var('ControllersWheelApp'))
 	if other == '' then other = 'ms-settings:bluetooth' end
@@ -56,6 +71,31 @@ local function target(kind)
 	end
 	return other, 'Open controller settings', ''
 end
+
+local function loadNeeds()
+	local at = SKIN:GetVariable('@')
+	local okLib, lib = pcall(dofile, at .. 'Scripts\\Needs.lua')
+	local okList, list = pcall(dofile, at .. 'Setup\\NeedsList.lua')
+	if okLib and okList and type(lib) == 'table' and type(list) == 'table' and list.Controllers then
+		Needs, NEEDS = lib, list.Controllers
+	end
+end
+
+-- Returns true when the outcome changed since the last check.
+local function detect()
+	if not Needs then return false end
+	local okEval, res = pcall(Needs.evaluate, 'Controllers', NEEDS, Needs.rainmeterEnv(SKIN))
+	if not okEval or type(res) ~= 'table' then return false end
+	Needs.apply(res, function(name, value) SKIN:Bang('!SetVariable', name, value) end)
+	blocked = res.state == 'BLOCKED'
+	for name in pairs(has) do has[name] = res.features[name] or 1 end
+	local sig = res.state .. has.Dsx .. has.Wheel .. has.Other
+	local changed = sig ~= lastSig
+	lastSig = sig
+	return changed
+end
+
+local KIND_NUM = { dualsense = 1, moza = 2 }
 
 local function apply(devices, look)
 	local low = num('ControllersBatteryLow')
@@ -78,6 +118,7 @@ local function apply(devices, look)
 			SKIN:Bang('!SetVariable', p .. 'Target', click)
 			SKIN:Bang('!SetVariable', p .. 'Tip', tip)
 			SKIN:Bang('!SetVariable', p .. 'Proc', proc)
+			SKIN:Bang('!SetVariable', p .. 'Kind', tostring(KIND_NUM[d.kind] or 3))
 		end
 	end
 	count = math.min(#devices, MAX_ROWS)
@@ -85,13 +126,20 @@ local function apply(devices, look)
 		SKIN:Bang(i <= count and '!ShowMeterGroup' or '!HideMeterGroup', 'Row' .. i)
 	end
 	SKIN:Bang('!SetVariable', 'Count', tostring(count))
-	SKIN:Bang('!SetVariable', 'SelfHidden', count == 0 and '1' or '0')
+	SKIN:Bang('!SetVariable', 'SelfHidden', (count == 0 or blocked) and '1' or '0')
 	SKIN:Bang('!UpdateMeasure', 'mVisible')
 	SKIN:Bang('!UpdateMeter', '*')
 	SKIN:Bang('!Redraw')
 end
 
 function Update()
+	local changed = false
+	if not Needs and lastDetect == 0 then loadNeeds() end
+	if os.time() - lastDetect >= DETECT_EVERY or lastDetect == 0 then
+		lastDetect = os.time()
+		changed = detect()
+	end
+
 	local text = ''
 	local f = io.open(file, 'r')
 	if f then
@@ -100,7 +148,10 @@ function Update()
 	end
 
 	local stamp, body = text:match('^v1|(%d+)\r?\n(.*)$')
-	if not stamp or os.time() - tonumber(stamp) > staleAfter then
+	if blocked then
+		-- The helper script is missing (reinstall): show nothing, run nothing.
+		body = ''
+	elseif not stamp or os.time() - tonumber(stamp) > staleAfter then
 		body = ''
 		-- Helper missing or dead: start it again (at most every 30 s).
 		if os.time() - lastKick > 30 then
@@ -112,7 +163,7 @@ function Update()
 	-- Colours are resolved here, so re-apply when the accent changes.
 	local look = { ink = var('Ink'), warn = var('Warn'), accent = var('Accent') }
 	local lookKey = look.ink .. '/' .. look.warn .. '/' .. look.accent
-	if body == lastBody and lookKey == lastLook then return count end
+	if not changed and body == lastBody and lookKey == lastLook then return count end
 	lastBody, lastLook = body, lookKey
 
 	local devices = {}
