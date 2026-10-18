@@ -2,3 +2,6 @@
 @Resources/User.inc
 @Resources/State.inc
 *.bak
+
+__pycache__/
+*.pyc
