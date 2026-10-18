@@ -28,6 +28,16 @@ FanControlIgnoreStopped=1
 FanControlUseTasks=1
 
 ; ---- Runtime, not settings ----
+; Set by the needs check (Scripts\Needs.lua) at runtime; 1 until it says
+; otherwise. 0 hides the function. See docs/guide/first-time-setup.md.
+; 0 unless a required need is missing (1 hides the skin).
+FanControlNeedBlocked=0
+; 1 while the scheduled tasks exist (only checked while FanControlUseTasks=1).
+FanControlHasTasks=1
+; 1 while the sensor feed task exists (the live fan value).
+FanControlHasSensors=1
+; 1 while the MAX profile file exists (the snowflake switch).
+FanControlHasMax=1
 ; Written to State.inc by FanControl.lua; State.inc overrides this default.
 ; 1 while the MAX profile is active.
 FanControlMaxOn=0

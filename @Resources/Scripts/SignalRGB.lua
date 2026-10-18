@@ -20,6 +20,11 @@ local misses = 0
 local sentBright, sentEnabled
 local step, port, apiAllowed, effect, moveEffect
 
+-- <Skin>Has<Feature> flags from the needs check: 0 means the function is off.
+local function hasFlag(name)
+	return SKIN:GetVariable(name, '1') ~= '0'
+end
+
 local function setVar(name, value)
 	SKIN:Bang('!SetVariable', name, tostring(value))
 end
@@ -50,7 +55,7 @@ local function show()
 	else
 		setVar('BrightText', name .. ' ' .. ((enabled and bright > 0) and (bright .. '%') or 'OFF'))
 	end
-	setVar('MoveOn', moveEffect ~= '' and 1 or 0)
+	setVar('MoveOn', (moveEffect ~= '' and hasFlag('SignalRGBHasMove')) and 1 or 0)
 	SKIN:Bang('!UpdateMeter', '*')
 	SKIN:Bang('!Redraw')
 end
@@ -60,11 +65,12 @@ function Initialize()
 	port = SKIN:GetVariable('SignalRGBPort', '16038')
 	apiAllowed = SKIN:GetVariable('SignalRGBApi', 'auto') ~= '0'
 	if not apiAllowed then
+		SKIN:Bang('!SetVariable', 'ApiOff', '1')
 		SKIN:Bang('!DisableMeasure', 'mApi')
 	end
 	effect = SKIN:GetVariable('SignalRGBEffect', 'Solid Color')
 	moveEffect = SKIN:GetVariable('SignalRGBMoveEffect', '')
-	effectMode = effect ~= ''
+	effectMode = effect ~= '' and hasFlag('SignalRGBHasBrightness')
 	if moveEffect ~= '' and SKIN:GetVariable('SignalRGBMode', 'solid') == 'move' then mode = 'move' end
 	if effectMode then
 		bright = math.max(0, math.min(100, tonumber(SKIN:GetVariable('SignalRGBBright', '100')) or 100))
@@ -74,9 +80,33 @@ function Initialize()
 	show()
 end
 
+-- Follow the needs flags while running: the effect mode needs the brightness
+-- effect and colour, the Pro API its flag.
+local function followFlags()
+	local want = effect ~= '' and hasFlag('SignalRGBHasBrightness')
+	local changed = false
+	if want ~= effectMode then
+		effectMode = want
+		if want then
+			bright = math.max(0, math.min(100, tonumber(SKIN:GetVariable('SignalRGBBright', '100')) or 100))
+			enabled = bright > 0
+			if bright > 0 then lastBright = bright end
+		end
+		changed = true
+	end
+	-- mApi switches itself off with the flag (Disabled in the ini); forget a
+	-- reading it can no longer refresh.
+	if api and not hasFlag('SignalRGBHasApi') then
+		api = false
+		changed = true
+	end
+	return changed
+end
+
 function Update()
+	local changed = followFlags()
 	-- The accent and the light/dark mode can change while running (Core.lua).
-	if active() then show() else tint() end
+	if active() or changed then show() else tint() end
 	return active() and (enabled and bright or 0) or -1
 end
 
@@ -230,7 +260,7 @@ end
 -- The double arrow: switch between the solid color and the move effect
 -- (SignalRGBMoveEffect / SignalRGBMoveParams). Lights come on if they were off.
 function Move()
-	if moveEffect == '' then return end
+	if moveEffect == '' or not hasFlag('SignalRGBHasMove') then return end
 	if api or not effectMode then
 		apply(moveEffect, SKIN:GetVariable('SignalRGBMoveParams', ''))
 		return

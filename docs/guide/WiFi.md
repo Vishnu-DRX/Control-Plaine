@@ -42,6 +42,10 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 Ookla Speedtest CLI 1.x for the speed test (`winget install Ookla.Speedtest.CLI`; the installer tries it). Windows must allow the network name to be read (see [troubleshooting](troubleshooting.md)).
 
+## When something is missing
+
+Nothing here is required, so the skin always shows. Without `speedtest.exe` the speed test icon is hidden and the right-click **Run speed test** entry does nothing. If Windows does not let the network name be read, the name shows as plain WI-FI. Settings marks either with an amber **!**; installing the tool lights the icon up again without a restart (see [first-time setup](first-time-setup.md)).
+
 ## Known limits
 
 If the name stays blank on a PC with more than one wireless adapter, raise `WiFiInterface` (Settings > WI-FI > ADAPTER).

@@ -25,3 +25,11 @@ WiFiSpeedtestPath=%LOCALAPPDATA%\Microsoft\WinGet\Links\speedtest.exe
 ; Which wireless adapter WiFiStatus reads (0 = first). Raise it if the network
 ; name stays blank on a PC with more than one wireless adapter.
 WiFiInterface=0
+
+; ---- Runtime, not settings ----
+; Set by the needs check (Scripts\Needs.lua) at runtime; 1 until it says
+; otherwise. 0 hides the function. See docs/guide/first-time-setup.md.
+; 1 while Location services let the network name be read.
+WiFiHasNetName=1
+; 1 while speedtest.exe is found.
+WiFiHasSpeedTest=1
