@@ -2,10 +2,16 @@
 ; Defaults, User and State, and before Styles.inc.
 ;
 ; Gives every skin:
-;   #Accent#         Windows accent colour (or the custom one), live within 5 s
-;   #AlphaDetail#    rest level for details and icons (RestBrightness)
-;   #AlphaValue#     rest level for values (RestBrightness + 20)
+;   #Accent#         Windows accent colour (or the custom one), live within 5 s;
+;                    darkened in light mode
+;   #Mode#           dark (for dark wallpapers, white skins) or light (black
+;                    skins), from Theme / <Skin>Theme. #Ink# #InkContrast# #Warn#
+;                    follow it. See specs/theme.md.
+;   #AlphaDetail#    rest level for details and icons (RestBrightness, plus
+;                    LightBoost in light mode)
+;   #AlphaValue#     rest level for values (that + 20)
 ;   #AlphaRest#      same as AlphaDetail (v1 name)
+;   #AlphaHover#     hover level (HoverBrightness, never below rest)
 ;   mVisible         hides the skin while a full-screen app is in front, or
 ;                    while the skin sets SelfHidden=1. Skins never call
 ;                    !Show or !Hide themselves.
@@ -22,6 +28,7 @@
 ; before including this file:
 ;   SkinSide=#<Skin>Align#       (left or right)
 ;   SkinDetails=#<Skin>Details#  (hover or always)
+;   SkinTheme=#<Skin>Theme#      (auto, dark or light)
 
 [Variables]
 ; Defined here, after User.inc, so they see the user's settings.
@@ -33,6 +40,13 @@ Sz=#Scale#
 TipHidden1=0
 TipHidden0=1
 Accent=#AccentColor#
+; Placeholders for the light/dark and brightness values Scripts\Core.lua
+; resolves (dark, today's brightness).
+Mode=dark
+InkContrast=0,0,0
+RestEff=#RestBrightness#
+HoverEff=#HoverBrightness#
+AlphaHover=(Round(#HoverEff#*2.55))
 ; Placeholders for what Scripts\Core.lua resolves when the skin loads (left
 ; arrangement, details on hover). Meters that use them need DynamicVariables=1.
 Side=left
@@ -43,15 +57,16 @@ Lead=0
 Trail=1
 RevealMin=0
 HoverTint=#Accent#
-AlphaDetail=(#RestBrightness#*2.55)
-AlphaValue=(Min(255,(#RestBrightness#+20)*2.55))
-AlphaRest=(#RestBrightness#*2.55)
+AlphaDetail=(#RestEff#*2.55)
+AlphaValue=(Min(255,(#RestEff#+20)*2.55))
+AlphaRest=(#RestEff#*2.55)
 ; Dimmed sibling while another row is hovered (Controllers).
-AlphaDim=(#RestBrightness#*2.55*0.6)
+AlphaDim=(#RestEff#*2.55*0.6)
 
 ; ---------- Accent from Windows ----------
 ; HKCU\Software\Microsoft\Windows\DWM\AccentColor is a DWORD 0xAABBGGRR.
 ; Formulas have no bit operators, so split it with division and modulo.
+; Scripts\Core.lua reads the result (mAccent) and sets #Accent#.
 
 [mAccentReg]
 Measure=Registry
@@ -80,15 +95,24 @@ UpdateDivider=5
 Disabled=(1-#AccentFollowWindows#)
 
 [mAccent]
-; Missing value (0,0,0) keeps AccentColor.
+; Missing value (0,0,0) keeps AccentColor (decided in Core.lua).
 Measure=String
 String=[mAccentR],[mAccentG],[mAccentB]
 DynamicVariables=1
 UpdateDivider=5
 Disabled=(1-#AccentFollowWindows#)
-IfMatch=^0,0,0$
-IfNotMatchAction=[!SetVariable Accent "[mAccent]"]
-IfMatchMode=1
+
+; ---------- Windows light/dark ----------
+; 1 = Windows is set to light. A missing value reads 0, which is dark.
+; ThemeFollow names the registry value (Theme=auto): SystemUsesLightTheme is
+; the taskbar and Start, AppsUseLightTheme is apps.
+
+[mWinTheme]
+Measure=Registry
+RegHKey=HKEY_CURRENT_USER
+RegKey=Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+RegValue=#ThemeFollow#
+UpdateDivider=5
 
 ; ---------- Layout helpers ----------
 

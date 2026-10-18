@@ -8,6 +8,9 @@ v1 skins (Fade.inc) are checked by the old rules until they are rebuilt.
 A skin that sets SkinSide (it arranges itself left or right) is also held to
 specs/alignment.md: the <Skin>Align and <Skin>Details keys with their
 defaults, the Settings page rows, and no hand-rolled mirroring.
+A skin that sets SkinTheme (it follows the light/dark mode) is held to
+specs/theme.md: the <Skin>Theme key with its default, and no hard-coded white
+or black ink (every colour comes from Ink, InkContrast, Accent, Warn, Dark).
 """
 import pathlib
 import re
@@ -75,6 +78,26 @@ def check_aligned(rel, text):
         problems.append(f'{rel}: {m.group(0)[:-1]} redefines a Core alignment helper; use Side Mir TA TAT Lead Trail')
 
 
+def check_themed(rel, text):
+    """Rules L6 and L8 for a skin that sets SkinTheme."""
+    skin = rel.parts[0]
+    theme = f'{skin}Theme'
+    if not re.search(rf'^SkinTheme=#{theme}#\s*$', text, re.M):
+        problems.append(f'{rel}: SkinTheme must be #{theme}#')
+    defaults = (ROOT / skin / 'Defaults.inc').read_text('ascii', 'replace')
+    if not re.search(rf'^{theme}=auto\s*$', defaults, re.M):
+        problems.append(f'{skin}/Defaults.inc: needs {theme}=auto')
+    # White or black with a visible alpha (or none) is ink; 0,0,0,0 and 0,0,0,1 are
+    # the invisible and the hit-test backing colours.
+    for n, line in enumerate(text.splitlines(), 1):
+        if line.lstrip().startswith(';'):
+            continue
+        for m in re.finditer(r'(?<![\d.])(255,255,255|0,0,0)(?:,(\d+))?(?![\d,.])', line):
+            if m.group(1) == '0,0,0' and m.group(2) is not None and int(m.group(2)) <= 1:
+                continue
+            problems.append(f'{rel}:{n}: hard-coded {m.group(1)}; use #Ink#, #InkContrast# or #Dark#: {line.strip()}')
+
+
 for path in sorted(ROOT.rglob('*')):
     if path.suffix.lower() not in ('.ini', '.inc', '.lua') or '.git' in path.parts:
         continue
@@ -124,6 +147,8 @@ for path in sorted(ROOT.rglob('*')):
             problems.append(f'{rel}: use SelfHidden + mVisible instead of !Show/!Hide')
         if re.search(r'^SkinSide=', text, re.M):
             check_aligned(rel, text)
+        if re.search(r'^SkinTheme=', text, re.M):
+            check_themed(rel, text)
     else:
         for inc in V1_REQUIRED:
             if inc not in found:

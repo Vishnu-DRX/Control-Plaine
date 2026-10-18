@@ -16,6 +16,23 @@ AccentColor=0,229,255
 ; How bright details and icons are when not hovered, 30 to 90 (%).
 ; Values (volume %, titles) sit 20 points above this.
 RestBrightness=60
+; How bright a hovered skin is, 30 to 100 (%). Never below the rest level.
+HoverBrightness=98
+; Colours for the wallpaper: dark = white skins (for dark wallpapers),
+; light = black skins (for light wallpapers), auto = follow the Windows
+; light/dark setting. Each skin's <Skin>Theme (auto, dark, light) overrides it;
+; auto there means "follow this".
+Theme=dark
+; Which Windows setting auto follows: SystemUsesLightTheme (taskbar and Start)
+; or AppsUseLightTheme (apps).
+ThemeFollow=SystemUsesLightTheme
+; Light mode: percentage points added to the rest level (black on a light
+; wallpaper needs more weight to read the same).
+LightBoost=10
+; Light mode: darken the accent so it stays readable (1/0), and by how much
+; (each colour channel is multiplied by this).
+AccentLight=1
+AccentLightK=0.7
 ; Which screen edge skins sit on. skin = each skin uses its own <Skin>Align,
 ; left or right = every aligned skin follows this instead.
 AlignAll=skin
@@ -35,6 +52,7 @@ LockPositions=0
 ; Fallbacks for a skin that does not arrange itself (Core.lua reads these).
 SkinSide=left
 SkinDetails=hover
+SkinTheme=auto
 
 ; ---- Runtime, not settings ----
 ; A skin sets SelfHidden=1 (then !UpdateMeasure mVisible) to hide itself.
