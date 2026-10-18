@@ -210,13 +210,13 @@ for path in sorted(ROOT.rglob('*')):
 
 # P1: no personal profile path in docs, scripts or site files either. Example
 # paths such as C:\\Users\\name\\ are fine.
-PLACEHOLDER_USER = re.compile(r'[A-Za-z]:\\Users\\(?:name|you|me|user|username|<[^>]*>|%[^%]*%)\\', re.I)
+PLACEHOLDER_USER = re.compile(r'[A-Za-z]:[\\/]+Users[\\/]+(?:name|you|me|user|username|public|default|<[^>]*>|%[^%]*%)(?:[\\/]|$)', re.I)
 for path in sorted(ROOT.rglob('*')):
-    if path.suffix.lower() not in ('.md', '.py', '.ps1', '.js', '.json', '.html', '.yml', '.svg') or '.git' in path.parts:
+    if path.suffix.lower() not in ('.md', '.py', '.ps1', '.js', '.json', '.html', '.yml', '.svg', '.txt') or '.git' in path.parts:
         continue
     if 'node_modules' in path.parts:
         continue
-    for m in re.finditer(r'[A-Za-z]:\\Users\\[^\\\s]*\\?', path.read_text('utf-8', 'replace')):
+    for m in re.finditer(r'[A-Za-z]:[\\/]+Users[\\/]+[^\\/\s`\'"]*[\\/]?', path.read_text('utf-8', 'replace'), re.I):
         if not PLACEHOLDER_USER.match(m.group(0)):
             problems.append(f'{path.relative_to(ROOT)}: P1 personal user path {m.group(0)!r}')
 

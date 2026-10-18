@@ -9,7 +9,7 @@
 #   \ControlPlaine\FanNormal  FanControl.exe -c <Normal config>
 #   \ControlPlaine\FanOpen    FanControl.exe -w   (show the window)
 #   \ControlPlaine\FanSensors pwsh.exe FanControlSensors.ps1 (live fan speeds)
-# The last one needs PowerShell 7 (winget install Microsoft.PowerShell): Fan
+# The last one needs PowerShell 7 from Program Files (winget install Microsoft.PowerShell): Fan
 # Control's sensor feed only answers admin programs, and its DLLs are .NET 10.
 # It writes %ProgramData%\ControlPlaine\FanControl\fans.txt for the skin and
 # stops by itself once Rainmeter has been closed for 30 s.
@@ -46,15 +46,29 @@ function Test-AdminOnly([string]$Path) {
     if ($owner -notin $trusted) { return $false }
     foreach ($rule in $acl.GetAccessRules($true, $true, [System.Security.Principal.SecurityIdentifier])) {
         if ($rule.AccessControlType -ne 'Allow') { continue }
+        # A rule that only passes down to children does not apply to this item.
+        if ($rule.PropagationFlags -band [System.Security.AccessControl.PropagationFlags]::InheritOnly) { continue }
         if ($rule.IdentityReference.Value -in $trusted) { continue }
         if (($rule.FileSystemRights -band $writeRights) -ne 0) { return $false }
+    }
+    $true
+}
+# The item and every folder above it (up to, not including, the drive root)
+# must be admin-only: a user who can rename a parent folder can swap the item.
+function Test-TrustedPath([string]$Path) {
+    $p = (Resolve-Path -LiteralPath $Path).Path
+    while ($p) {
+        if (-not (Test-AdminOnly $p)) { return $false }
+        $parent = Split-Path -Parent $p
+        if (-not $parent -or -not (Split-Path -Parent $parent)) { break }
+        $p = $parent
     }
     $true
 }
 # Fan Control runs elevated and the tasks start its exe, so a folder a normal
 # user can write to would hand that user admin rights.
 foreach ($p in @($dir, $FanControlPath)) {
-    if (-not (Test-AdminOnly $p)) {
+    if (-not (Test-TrustedPath $p)) {
         $msg = "$p can be changed by non-administrators. Move Fan Control to C:\Program Files and pass -FanControlPath, or fix its permissions (or pass -IgnoreFolderPermissions if you accept the risk)."
         if ($IgnoreFolderPermissions) { Write-Warning $msg } else { throw $msg }
     }
@@ -119,9 +133,15 @@ foreach ($name in $tasks.Keys) {
 }
 # ---- Sensor reader (needs PowerShell 7) ----
 $source = Join-Path (Split-Path -Parent $PSScriptRoot) '@Resources\Scripts\FanControlSensors.ps1'
-$pwsh = Get-Command pwsh.exe -ErrorAction SilentlyContinue
-if (-not $pwsh) {
-    Write-Warning 'PowerShell 7 (pwsh.exe) not found, so no FanSensors task was made. Install it (winget install Microsoft.PowerShell) and run this script again.'
+# The task runs elevated, so pwsh.exe must sit where only administrators can
+# write. The Store version is an alias in a user-writable folder and is not
+# accepted; the MSI in Program Files (winget install Microsoft.PowerShell) is.
+$pwshPath = $null
+foreach ($c in @((Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'), (Get-Command pwsh.exe -ErrorAction SilentlyContinue).Source)) {
+    if ($c -and (Test-Path -LiteralPath $c) -and (Test-TrustedPath $c)) { $pwshPath = $c; break }
+}
+if (-not $pwshPath) {
+    Write-Warning 'PowerShell 7 (pwsh.exe) not found in an admin-only folder such as C:\Program Files\PowerShell\7 (the Store version is not accepted), so no FanSensors task was made. Install it (winget install Microsoft.PowerShell) and run this script again.'
 } elseif (-not (Test-Path $source)) {
     Write-Warning "No $source, so no FanSensors task was made."
 } else {
@@ -151,14 +171,19 @@ if (-not $pwsh) {
         }
         Set-Acl -LiteralPath $d -AclObject $acl
     }
+    # Clear anything that was in the folder before it was locked down.
+    foreach ($old in Get-ChildItem -LiteralPath $data -Force) {
+        if ($old.PSIsContainer) { throw "$($old.FullName) is unexpected. Delete it (as admin) and run this script again." }
+        Remove-Item -LiteralPath $old.FullName -Force
+    }
     $script = Join-Path $data 'FanControlSensors.ps1'
     Copy-Item -LiteralPath $source -Destination $script -Force
     $out = Join-Path $data 'fans.txt'
-    # pwsh.exe may be the Store (MSIX) alias, which Task Scheduler can't find by name: use its full path.
+    # Task Scheduler gets the full path of the trusted pwsh.exe.
     $arg = "-NoProfile -WindowStyle Hidden -File `"$script`" -Out `"$out`" -FanControlDir `"$dir`""
-    $action = New-ScheduledTaskAction -Execute $pwsh.Source -Argument $arg
+    $action = New-ScheduledTaskAction -Execute $pwshPath -Argument $arg
     Register-ScheduledTask -TaskPath '\ControlPlaine\' -TaskName 'FanSensors' -Action $action -Principal $principal `
         -Settings $readerSettings -Description 'Control-Plaine Fan Control skin: live fan speeds' -Force | Out-Null
-    Write-Host "Task \ControlPlaine\FanSensors -> $($pwsh.Source) $arg"
+    Write-Host "Task \ControlPlaine\FanSensors -> $pwshPath $arg"
 }
 Write-Host 'Done. Refresh the Fan Control skin.'
