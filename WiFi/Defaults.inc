@@ -3,6 +3,8 @@
 ; Owned by the WiFi skin; add keys here with the WiFi prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+WiFiTooltips=1
 ; What clicking the icon or name opens: settings (Windows Wi-Fi settings),
 ; or any program, file or URI.
 WiFiClick=settings

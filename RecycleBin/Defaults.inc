@@ -3,6 +3,8 @@
 ; Owned by the RecycleBin skin; add keys here with the RecycleBin prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+RecycleBinTooltips=1
 ; Windows asks to confirm when you click Empty.
 RecycleBinConfirm=1
 ; The size turns orange above this many GB.

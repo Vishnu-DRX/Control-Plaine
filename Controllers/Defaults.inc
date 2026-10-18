@@ -3,6 +3,8 @@
 ; Owned by the Controllers skin; add keys here with the Controllers prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+ControllersTooltips=1
 ; At rest, battery shows only under this (%).
 ControllersBatteryShow=50
 ; Program a DualSense click opens. DSX on Steam (app 1812620); an exe path works too.

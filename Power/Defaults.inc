@@ -3,6 +3,8 @@
 ; Owned by the Power skin; add keys here with the Power prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+PowerTooltips=1
 ; What the first icon does: hibernate or sleep.
 PowerFirst=hibernate
 ; Restart and shut down need a second click.

@@ -35,7 +35,10 @@ local function show()
 	SKIN:Bang('!SetVariable', 'IconTint', (running and not pending) and accent or ink)
 	SKIN:Bang('!SetVariable', 'Busy', pending and 1 or 0)
 	SKIN:Bang('!SetVariable', 'StateText', text)
-	SKIN:Bang('!SetOption', 'Icon', 'ToolTipText', tip)
+	-- Icon, label and bulb all do the same click, so they share one tooltip.
+	for _, m in ipairs({ 'Icon', 'State', 'Bulb' }) do
+		SKIN:Bang('!SetOption', m, 'ToolTipText', tip)
+	end
 	SKIN:Bang('!UpdateMeter', 'Icon')
 	SKIN:Bang('!UpdateMeter', 'State')
 	SKIN:Bang('!UpdateMeter', 'Bulb')

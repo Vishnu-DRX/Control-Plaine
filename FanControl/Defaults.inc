@@ -3,6 +3,8 @@
 ; Owned by the FanControl skin; add keys here with the FanControl prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+FanControlTooltips=1
 ; Fan Control program (FanControl.exe). Its configs are in the Configurations
 ; folder next to it.
 FanControlPath=C:\Program Files (x86)\FanControl\FanControl.exe
