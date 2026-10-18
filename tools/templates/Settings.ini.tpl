@@ -29,8 +29,12 @@ Tab={{Name}}
 AlignKey={{Name}}Align
 DetailsKey={{Name}}Details
 @include9=#@#Settings\Align.inc
-; The page's own rows start at Y=128 (ALIGN and DETAILS are rows 1 and 2).
-; TipY is the label Y of the TOOLTIPS row: put it below the last own row.
+; The page's own rows start at Y=180 (ALIGN and DETAILS are rows 1 and 2, 64
+; high each). ThemeY is the label Y of the COLOURS row and TipY of the TOOLTIPS
+; row: put each below the last own row, one row (52 or 64) apart.
+ThemeKey={{Name}}Theme
+ThemeY=180
+@include10=#@#Settings\Theme.inc
 TipKey={{Name}}Tooltips
-TipY=180
-@include10=#@#Settings\Tooltips.inc
+TipY=244
+@include11=#@#Settings\Tooltips.inc
