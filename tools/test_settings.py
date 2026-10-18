@@ -82,6 +82,8 @@ with tempfile.TemporaryDirectory() as d:
 
     check(edit(lua, bangs, 'DayDateClick', 'calc.exe') == [('DayDateClick', 'calc.exe')], 'plain value is written')
     check(edit(lua, bangs, 'DayDateClick', 'C:\\x\\a.exe" -Bar "x') == [], 'quote is refused')
+    check(edit(lua, bangs, 'DayDateClick', '"C:\\Program Files\\x.exe"') == [('DayDateClick', 'C:\\Program Files\\x.exe')],
+          'one surrounding pair of quotes is dropped')
     check(edit(lua, bangs, 'DayDateClick', 'a\r\n[!Refresh]') == [], 'line break is refused')
     check(edit(lua, bangs, 'DayDateClick', 'C:\\Apps\\Notes\\') == [('DayDateClick', 'C:\\Apps\\Notes')],
           'trailing backslash is dropped')
