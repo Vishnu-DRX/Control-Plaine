@@ -34,12 +34,22 @@ end
 
 -- Where a row's click goes, its tooltip and, when a second copy of the app
 -- must not be started, the process name to look for first (OpenApp.ps1).
+-- A quote or a trailing backslash would break the -Target "..." argument, and
+-- an empty target would make the helper fail without a word.
+local function clean(text)
+	text = text:gsub('"', ''):gsub('^%s+', ''):gsub('%s+$', '')
+	if #text > 3 then text = text:gsub('\\+$', '') end
+	return text
+end
+
 local function target(kind)
-	local other = var('ControllersOther')
-	if kind == 'dualsense' and var('ControllersDualSenseApp') ~= '' then
-		return var('ControllersDualSenseApp'), '', 'DSX'
-	elseif kind == 'moza' and var('ControllersWheelApp') ~= '' then
-		return var('ControllersWheelApp'), '', ''
+	local other = clean(var('ControllersOther'))
+	local dualsense, wheel = clean(var('ControllersDualSenseApp')), clean(var('ControllersWheelApp'))
+	if other == '' then other = 'ms-settings:bluetooth' end
+	if kind == 'dualsense' and dualsense ~= '' then
+		return dualsense, '', 'DSX'
+	elseif kind == 'moza' and wheel ~= '' then
+		return wheel, '', ''
 	end
 	if other:lower() == 'ms-settings:bluetooth' then
 		return other, 'Open Bluetooth settings', ''

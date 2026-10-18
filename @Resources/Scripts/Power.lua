@@ -196,6 +196,7 @@ end
 local function runNext()
 	if running or #queue == 0 then return end
 	running = table.remove(queue, 1)
+	running.started = os.time()
 	if running.measure == 'mShut' then
 		SKIN:Bang('!SetVariable', 'ShutArgs', running.args)
 	elseif running.measure == 'mPS' then
@@ -319,6 +320,13 @@ local function check()
 end
 
 function Update()
+	-- A hung PowerShell or Task Scheduler call must not block the queue for
+	-- good. Sleep is exempt: it does not return until the PC wakes.
+	if running and running.args ~= 'sleep' and os.time() - running.started > 30 then
+		local step = running
+		running, queue = nil, {}
+		if step.failText then showError(step.failText) end
+	end
 	if not checked then check() end
 	if sched.action ~= '' and os.time() > sched.at + 60 then
 		if TASK[sched.action] then run('mPS', 'cancel ' .. sched.action, { ok = { 0, 1, 2 } }) end

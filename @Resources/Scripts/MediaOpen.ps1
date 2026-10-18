@@ -56,6 +56,12 @@ if ($name) {
         $null = [CP.Win]::SetForegroundWindow($h)
         exit 0
     }
+    # Running with no window (minimised to the tray): starting the same exe
+    # again makes most apps show the existing window. A Win32 exe id is not
+    # a Store app id, so there is nothing else to try.
+    $any = Get-Process -Name $name -ErrorAction SilentlyContinue | Where-Object { $_.Path } | Select-Object -First 1
+    if ($any) { Start-Process -FilePath $any.Path; exit 0 }
+    if ($aumid -match '\.exe$') { exit 1 }
 }
 
 # Store apps (and anything else registered by app id): activating focuses a

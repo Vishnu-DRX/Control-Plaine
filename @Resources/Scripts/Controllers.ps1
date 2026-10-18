@@ -21,9 +21,9 @@
 #   - One HID input report for a DualSense when DSX is not running.
 
 param(
-	[int]$Poll = 3,
-	[int]$BatteryPoll = 60,
-	[int]$DsxPort = 6969
+	[ValidateRange(1, 300)][int]$Poll = 3,
+	[ValidateRange(1, 3600)][int]$BatteryPoll = 60,
+	[ValidateRange(1, 65535)][int]$DsxPort = 6969
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
