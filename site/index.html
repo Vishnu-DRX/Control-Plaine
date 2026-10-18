@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control-Plaine, a quiet Rainmeter suite</title>
+<meta name="description" content="Control-Plaine is a minimal Rainmeter suite: quiet at rest, detail on hover, one shared design system.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-lock" viewBox="0 0 24 24"><circle cx="15" cy="9" r="5.5"/><circle cx="16.3" cy="7.7" r="1.1" fill="currentColor" stroke="none"/><path d="M11.1 12.9L3.5 20.5M6 18l2.2 2.2M8.3 15.7l1.8 1.8"/></symbol>
+    <symbol id="i-hibernate" viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M17.66 6.34a8 8 0 1 1-11.32 0"/></symbol>
+    <symbol id="i-restart" viewBox="0 0 24 24"><path d="M12 7.5V3M15.18 8.82l3.18-3.18M16.5 12H21M15.18 15.18l3.18 3.18M12 16.5V21M8.82 15.18l-3.18 3.18M7.5 12H3M8.82 8.82L5.64 5.64"/></symbol>
+    <symbol id="i-shutdown" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><circle cx="12" cy="19.5" r="1" fill="currentColor" stroke="none"/><path d="M8.5 16a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M1.5 9a15 15 0 0 1 21 0"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-fan" viewBox="0 0 24 24"><path d="M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-rgb" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="5.5"/><circle cx="8.5" cy="14.5" r="5.5"/><circle cx="15.5" cy="14.5" r="5.5"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+    <symbol id="i-wheel" viewBox="0 0 24 24"><path d="M6.4 19.2A9 9 0 1 1 17.6 19.2Z"/><path d="M3.1 11.6H9M15 11.6h5.9M12 14.6v4.6"/><circle cx="12" cy="11.6" r="3"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <a class="wordmark" href="#top" aria-label="Control-Plaine">CONTROL <span>PLAINE</span></a>
+  <nav aria-label="Sections">
+    <a href="#skins">SKINS</a>
+    <a href="#options">OPTIONS</a>
+    <a href="#install">INSTALL</a>
+    <a href="https://github.com/Vishnu-DRX/Control-Plaine">GITHUB</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <p class="label">RAINMETER SUITE</p>
+    <h1>Control-Plaine, a quiet Rainmeter suite</h1>
+    <p class="lead">Quiet at rest, detail on hover, one shared design system. Key information stays visible. Everything else waits until you reach for it.</p>
+    <p class="cta"><a class="btn" href="#install">INSTALL</a> <a class="btn ghost" href="#skins">SEE THE SKINS</a></p>
+  </section>
+
+  <section id="skins">
+    <h2 class="label">SKINS</h2>
+    <p class="note">Illustrations built from the suite's own icons and design tokens. Hover or focus a skin to reveal its detail.</p>
+
+    <div class="switches" role="group" aria-label="Demo options">
+      <div class="switch" data-switch="side" role="group" aria-label="Alignment">
+        <button type="button" aria-pressed="true" data-value="left">LEFT</button>
+        <button type="button" aria-pressed="false" data-value="right">RIGHT</button>
+      </div>
+      <div class="switch" data-switch="mode" role="group" aria-label="Theme">
+        <button type="button" aria-pressed="true" data-value="dark">DARK</button>
+        <button type="button" aria-pressed="false" data-value="light">LIGHT</button>
+      </div>
+    </div>
+
+    <div class="stage" id="stage" data-side="left" data-mode="dark">
+      <article class="card">
+        <div class="demo" tabindex="0" aria-label="Day-Date illustration">
+          <div class="daydate">
+            <div class="dd-day">FRIDAY</div>
+            <div class="dd-date">18 OCTOBER 2026</div>
+            <div class="reveal dd-time">14:32 &nbsp; WEEK 42</div>
+          </div>
+        </div>
+        <h3>DAY-DATE</h3>
+        <p>Day name and date. Time and week number on hover.</p>
+      </article>
+
+      <article class="card">
+        <div class="demo" tabindex="0" aria-label="Power illustration">
+          <div class="power">
+            <div class="icons">
+              <svg class="ico"><use href="#i-lock"/></svg>
+              <svg class="ico"><use href="#i-hibernate"/></svg>
+              <svg class="ico"><use href="#i-restart"/></svg>
+              <svg class="ico"><use href="#i-shutdown"/></svg>
+            </div>
+            <div class="reveal small">HIBERNATE</div>
+          </div>
+        </div>
+        <h3>POWER</h3>
+        <p>Four dim icons. Names on hover. Restart and shut down ask twice.</p>
+      </article>
+
+      <article class="card">
+        <div class="demo" tabindex="0" aria-label="Volume illustration">
+          <div class="volume">
+            <svg class="ring" viewBox="0 0 64 64" aria-hidden="true">
+              <circle cx="32" cy="32" r="22" class="track"/>
+              <circle cx="32" cy="32" r="22" class="fill" stroke-dasharray="88.4 138.2" transform="rotate(-90 32 32)"/>
+            </svg>
+            <div class="vol-text">
+              <div class="value">64%</div>
+              <div class="reveal small">SPEAKERS</div>
+            </div>
+          </div>
+        </div>
+        <h3>VOLUME</h3>
+        <p>A thin ring at the current level. Scroll, click or switch output.</p>
+      </article>
+
+      <article class="card">
+        <div class="demo" tabindex="0" aria-label="Wi-Fi illustration">
+          <div class="wifi">
+            <svg class="ico big"><use href="#i-wifi"/></svg>
+            <div class="wf-text">
+              <div class="value dim">HOME NETWORK</div>
+              <div class="reveal small">SPEED TEST</div>
+            </div>
+          </div>
+        </div>
+        <h3>WI-FI</h3>
+        <p>Signal and network name. Speed test on hover.</p>
+      </article>
+
+      <article class="card">
+        <div class="demo" tabindex="0" aria-label="Recycle Bin illustration">
+          <div class="bin">
+            <svg class="ico big"><use href="#i-trash"/></svg>
+            <div class="bin-text">
+              <div class="value">12 ITEMS &middot; 84 MB</div>
+              <div class="reveal small">EMPTY BIN</div>
+            </div>
+          </div>
+        </div>
+        <h3>RECYCLE BIN</h3>
+        <p>Count and size always visible. Empty it from the hover link.</p>
+      </article>
+
+      <article class="card">
+        <div class="demo" tabindex="0" aria-label="Fan Control illustration">
+          <div class="fan">
+            <svg class="ico big spin"><use href="#i-fan"/></svg>
+            <div class="fan-text">
+              <div class="value">42%</div>
+              <div class="reveal small">NORMAL &middot; MAX</div>
+            </div>
+          </div>
+        </div>
+        <h3>FAN CONTROL</h3>
+        <p>Fan speed at a glance. Switch profile on hover.</p>
+      </article>
+    </div>
+
+    <p class="more">Also in the suite: <b>UPTIME</b>, <b>MEDIA</b>, <b>PLAYNITE</b>, <b>SIGNALRGB</b>, <b>DEEPCOOL</b> and <b>CONTROLLERS</b>. See the README for the full list.</p>
+  </section>
+
+  <section id="options">
+    <h2 class="label">WHAT YOU CAN DO</h2>
+    <ul class="grid">
+      <li><h3>SETTINGS</h3><p>One panel opens from any skin's right-click menu. No file editing.</p></li>
+      <li><h3>ALIGNMENT</h3><p>Left or right per skin, so a skin can sit on either screen edge.</p></li>
+      <li><h3>DETAILS</h3><p>Choose what stays visible and what waits for hover.</p></li>
+      <li><h3>LIGHT AND DARK</h3><p>Follows the same tokens in both. Accent follows your Windows colour.</p></li>
+      <li><h3>TOOLTIPS</h3><p>On or off, one switch per skin.</p></li>
+      <li><h3>ONE DESIGN SYSTEM</h3><p>Colours, type and motion live in one theme file. Change a value and refresh.</p></li>
+    </ul>
+  </section>
+
+  <section id="install">
+    <h2 class="label">INSTALL</h2>
+    <p>Needs Rainmeter on Windows. From the repo folder in PowerShell:</p>
+    <pre><code>powershell -ExecutionPolicy Bypass -File tools\install.ps1</code></pre>
+    <p>The installer links the repo into your Skins folder, creates your settings files and loads the Control-Plaine layout. The README covers the manual route.</p>
+    <p><a class="btn" href="https://github.com/Vishnu-DRX/Control-Plaine">VIEW ON GITHUB</a></p>
+  </section>
+</main>
+
+<footer>
+  <p>Control-Plaine &middot; CC BY-NC-SA 4.0 &middot; Icons from <a href="https://lucide.dev">Lucide</a> (ISC)</p>
+  <p class="dim">Skin demos are illustrations, not screenshots.</p>
+</footer>
+
+<script src="site.js"></script>
+</body>
+</html>
