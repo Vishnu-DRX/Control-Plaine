@@ -23,6 +23,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `UptimeTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin, `light` = black skin. |
 | `UptimeWarnDays` | `5` | Days before the orange reminder. |
 | `UptimeClick` | `taskmgr.exe` | What a click opens: a program, file or link. |
 | `UptimeAlign` | `left` | `left` or `right`: which screen edge it sits on. `AlignAll` can override it. |

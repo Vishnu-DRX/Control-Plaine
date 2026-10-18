@@ -24,6 +24,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `PowerTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin, `light` = black skin. |
 | `PowerFirst` | `hibernate` | What the first icon does: `hibernate` or `sleep`. |
 | `PowerConfirm` | `1` | Shut down and restart need a second click. |
 | `PowerPickerStart` | `60` | Minutes the schedule picker opens on. |

@@ -85,6 +85,8 @@ end
 
 -- ---------- drawing ----------
 
+-- Ink, Accent and Warn are read on every paint (Update runs it each second),
+-- so a light/dark change shows without a refresh.
 local function paint()
 	local ink, accent, warn = var('Ink'), var('Accent'), var('Warn')
 	local rest, lit = num('AlphaDetail'), num('AlphaHover')

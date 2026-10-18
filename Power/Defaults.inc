@@ -3,6 +3,9 @@
 ; Owned by the Power skin; add keys here with the Power prefix.
 
 [Variables]
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+PowerTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 PowerTooltips=1
 ; What the first icon does: hibernate or sleep.
