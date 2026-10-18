@@ -15,6 +15,8 @@ A gear that opens the Settings window.
 - Click: opens the Settings window on the General page.
 - Right-click: **Control-Plaine settings** opens this skin's Settings tab.
 
+First run: if setup has not been finished (`SetupDone` is not `1` in `@Resources\State.inc`), the skin opens the Settings window once when it loads, as a fallback in case the installer did not. It does this once per load of the skin, never repeatedly, and never once setup is finished.
+
 It never hides itself, and it stays clickable when positions are locked, so it is always a way back into Settings.
 
 ## Settings
