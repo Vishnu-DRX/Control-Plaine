@@ -12,7 +12,7 @@ PowerConfirm=1
 ; Minutes the schedule picker opens on.
 PowerPickerStart=60
 
-; ---- Runtime state, not settings ----
+; ---- Runtime, not settings ----
 ; Written by the skin to @Resources\State.inc (git-ignored); these are the
 ; "nothing scheduled" values for a fresh install.
 PowerScheduledAction=

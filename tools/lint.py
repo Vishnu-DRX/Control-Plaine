@@ -4,7 +4,6 @@ Run: python tools/lint.py
 
 v2 skins (they include Core.inc) must follow specs/foundation-settings.md:
 include order, group, right-click settings entry, no !Show/!Hide of their own.
-v1 skins (Fade.inc) are checked by the old rules until they are rebuilt.
 A skin that sets SkinSide (it arranges itself left or right) is also held to
 specs/alignment.md: the <Skin>Align and <Skin>Details keys with their
 defaults, the Settings page rows, and no hand-rolled mirroring.
@@ -17,7 +16,6 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-V1_REQUIRED = ['#@#Theme.inc', '#@#User.inc', '#@#Styles.inc', '#@#Fade.inc']
 V2_ORDER = ['#@#Theme.inc', '#@#Defaults.inc', '#@#User.inc', '#@#Core.inc', '#@#Styles.inc']
 SETTINGS_ORDER = V2_ORDER + ['#@#Settings\\Controls.inc', '#@#Settings\\Chrome.inc']
 SKIN_FOLDERS = ['DayDate', 'Power', 'Uptime', 'Volume', 'Media', 'RecycleBin', 'Playnite',
@@ -150,15 +148,43 @@ for path in sorted(ROOT.rglob('*')):
         if re.search(r'^SkinTheme=', text, re.M):
             check_themed(rel, text)
     else:
-        for inc in V1_REQUIRED:
-            if inc not in found:
-                problems.append(f'{rel}: missing @include of {inc}')
+        problems.append(f'{rel}: a skin must include Core.inc (the v1 Fade.inc skins are gone)')
 
 for name in SKIN_FOLDERS:
     if not (ROOT / name / 'Defaults.inc').exists():
         problems.append(f'{name}: missing Defaults.inc')
     if not (ROOT / 'Settings' / f'{name}.ini').exists():
         problems.append(f'Settings: missing page {name}.ini')
+
+# B10: every setting key in a Defaults.inc has a Settings row (a Fill, Knob,
+# Toggle, Set, Step, Show, ChoiceAlpha, ChoiceLine or EditPath call, or an
+# AlignKey / DetailsKey). Keys after a '---- Runtime, not settings ----' comment
+# in a Defaults.inc are state, not settings, and are exempt.
+# WARNING ONLY for now: per-skin PRs are still adding their rows. Flip
+# B10_FAILS to True once they have merged.
+B10_FAILS = False
+warnings = []
+rowkeys = set()
+for page in (ROOT / 'Settings').glob('*.ini'):
+    ptext = page.read_text('ascii', 'replace')
+    rowkeys |= set(re.findall(KEY_CALLS, ptext))
+    rowkeys |= set(re.findall(r'^(?:Align|Details)Key=(\w+)\s*$', ptext, re.M))
+rowkeys = {k.lower() for k in rowkeys}
+for f in sorted(ROOT.glob('*/Defaults.inc')):
+    runtime = False
+    for line in f.read_text('ascii', 'replace').splitlines():
+        if re.match(r'^;\s*-+\s*Runtime, not settings\s*-+', line):
+            runtime = True
+            continue
+        m = re.match(r'^(\w+)=', line)
+        if m and not runtime and m.group(1).lower() not in rowkeys:
+            warnings.append(f'{f.relative_to(ROOT)}: B10 setting {m.group(1)} has no Settings row '
+                            f'(add one, or move it under "---- Runtime, not settings ----")')
+for w in warnings:
+    if B10_FAILS:
+        problems.append(w)
+    else:
+        print('warning: ' + w)
 
 for p in problems:
     print(p)
