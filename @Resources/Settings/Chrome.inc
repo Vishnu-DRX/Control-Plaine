@@ -153,6 +153,13 @@ Y=((#TabY0#+13*#TabStep#)*#PS#)
 Text=CONTROLLERS
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Controllers.ini"]
 
+[TabSettingsButton]
+Meter=String
+MeterStyle=sTab
+Y=((#TabY0#+14*#TabStep#)*#PS#)
+Text=SETTINGS BUTTON
+LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "SettingsButton.ini"]
+
 [TabBar]
 Meter=Image
 X=(40*#PS#)

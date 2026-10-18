@@ -25,7 +25,7 @@ If `User.inc` holds a setting no skin uses any more, a line at the bottom of Gen
 | ACCENT ON HOVER | `HoverAccent` | `1` | A hovered icon takes the accent colour. |
 | HOVER LINGER | `HideDelay` | `500` | Milliseconds details stay after the mouse leaves. |
 | FONT | `FontFace` | `Segoe UI Variable Display` | Choose `Segoe UI` on Windows 10 or if the Variable font is missing. |
-| SIZE BOOST | `SizeBoost` | `1.25` | Extra size for Controllers, Fan Control, DeepCool, Wi-Fi and SignalRGB, on top of Scale. Icons are pre-rendered at 1.25, so other values make them softer. |
+| SIZE BOOST | `SizeBoost` | `1.25` | Extra size for Controllers, Fan Control, DeepCool, Wi-Fi, SignalRGB and Settings Button, on top of Scale. Icons are pre-rendered at 1.25, so other values make them softer. |
 | RESET SETTINGS | n/a | n/a | Click, then click again to confirm: empties `User.inc` and refreshes every skin. |
 | CLEAN UNKNOWN SETTINGS | n/a | n/a | Lists keys in `User.inc` that no skin defines (for example a removed setting) and deletes them. |
 

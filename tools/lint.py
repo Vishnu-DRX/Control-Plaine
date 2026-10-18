@@ -19,7 +19,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 V2_ORDER = ['#@#Theme.inc', '#@#Defaults.inc', '#@#User.inc', '#@#Core.inc', '#@#Styles.inc']
 SETTINGS_ORDER = V2_ORDER + ['#@#Settings\\Controls.inc', '#@#Settings\\Chrome.inc']
 SKIN_FOLDERS = ['DayDate', 'Power', 'Uptime', 'Volume', 'Media', 'RecycleBin', 'Playnite',
-                'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers']
+                'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers',
+                'SettingsButton']
 # Settings.lua functions whose first argument is a setting key.
 KEY_CALLS = r"(?<![A-Za-z])(?:Fill|Knob|Toggle|Set|Step|Show|ChoiceAlpha|ChoiceLine|EditPath)\('(\w+)'"
 problems = []
