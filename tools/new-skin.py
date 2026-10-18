@@ -84,6 +84,9 @@ Shared files have one owner at a time: if another PR is changing one, send the e
  2. Icon: add docs/icons/<icon>.svg, run `node tools/render-icons.js`, and point
     ImageName at it (docs/sop/add-an-icon.md). Until then the skin uses an existing icon.
  3. tools/lint.py: add '{name}' to SKIN_FOLDERS (turns on the per-skin checks).
+ 3b. @Resources/Setup/NeedsList.lua: add `{name} = {{}},` (an empty list when the skin
+    needs nothing; otherwise one entry per app, plugin or path it needs, see the
+    header of that file). Lint fails without an entry.
  4. @Resources/Scripts/Settings.lua: add '{name}' to TABS.
  5. @Resources/Settings/Chrome.inc: add a tab after the last one, with the next
     free row number, before [TabBar]:

@@ -51,6 +51,7 @@ def edit(path, pattern, repl, count=1):
 def register(copy, name):
     """The manual steps of docs/sop/add-a-skin.md that touch shared files."""
     edit(copy / 'tools' / 'lint.py', r"(SKIN_FOLDERS = \[.*?)\]", rf"\1, '{name}']")
+    edit(copy / '@Resources' / 'Setup' / 'NeedsList.lua', r"(\n\tSettingsButton = \{\},)", rf"\1\n\t{name} = {{}},")
     edit(copy / '@Resources' / 'Scripts' / 'Settings.lua', r"(local TABS = \{.*?)\n\}", rf"\1\n\t'{name}',\n}}")
     chrome = copy / '@Resources' / 'Settings' / 'Chrome.inc'
     n = len(re.findall(r'^\[Tab[A-Za-z]+\]', chrome.read_text('ascii'), re.M)) - 1  # minus [TabBar]

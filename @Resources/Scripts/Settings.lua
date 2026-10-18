@@ -15,6 +15,9 @@ local active = {}      -- skin name -> true when loaded
 local pending = {}     -- key -> value, written by Commit()
 local pendingTargets = {}
 local editKey, editTargets
+local Needs, NEEDS     -- Scripts\Needs.lua and Setup\NeedsList.lua, nil if they fail to load
+local results = {}     -- skin name (and General) -> Needs.evaluate result
+local needSig = ''     -- what failed at the last check, to redraw only on change
 
 -- ---------- helpers ----------
 
@@ -85,14 +88,106 @@ local function apply(targets)
 	if self then SKIN:Bang('!Refresh') end
 end
 
+-- ---------- first run and needs ----------
+
+-- A key from State.inc (runtime state, not included by the pages). Read as
+-- text because Rainmeter may have written the file as UTF-16.
+local function stateRaw(key)
+	local f = io.open(SKIN:GetVariable('@') .. 'State.inc', 'rb')
+	if not f then return nil end
+	local raw = f:read('*a'):gsub('%z', '')
+	f:close()
+	return ('\n' .. raw):match('[\r\n]' .. key .. '=([^\r\n]*)')
+end
+
+local function loadNeeds()
+	local at = SKIN:GetVariable('@')
+	local okLib, lib = pcall(dofile, at .. 'Scripts\\Needs.lua')
+	local okList, list = pcall(dofile, at .. 'Setup\\NeedsList.lua')
+	if okLib and okList and type(lib) == 'table' and type(list) == 'table' then
+		Needs, NEEDS = lib, list
+	end
+end
+
+-- Settings pages only include their own skin's Defaults.inc, so the needs
+-- check reads the setting values from the files: Defaults, every skin's
+-- Defaults, User.inc, then State.inc (later wins, as in a skin).
+local function slurp(path)
+	local f = io.open(path, 'rb')
+	if not f then return '' end
+	local raw = f:read('*a')
+	f:close()
+	return (raw:gsub('%z', ''))
+end
+
+local function fileVars()
+	local vars = {}
+	local at, base = SKIN:GetVariable('@'), SKIN:GetVariable('ROOTCONFIGPATH')
+	local function add(text)
+		for line in text:gmatch('[^\r\n]+') do
+			local k, v = line:match('^([%w_]+)%s*=(.*)$')
+			if k then vars[k] = v:match('^%s*(.-)%s*$') end
+		end
+	end
+	add(slurp(at .. 'Defaults.inc'))
+	for _, name in ipairs(TABS) do add(slurp(base .. name .. '\\Defaults.inc')) end
+	add(slurp(userInc))
+	add(slurp(at .. 'State.inc'))
+	return vars
+end
+
+-- Check every skin's needs (file and registry reads only, see Needs.lua).
+-- True when the outcome changed since the last call.
+local function detect()
+	if not Needs then return false end
+	local env = Needs.rainmeterEnv(SKIN)
+	local vars = fileVars()
+	env.var = function(key) return vars[key] or '' end
+	local sig = {}
+	results = {}
+	for _, name in ipairs(TABS) do
+		if NEEDS[name] then
+			local r = Needs.evaluate(name, NEEDS[name], env)
+			results[name] = r
+			sig[#sig + 1] = name
+			for _, it in ipairs(r.items) do
+				if not it.ok then sig[#sig + 1] = it.id end
+			end
+		end
+	end
+	local s = table.concat(sig, ',')
+	local changed = s ~= needSig
+	needSig = s
+	return changed
+end
+
 -- ---------- lifecycle ----------
 
 function Initialize()
 	root = SKIN:GetVariable('ROOTCONFIG')
 	userInc = SKIN:GetVariable('@') .. 'User.inc'
-	readActive()
-	-- Light the current tab and move the accent bar to it.
 	local tab = SKIN:GetVariable('Tab', 'General')
+	-- First run: no SetupDone in State.inc, so open the onboarding instead of
+	-- the requested page (Onboarding.ini sets Tab=Onboarding, so no loop).
+	if tab ~= 'Onboarding' and (stateRaw('SetupDone') or ''):match('^%s*(.-)%s*$') ~= '1' then
+		SKIN:Bang('!ActivateConfig', root .. '\\Settings', 'Onboarding.ini')
+		return
+	end
+	readActive()
+	loadNeeds()
+	detect()
+	if tab == 'Onboarding' then
+		-- The step list of Onboarding.ini replaces the tabs.
+		for _, name in ipairs(TABS) do
+			SKIN:Bang('!HideMeter', 'Tab' .. name)
+			if SKIN:GetMeter('Mark' .. name) then SKIN:Bang('!HideMeter', 'Mark' .. name) end
+		end
+		SKIN:Bang('!HideMeter', 'TabBar')
+		SKIN:Bang('!HideMeter', 'Banner')
+		redraw()
+		return
+	end
+	-- Light the current tab and move the accent bar to it.
 	for _, name in ipairs(TABS) do
 		if name == tab then
 			SKIN:Bang('!SetOption', 'Tab' .. name, 'FontColor', '#Ink#,255')
@@ -102,8 +197,66 @@ function Initialize()
 	redraw()
 end
 
+-- Runs once a minute (UpdateDivider of mSettings): installing something
+-- later clears its mark without a refresh.
 function Update()
+	if detect() then redraw() end
 	return 0
+end
+
+-- ---------- amber marks (needs) ----------
+-- Shown only for skins that are loaded. Meters ask: Hidden=[&mSettings:MarkHidden('Power')].
+
+local function marked(name)
+	local r = results[name]
+	if not r or r.state == 'OK' then return nil end
+	if name ~= 'General' and not active[name] then return nil end
+	return r
+end
+
+function MarkHidden(name)
+	return marked(name) and 0 or 1
+end
+
+function MarkTip(name)
+	local r = marked(name)
+	if not r then return '' end
+	return (r.state == 'BLOCKED' and 'SETUP NEEDED. ' or 'SOME FEATURES OFF. ') ..
+		Needs.reason(r) .. ' Click to set up.'
+end
+
+-- Top of a skin's page.
+function Banner()
+	local r = marked(SKIN:GetVariable('Tab', 'General'))
+	if not r or SKIN:GetVariable('Tab', 'General') == 'General' then return '' end
+	local labels = {}
+	for _, it in ipairs(r.state == 'BLOCKED' and r.blockers or r.limits) do labels[#labels + 1] = it.label end
+	return (r.state == 'BLOCKED' and 'SETUP NEEDED: ' or 'SOME FEATURES OFF: ') .. table.concat(labels, ', ')
+end
+
+-- Open the setup for one skin's missing items (the mark was clicked).
+function Fix(name)
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'OnbStep', 'setup', SKIN:GetVariable('@') .. 'State.inc')
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'OnbOnly', name or '', SKIN:GetVariable('@') .. 'State.inc')
+	SKIN:Bang('!ActivateConfig', root .. '\\Settings', 'Onboarding.ini')
+end
+
+-- General > RUN SETUP AGAIN.
+function RunSetup()
+	local state = SKIN:GetVariable('@') .. 'State.inc'
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'SetupDone', '0', state)
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'OnbStep', 'welcome', state)
+	SKIN:Bang('!WriteKeyValue', 'Variables', 'OnbOnly', '', state)
+	SKIN:Bang('!ActivateConfig', root .. '\\Settings', 'Onboarding.ini')
+end
+
+-- Comma list of the loaded skins, for Onboarding.lua.
+function ActiveList()
+	local list = {}
+	for _, name in ipairs(TABS) do
+		if active[name] then list[#list + 1] = name end
+	end
+	return table.concat(list, ',')
 end
 
 -- ---------- state for meters (inline Lua) ----------
@@ -164,6 +317,7 @@ function Set(key, value, targets)
 	value = tostring(value)
 	SKIN:Bang('!WriteKeyValue', 'Variables', key, value, userInc)
 	SKIN:Bang('!SetVariable', key, value)
+	detect()
 	redraw()
 	apply(targets)
 end

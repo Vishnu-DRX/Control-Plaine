@@ -163,6 +163,194 @@ Y=((#TabY0#+14*#TabStep#)*#PS#)
 Text=SETTINGS BUTTON
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "SettingsButton.ini"]
 
+; ---------- Needs marks and banner ----------
+; An amber "!" at the right of a tab when the skin is loaded and something it
+; needs is missing (Settings.lua MarkHidden / MarkTip, from Setup\NeedsList.lua).
+; Click opens the setup for that skin. Hidden meters show no tooltip.
+
+[Banner]
+Meter=String
+MeterStyle=sSection
+X=(#ColL#*#PS#)
+Y=(26*#PS#)
+W=(560*#PS#)
+ClipString=1
+FontColor=#Warn#,230
+SolidColor=0,0,0,1
+MouseActionCursor=1
+DynamicVariables=1
+Text=[&mSettings:Banner()]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('#Tab#')"]
+
+[MarkDayDate]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+2*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('DayDate')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('DayDate')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('DayDate')"]
+DynamicVariables=1
+
+[MarkPower]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+3*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('Power')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('Power')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Power')"]
+DynamicVariables=1
+
+[MarkUptime]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+4*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('Uptime')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('Uptime')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Uptime')"]
+DynamicVariables=1
+
+[MarkVolume]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+5*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('Volume')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('Volume')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Volume')"]
+DynamicVariables=1
+
+[MarkRecycleBin]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+6*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('RecycleBin')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('RecycleBin')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('RecycleBin')"]
+DynamicVariables=1
+
+[MarkPlaynite]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+7*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('Playnite')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('Playnite')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Playnite')"]
+DynamicVariables=1
+
+[MarkMedia]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+8*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('Media')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('Media')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Media')"]
+DynamicVariables=1
+
+[MarkWiFi]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+9*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('WiFi')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('WiFi')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('WiFi')"]
+DynamicVariables=1
+
+[MarkFanControl]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+10*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('FanControl')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('FanControl')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('FanControl')"]
+DynamicVariables=1
+
+[MarkSignalRGB]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+11*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('SignalRGB')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('SignalRGB')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('SignalRGB')"]
+DynamicVariables=1
+
+[MarkDeepCool]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+12*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('DeepCool')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('DeepCool')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('DeepCool')"]
+DynamicVariables=1
+
+[MarkControllers]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+13*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('Controllers')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('Controllers')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Controllers')"]
+DynamicVariables=1
+
+[MarkSettingsButton]
+Meter=Shape
+X=(214*#PS#)
+Y=((#TabY0#+14*#TabStep#+1)*#PS#)
+Shape=Rectangle (-4*#PS#),(-3*#PS#),(10*#PS#),(18*#PS#) | Fill Color 0,0,0,1 | StrokeWidth 0
+Shape2=Rectangle 0,0,(2*#PS#),(7*#PS#),(1*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Shape3=Ellipse (1*#PS#),(11*#PS#),(1.2*#PS#) | Fill Color #Warn#,255 | StrokeWidth 0
+Hidden=[&mSettings:MarkHidden('SettingsButton')]
+MouseActionCursor=1
+ToolTipText=[&mSettings:MarkTip('SettingsButton')]
+LeftMouseUpAction=[!CommandMeasure mSettings "Fix('SettingsButton')"]
+DynamicVariables=1
+
 [TabBar]
 Meter=Image
 X=(40*#PS#)
@@ -253,6 +441,14 @@ DynamicVariables=1
 [mSettings]
 Measure=Script
 ScriptFile=#@#Scripts\Settings.lua
+; Once a minute (Update=1000 x 60): Settings.lua re-checks what skins need.
+UpdateDivider=60
+
+; SignalRGB's launcher registration, read by the needs check (Needs.lua).
+[mRegSignalRGB]
+Measure=Registry
+RegHKey=HKEY_CLASSES_ROOT
+RegKey=signalrgb\shell\open\command
 UpdateDivider=-1
 
 [mCommit]
