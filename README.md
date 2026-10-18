@@ -18,6 +18,7 @@ A quiet Rainmeter suite for Windows. Quiet at rest, detail on hover, one shared 
 | SignalRGB | Case lights brightness and a move effect, through SignalRGB. | [guide](docs/guide/SignalRGB.md) |
 | DeepCool | A switch for the DeepCool app that drives the case screen. | [guide](docs/guide/DeepCool.md) |
 | Controllers | Connected game controllers and their batteries. | [guide](docs/guide/Controllers.md) |
+| Settings Button | A gear that opens the Settings window. | [guide](docs/guide/SettingsButton.md) |
 
 Every skin has a **Control-Plaine settings** entry in its right-click menu, which opens one Settings window with a tab per skin. See [Settings](docs/guide/settings.md).
 

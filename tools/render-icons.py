@@ -40,7 +40,7 @@ SCALE = float(os.environ.get('ICON_SCALE', 1))
 # @Resources\Defaults.inc.
 BOOST = 1.25
 APP = {'airplane', 'arrow-down', 'arrow-up', 'deepcool', 'ethernet', 'fan', 'gauge',
-       'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'snowflake', 'wifi', 'wifi-1',
+       'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'settings', 'snowflake', 'wifi', 'wifi-1',
        'wifi-2', 'wifi-no-internet-badge'}
 APP_SCALE = SCALE * BOOST   # the Controllers canvas below is boosted too
 

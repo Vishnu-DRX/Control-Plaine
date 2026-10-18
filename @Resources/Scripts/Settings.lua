@@ -7,6 +7,7 @@
 local TABS = {
 	'General', 'Advanced', 'DayDate', 'Power', 'Uptime', 'Volume', 'RecycleBin', 'Playnite',
 	'Media', 'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers',
+	'SettingsButton',
 }
 
 local root, userInc
@@ -288,7 +289,6 @@ local function definedKeys()
 	for _, name in ipairs(TABS) do
 		keysOf(readFile(base .. name .. '\\Defaults.inc'), defined)
 	end
-	keysOf(readFile(base .. 'SettingsButton\\Defaults.inc'), defined)
 	return defined
 end
 
