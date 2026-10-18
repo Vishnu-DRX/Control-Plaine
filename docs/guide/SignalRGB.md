@@ -38,6 +38,15 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 SignalRGB 2.5. Pro uses the local API and shows the real state; the free tier applies an effect through the `signalrgb://effect/apply` link.
 
+## When something is missing
+
+- **SignalRGB not found:** the skin hides itself until `SignalRGBPath` points at it (`auto` reads the launcher from the `signalrgb://` registration).
+- **No effect or colour set** (`SignalRGBEffect`, `SignalRGBColor`): the scroll control and the percentage are hidden, unless the Pro API answers, which still gives the real brightness.
+- **Pro API off:** the skin stops asking for the brightness; free mode keeps working.
+- **No move effect set** (`SignalRGBMoveEffect`): the double arrow is hidden and cannot be clicked.
+
+Settings marks each with an amber **!**; fixing it brings the function back without a restart (see [first-time setup](first-time-setup.md)).
+
 ## Known limits
 
 The free tier cannot be read back: the number is what the skin last sent. SignalRGB's window is hidden again right away; its tray icon stays.

@@ -37,6 +37,11 @@ local function split(text)
 	return list
 end
 
+-- <Skin>Has<Feature> flags from the needs check: 0 means the function is off.
+local function hasFlag(name)
+	return var(name, '1') ~= '0'
+end
+
 local function setVar(name, value)
 	SKIN:Bang('!SetVariable', name, tostring(value))
 end
@@ -84,7 +89,11 @@ end
 
 -- task: name under \ControlPlaine\ ; args: what FanControl.exe gets without tasks.
 local function run(task, args)
-	if useTasks then
+	local viaTasks = SKIN:GetMeasure('mTasks')
+	-- Tasks wanted but not installed (FanControlHasTasks=0): start Fan Control
+	-- itself, as FanControlUseTasks=0 does (Windows asks for admin).
+	viaTasks = viaTasks and viaTasks:GetValue() == 1 or (not viaTasks and useTasks)
+	if viaTasks then
 		SKIN:Bang('!SetOption', 'mRun', 'Program', 'schtasks.exe')
 		SKIN:Bang('!SetOption', 'mRun', 'Parameter', '/run /tn ControlPlaine\\' .. task)
 		SKIN:Bang('!SetOption', 'mRun', 'StartInFolder', '')
@@ -117,7 +126,7 @@ end
 
 -- Start the reader task when it is not producing a fresh file.
 function startReader()
-	if not useTasks then return end
+	if not useTasks or not hasFlag('FanControlHasSensors') then return end
 	local now = os.time()
 	if now - lastStart < RETRY then return end
 	lastStart = now
@@ -128,6 +137,7 @@ end
 -- Parses the sensor file. Returns the average duty (%) of the fans that are
 -- turning, or nil plus a reason.
 local function average()
+	if not hasFlag('FanControlHasSensors') then return nil, 'Sensor feed not set up.' end
 	local f = io.open(sensorFile, 'rb')
 	if not f then
 		startReader()
@@ -222,7 +232,10 @@ function Ramp()
 	showText(string.format('%d%%', math.floor(shown + 0.5)),
 		maxOn == 1 and 'Fans speeding up' or 'Fans slowing down')
 	local settled
-	if maxOn == 1 then
+	if not hasFlag('FanControlHasSensors') then
+		-- Nothing to read back: give Fan Control a moment to switch.
+		settled = elapsed >= 4
+	elseif maxOn == 1 then
 		settled = shown >= 100 and lastAvg and lastAvg >= 97
 	else
 		local cfg = readCache()
@@ -237,7 +250,7 @@ function Spin()
 end
 
 function ToggleMax()
-	if busy then return end
+	if busy or not hasFlag('FanControlHasMax') then return end
 	maxOn = 1 - maxOn
 	if maxOn == 1 then
 		run('FanMax', '-c ' .. var('FanControlMax'))

@@ -27,3 +27,11 @@ DeepCoolLabel=screen
 ; Seconds STOPPING TELEMETRY stays after the app has exited: the case screen takes about
 ; this long to actually go dark.
 DeepCoolOffDelay=7
+
+; ---- Runtime, not settings ----
+; Set by the needs check (Scripts\Needs.lua) at runtime; 1 until it says
+; otherwise. 0 hides the function. See docs/guide/first-time-setup.md.
+; 0 unless a required need is missing (1 hides the skin).
+DeepCoolNeedBlocked=0
+; 1 while a process name is set (the bulb).
+DeepCoolHasBulb=1

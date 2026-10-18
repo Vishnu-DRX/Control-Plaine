@@ -37,6 +37,15 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 Fan Control by Rem0o (V277 was tested). Fan Control and its sensor feed need admin, so MAX, open and the sensor reader go through scheduled tasks made once by `tools\fan-tasks.ps1` (run it as admin; the reader needs PowerShell 7). The script keeps the elevated reader in `%ProgramData%\ControlPlaine\FanControl`, a folder only administrators can write, and the reader's output `fans.txt` goes there too. Run it again after updating the repo if `FanControlSensors.ps1` changed. It refuses a Fan Control folder that normal users can write to (for example a portable copy in Downloads); move it to Program Files, or pass `-IgnoreFolderPermissions` to accept the risk.
 
+## When something is missing
+
+- **Fan Control not found at `FanControlPath`:** the skin hides itself until the path is fixed (Settings shows what to set).
+- **No-UAC tasks missing** (while `FanControlUseTasks` is `1`): the skin starts Fan Control itself, so Windows asks for admin each time.
+- **Sensor feed task missing:** the fan value is hidden and the skin does not try to start the reader. The icon and MAX switch stay.
+- **MAX profile file missing** in the `Configurations` folder: the snowflake is hidden and nothing happens when its place is clicked.
+
+Settings marks each with an amber **!**; fixing it brings the function back without a restart (see [first-time setup](first-time-setup.md)).
+
 ## Known limits
 
 Runtime key `FanControlMaxOn` is kept in `State.inc`, not a setting (it sits under a "Runtime, not settings" heading in `FanControl/Defaults.inc`).

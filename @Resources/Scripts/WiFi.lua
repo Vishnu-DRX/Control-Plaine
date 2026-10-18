@@ -110,6 +110,10 @@ end
 
 -- Look for speedtest.exe again (it may have been installed since the last test)
 -- and name the speed test button's click to match.
+local function hasFlag(name)
+	return SKIN:GetVariable(name, '1') ~= '0'
+end
+
 local function findAgain()
 	exe = findExe()
 	SKIN:Bang('!SetOption', 'Gauge', 'ToolTipText', exe and 'Run speed test' or 'Install Speedtest')
@@ -157,7 +161,7 @@ function Update()
 			-- Quality 0 with a live link means WiFiStatus can't read it.
 			icon = (q >= 67 or q <= 0) and 'wifi' or (q >= 34 and 'wifi-2' or 'wifi-1')
 			text = m.mSSID:GetStringValue()
-			if text == '' or text == '-1' then text = 'Wi-Fi' end
+			if text == '' or text == '-1' or not hasFlag('WiFiHasNetName') then text = 'Wi-Fi' end
 			text = fitName(text)
 		end
 	elseif m.mAirplane:GetValue() == 1 then
@@ -203,7 +207,9 @@ local function readLines()
 end
 
 function LinkClick()
-	if testing then return end
+	-- No speedtest.exe (WiFiHasSpeedTest=0): the button is hidden, and the
+	-- right-click entry does nothing.
+	if testing or not hasFlag('WiFiHasSpeedTest') then return end
 	findAgain()
 	if not exe then
 		SKIN:Bang('["' .. INSTALL_URL .. '"]')
