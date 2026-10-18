@@ -27,6 +27,7 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | [dev/conventions.md](dev/conventions.md) | You are writing or reviewing code: naming, ASCII, comments, icons, sharpness. |
 | [dev/testing.md](dev/testing.md) | You are about to verify a change, on the cloud or on the PC. |
 | [dev/release.md](dev/release.md) | You are preparing a version (integration only). |
+| [sop/README.md](sop/README.md) | You are doing a repeatable job: add a skin (`tools/new-skin.py`), a setting or an icon, change a shared file, fix a bug, review, or test on the PC. |
 
 ## Design and specs
 
