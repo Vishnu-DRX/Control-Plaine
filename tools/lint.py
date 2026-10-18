@@ -220,6 +220,42 @@ for path in sorted(ROOT.rglob('*')):
         if not PLACEHOLDER_USER.match(m.group(0)):
             problems.append(f'{path.relative_to(ROOT)}: P1 personal user path {m.group(0)!r}')
 
+# P2 (public readiness): nothing tied to one person's machine in any tracked text
+# file, and no committed binary. Checks: a drive letter other than C: in a path
+# (D:\, G:\, T:\ ...), a name-plus-possessive naming a person's setup ("<Name>'s
+# PC", "<Name>'s cyan"), a personal full name outside an Author= line, an e-mail
+# address other than noreply/example, a claude.ai project, thread, artifact or
+# session link, and .dll/.exe/.zip/.msi files. Files that explain or test such
+# strings on purpose are in P2_ALLOW (path prefixes or file names).
+P2_ALLOW = ('tools/lint.py', 'tools/test_', 'docs/reviews/')
+P2_TEXT = ('.md', '.py', '.ps1', '.js', '.json', '.html', '.yml', '.svg', '.txt', '.ini', '.inc',
+           '.lua', '.tpl', '.css', '.layout')
+P2_BINARY = ('.dll', '.exe', '.zip', '.7z', '.msi', '.rmskin', '.bin')
+P2_RULES = [
+    ('drive letter other than C:', re.compile(r'(?<![A-Za-z0-9%])[D-Zd-z]:[\\/]+[A-Za-z]')),
+    ('named person with a setup', re.compile(r"\bVishnu(?:'s|\u2019s)\s+(?:PC|computer|machine|cyan|monitor|browser|pad|setup|User\.inc|Windows|desktop)", re.I)),
+    ('personal e-mail', re.compile(r'[\w.+-]+@(?!users\.noreply|anthropic\.com|[\w.-]*example)[\w-]+\.[A-Za-z]{2,}')),
+    ('claude.ai private link', re.compile(r'claude\.ai/(?:artifact|project|chat|code)/', re.I)),
+]
+for path in sorted(ROOT.rglob('*')):
+    rel2 = path.relative_to(ROOT).as_posix()
+    if not path.is_file() or '.git' in path.parts or 'node_modules' in path.parts:
+        continue
+    if path.suffix.lower() in P2_BINARY:
+        problems.append(f'{rel2}: P2 binary file committed (plugins are downloaded by the installer)')
+        continue
+    if path.suffix.lower() not in P2_TEXT or any(rel2.startswith(a) for a in P2_ALLOW):
+        continue
+    for n, line in enumerate(path.read_text('utf-8', 'replace').splitlines(), 1):
+        if len(line) > 2000:
+            line = line[:200]
+        for label, rx in P2_RULES:
+            m = rx.search(line)
+            if m:
+                problems.append(f'{rel2}:{n}: P2 {label} {m.group(0)!r}')
+        if re.search(r'\bVishnu A\b', line) and not line.startswith('Author='):
+            problems.append(f'{rel2}:{n}: P2 personal name outside an Author= line')
+
 for name in SKIN_FOLDERS:
     if not (ROOT / name / 'Defaults.inc').exists():
         problems.append(f'{name}: missing Defaults.inc')

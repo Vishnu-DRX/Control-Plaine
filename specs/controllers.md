@@ -15,7 +15,7 @@ Everything in the design can be driven from Rainmeter. Rainmeter has no measure 
 | Hide skin when none connected | Lua sets `SelfHidden` and updates `mVisible` (Core.inc) on count change | High |
 | Xbox battery over Bluetooth | PnP property `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2` (Bluetooth battery %) on the controller's `BTHLE` node, read only while connected (it keeps a stale value when off) | High, property seen on PC |
 | DualSense battery, DSX not running | Read one HID input report, decode the status byte | High over USB; over Bluetooth only if something (DSX, Steam) already switched it to full reports, see section 6 |
-| DualSense battery, DSX running | DSX's UDP mod server (on, 127.0.0.1:6969 on Vishnu's PC). The HID read is blocked then: DSX controls HidHide and hides the pad | Medium, live status reply not yet tried |
+| DualSense battery, DSX running | DSX's UDP mod server (on, 127.0.0.1:6969 on the test PC). The HID read is blocked then: DSX controls HidHide and hides the pad | Medium, live status reply not yet tried |
 | Charging bolt | DualSense: status byte high nibble. Xbox Bluetooth: not exposed | DualSense only |
 | Clicks (DSX, Pit House, Windows settings) | Plain Rainmeter `["#Target#"]` bang | High |
 | Per-row hover, name, battery rules | Lua + meter formulas, same fade system as the other skins | High |
@@ -23,7 +23,7 @@ Everything in the design can be driven from Rainmeter. Rainmeter has no measure 
 Can't be done, by design falls back to showing nothing (never a wrong value):
 
 - **Xbox wired over USB**: Windows exposes no battery (XInput reports it as wired). No battery shown.
-- **Xbox through the Xbox Wireless Adapter**: only 4 coarse levels via XInput. Not built: Vishnu's pad is Bluetooth LE and no adapter has ever been connected (probe 2026-10-11).
+- **Xbox through the Xbox Wireless Adapter**: only 4 coarse levels via XInput. Not built: the test pad is Bluetooth LE and no adapter has ever been connected (probe 2026-10-11).
 - **Xbox charging state over Bluetooth**: the Bluetooth battery property has no charging flag. No bolt for Xbox.
 - **DualSense over Bluetooth with neither DSX nor Steam running**: the controller sends a short report with no battery until an app switches it to full mode. The helper will not force the switch (doing so can break DirectInput games until reconnect). No battery shown in that case.
 - **DualSense while DSX hides it with HidHide and DSX's UDP status is off or unavailable**: no battery shown, unless `powershell.exe` is added to HidHide's allow list (section 6).
@@ -109,7 +109,7 @@ Every `Poll` seconds (default 3):
    - HID nodes whose `CompatibleID` contains `HID_DEVICE_UP:0001_U:0005` (gamepad) or `HID_DEVICE_UP:0001_U:0004` (joystick). This catches Xbox over Bluetooth, DualSense over USB/Bluetooth and any other pad. Mice, keyboards and headsets have other usages and drop out.
    - Plus Xbox nodes that are not HID: `XnaComposite`/`XboxComposite` class or name matching `Xbox*Controller*` (wired USB). Exclude any name containing `Adapter`.
    - Plus Moza by vendor: any present `HID\VID_346E...` or `USB\VID_346E...` node (seen on PC: PIDs `0005` and `0015`, HID "MOZA Windows Driver" on `MI_02`), whether or not it has a gamepad usage. Ignore `SWD\` software nodes ("MOZA WheelBase Virtual Device") and the COM port; they are not proof the base is plugged in.
-   - **Bluetooth connected check (required).** On Vishnu's PC, paired pads that are switched off keep `Present=TRUE`, Status OK and even their HID child node. So for every Bluetooth match, take its MAC, find `BTHLE\DEV_<mac>` (Xbox, BLE) or `BTHENUM\DEV_<mac>` (DualSense, classic), read `DEVPKEY_Device_IsConnected` = `{83DA6326-97A6-4088-9453-A1923F573B29} 15` and keep the device only if it is `True`. USB devices are only present while plugged in, so they skip this.
+   - **Bluetooth connected check (required).** On the test PC, paired pads that are switched off keep `Present=TRUE`, Status OK and even their HID child node. So for every Bluetooth match, take its MAC, find `BTHLE\DEV_<mac>` (Xbox, BLE) or `BTHENUM\DEV_<mac>` (DualSense, classic), read `DEVPKEY_Device_IsConnected` = `{83DA6326-97A6-4088-9453-A1923F573B29} 15` and keep the device only if it is `True`. USB devices are only present while plugged in, so they skip this.
 3. **Drop virtual pads**: DSX (and DS4Windows) create virtual Xbox 360 / DS4 pads through ViGEmBus. For each new device ID, read `DEVPKEY_Device_Parent` once (cache it) and drop it if the parent chain starts with `ROOT\` or contains `VIGEM`. Without this, a phantom XBOX row appears whenever DSX runs.
 4. **Classify** by vendor ID parsed with `VID[_&](?:0002|02)?([0-9A-F]{4})[&_]PID[_&]([0-9A-F]{4})` (covers USB `VID_054C&PID_0CE6`, Bluetooth classic `VID&0002054C_PID&0CE6`, BLE `VID&02045E_PID&0B13`): `045E` xbox, `054C` with PID `0CE6`/`0DF2` dualsense, `346E` moza, anything else other. Moza pedals or handbrake plugged in on their own share `346E`: one row per Moza is enough, so collapse all `346E` devices into one row.
 5. **Dedupe** to one entry per physical device: key on the Bluetooth MAC when the ID has one (the 12 hex digits after `_PID&xxxx_REV&xxxx_` or in `BTHLE\DEV_<mac>`), else the USB instance path's parent. Multiple HID collections from one pad collapse to one row.
@@ -137,7 +137,7 @@ Fields: kind, display name, battery 0-100 or -1 unknown, charging 0/1. Lua split
 
 Two sources, tried in this order each battery poll. The first that gives a value wins; if neither does, `-1` (show nothing).
 
-On Vishnu's PC (probe 2026-10-11): DSX v3 Beta from Steam (`G:\SteamLibrary\steamapps\common\DSX`, also starts at logon) has `use_incoming_udp: true` on `127.0.0.1:6969`, and `SaveFile_LetDSXControlHidHide: true` with the DualSense's Bluetooth HID paths on its hide list. So while DSX runs, 5a is the only route and 5b fails to open the pad. With DSX closed, 5b is the route (if DSX lifts the hide on exit; to be checked).
+On the test PC (probe 2026-10-11): DSX v3 Beta from Steam (`<Steam library>\steamapps\common\DSX`, also starts at logon) has `use_incoming_udp: true` on `127.0.0.1:6969`, and `SaveFile_LetDSXControlHidHide: true` with the DualSense's Bluetooth HID paths on its hide list. So while DSX runs, 5a is the only route and 5b fails to open the pad. With DSX closed, 5b is the route (if DSX lifts the hide on exit; to be checked).
 
 ### 5a. DSX UDP status (only when `DSX.exe` is running)
 
@@ -191,14 +191,14 @@ Settings page `Settings/Controllers.ini` (foundation page template, section 7.1;
 
 Click actions on `RowNHit`: `LeftMouseUpAction=["#ControllersDualSenseApp#"]` etc.; Lua sets which variable each row uses when it assigns kinds to rows. Right-click menu comes from the template's `ContextAction`, which opens `Settings\Controllers.ini`.
 
-Optional, only if Vishnu needs them after the PC checks:
-- **HidHide allow list**: if DSX hides the DualSense and 5a is unavailable, adding `powershell.exe` to HidHide's allow list makes 5b work. It is his call: any PowerShell would then see the pad (harmless, but it is a change to his setup).
+Optional, only if they are needed after the PC checks:
+- **HidHide allow list**: if DSX hides the DualSense and 5a is unavailable, adding `powershell.exe` to HidHide's allow list makes 5b work. It is the user's call: any PowerShell would then see the pad (harmless, but it is a change to their setup).
 
 ## 7. Header comment for the .ini
 
 What it shows (connected game controllers with battery), designed for Xbox (Bluetooth), DualSense with DSX, and a Moza wheel with Pit House; what others can change (the three click targets, thresholds); that it starts a hidden PowerShell helper which Rainmeter stops when the skin closes.
 
-## 8. Check on Vishnu's PC before calling it done
+## 8. Checks on the test PC before calling it done
 
 Answered by the probe (2026-10-11): Moza VID `346E` (PIDs `0005`, `0015`); Xbox is Bluetooth LE, no adapter; DSX UDP server on at 127.0.0.1:6969; DSX Steam app id 1812620; Pit House path; paired-but-off pads stay present (hence the IsConnected check); the Sony camera `054C:0A92` is excluded by the PID filter.
 
@@ -221,7 +221,7 @@ Still to check, with the pads on:
 
 ## 10. What the build settled
 
-- DSX status packet confirmed on Vishnu's PC: `{"instructions":[{"type":0,"parameters":[]}]}` to 127.0.0.1:6969, reply JSON with `isControllerConnected` and `Devices` (`DeviceType` 0 = DualSense, `ConnectionType` 0 = USB, `BatteryLevel`). The top-level `BatteryLevel` is ignored. A USB pad below 100% from DSX is shown as charging.
+- DSX status packet confirmed on the test PC: `{"instructions":[{"type":0,"parameters":[]}]}` to 127.0.0.1:6969, reply JSON with `isControllerConnected` and `Devices` (`DeviceType` 0 = DualSense, `ConnectionType` 0 = USB, `BatteryLevel`). The top-level `BatteryLevel` is ignored. A USB pad below 100% from DSX is shown as charging.
 - If DSX lists more DualSense pads than PnP shows (HidHide can hide them), the helper adds rows from DSX's list.
 - The helper rewrites the state file every scan with a time stamp. Lua deletes the file on load, treats a file older than 4 polls (min 15 s) as "nothing connected" and restarts the helper at most every 30 s.
 - Rows are shown and hidden with `!ShowMeterGroup` / `!HideMeterGroup Row<N>`; each row's transparent hit area sits on top and takes hover and click.

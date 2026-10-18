@@ -1,6 +1,6 @@
 # Spec: app skins (Fan Control, SignalRGB, DeepCool)
 
-Investigation output for the V1 build. Source of truth for behaviour and look: `docs/DESIGN-V1.md` and the V1 canvas. This file says **how** to build each skin in Rainmeter, what changes from the design, and what must be checked on Vishnu's PC.
+Investigation output for the V1 build. Source of truth for behaviour and look: `docs/DESIGN-V1.md` and the V1 canvas. This file says **how** to build each skin in Rainmeter, what changes from the design, and what must be checked on the test PC.
 
 Shared conventions follow `specs/foundation-settings.md` (skin template, `Defaults.inc` / `User.inc` / `State.inc`, Core.inc, Styles.inc, Settings pages, key names). This spec was aligned with it on 2026-10-10; if they ever disagree, the foundation spec wins.
 
@@ -21,9 +21,9 @@ Shared conventions follow `specs/foundation-settings.md` (skin template, `Defaul
 
 ### PC probe results (2026-10-11, `/mnt/project-files/Control-Plaine-probes.md`) — these override anything below
 - **Fan Control V277** is `requireAdministrator` and starts at logon from task `\FanControl` (Highest). So `FanControlUseTasks=1` is required for MAX on, MAX off **and** open-window (`ControlPlaine\FanOpen` running `FanControl.exe -w`). Configs live in `C:\Program Files (x86)\FanControl\Configurations\` and `-c <name>` resolves there. Normal config is `userConfig.json`; it already contains a hidden flat 100% curve named `MAX`, so `Max.json` = copy of `userConfig.json` with every control pointed at `MAX` (`tools/fan-tasks.ps1` creates it if absent, since it runs elevated anyway). `Configurations\CACHE` is readable without admin and holds `"CurrentConfigFileName"`: Lua reads it on refresh and every 10 s to set `FanControlMaxOn` (state never drifts).
-- Fans: ITE IT8696E headers 0, 1, 2, 4 (CPU cooler, lower intake, top right, top left), 100% RPM **1790, 1623, 1849, 1744** = default `FanControlMaxRPM`. GPU fan is zero-RPM; excluded. HWiNFO is installed but not running and Gadget reporting is not enabled yet (Vishnu must do that), so `FanControlIndexes` stays a placeholder and the skin must show `NO SENSOR` cleanly until then.
+- Fans: ITE IT8696E headers 0, 1, 2, 4 (CPU cooler, lower intake, top right, top left), 100% RPM **1790, 1623, 1849, 1744** = default `FanControlMaxRPM`. GPU fan is zero-RPM; excluded. HWiNFO is installed but not running and Gadget reporting is not enabled yet (the user must do that), so `FanControlIndexes` stays a placeholder and the skin must show `NO SENSOR` cleanly until then.
 - **SignalRGB is the free tier**: `GET /api/v1/lighting` returns **HTTP 403** with `"You must be a SignalRGB Pro user to access this endpoint"`. Auto-detect treats anything without a `global_brightness` field (403, error JSON, connect failure) as launcher mode. Protocol `signalrgb://` is registered (`SignalRgbLauncher.exe --url=%1`).
-- **DeepCool**: `C:\DeepCool\DeepCool.exe` v1.2.6, process `DeepCool`, not elevated (taskkill works), **no startup entry and no hidden flag**, so `HideWindow.ps1` is the start path. Case is a **CH270 DIGITAL** (HID `VID_3633&PID_0016`). A separate **"Deep Cool Helper Service"** (LocalSystem, automatic) keeps running when the app closes and may keep the screen lit. Until Vishnu confirms what the screen does with the app closed, labels are `DEEPCOOL ON` / `DEEPCOOL OFF` (`DeepCoolLabel` setting can switch to `CASE SCREEN`).
+- **DeepCool**: `C:\DeepCool\DeepCool.exe` v1.2.6, process `DeepCool`, not elevated (taskkill works), **no startup entry and no hidden flag**, so `HideWindow.ps1` is the start path. Case is a **CH270 DIGITAL** (HID `VID_3633&PID_0016`). A separate **"Deep Cool Helper Service"** (LocalSystem, automatic) keeps running when the app closes and may keep the screen lit. Until the maintainer confirms what the screen does with the app closed, labels are `DEEPCOOL ON` / `DEEPCOOL OFF` (`DeepCoolLabel` setting can switch to `CASE SCREEN`).
 - `curl.exe` present in System32.
 
 ### What's installed (checked on DRK-TOWER, folder names only)
@@ -88,10 +88,10 @@ If HWiNFO is not running (values missing/stale), hover shows `NO SENSOR` in Deta
 ### MAX toggle
 Fan Control supports `-c` / `--config`: "Start using the specified config, or change the config if the software is already running" (getfancontrol.com/docs; the wiki adds that it messages the running instance). Other documented flags: `-w` force the window open, `-m` minimized, `-r` refresh sensors, `-e` exit the running instance, `-sc` service client. There is no built-in "all fans max"; a config with a 100% Flat curve on every control is the documented way. The config name is resolved relative to the working folder, so set `StartInFolder` to the Fan Control folder.
 
-- Vishnu creates a config `Max.json` in Fan Control: copy the normal config, set every control to a flat 100% curve (or manual 100). Normal config name goes in `FanControlNormal` (foundation default `userConfig.json`, Fan Control's default config name; verify).
+- The user creates a config `Max.json` in Fan Control: copy the normal config, set every control to a flat 100% curve (or manual 100). Normal config name goes in `FanControlNormal` (foundation default `userConfig.json`, Fan Control's default config name; verify).
 - On: run `"#FanControlPath#" -c #FanControlMax#`. Off: `-c #FanControlNormal#`.
 - **UAC problem**: Fan Control needs admin. If `FanControl.exe` requests elevation, every Rainmeter launch shows a UAC prompt, even when it only forwards `-c` to the running instance. Fix: two scheduled tasks created once, elevated, with "Run with highest privileges" (`ControlPlaine\FanMax`, `ControlPlaine\FanNormal`), each running `FanControl.exe -c <config>` with Start-in = the Fan Control folder. The skin then runs `schtasks.exe /run /tn "ControlPlaine\FanMax"` with no prompt. A new `tools/fan-tasks.ps1` (this skin thread adds it; run once as admin) creates them from `FanControlPath`, `FanControlNormal` and `FanControlMax`; re-run it if those change. The Settings page says so under the toggle. `FanControlUseTasks=1` switches the skin between direct launch and tasks.
-- State: `FanControlMaxOn` (0/1) in `State.inc` so it survives refresh. It can drift if Vishnu changes config inside the Fan Control window; acceptable. Optional check (verify): Fan Control remembers the last config in a file in its folder; if it is readable without admin, Lua can re-sync `FanControlMaxOn` on refresh.
+- State: `FanControlMaxOn` (0/1) in `State.inc` so it survives refresh. It can drift if the user changes config inside the Fan Control window; acceptable. Optional check (verify): Fan Control remembers the last config in a file in its folder; if it is readable without admin, Lua can re-sync `FanControlMaxOn` on refresh.
 - Safety: none needed; switching back is just the other config.
 
 ### Open the app
@@ -151,7 +151,7 @@ The local REST API does both. Endpoints, read from the `signalrgb` client source
 `signalrgb://view/dashboard` (RunCommand or `["signalrgb://view/dashboard"]`). This survives updates, unlike the versioned exe path. Stored in the foundation's `SignalRGBPath` key (default `signalrgb://view/dashboard`); other users can put an exe path there.
 
 ### No-Pro fallback (auto-detected)
-Do not wait on knowing whether Vishnu has Pro. The skin detects it: if the `GET /api/v1/lighting` call answers with a `global_brightness` value, it runs in API mode (ring, scroll, on/off). If the call fails or returns no such field, it runs as a plain launcher: Ink-tinted icon (not accent) that opens the app, hover label `SIGNALRGB`, no ring, no scroll. It keeps polling every 2 s, so it switches to API mode as soon as the API answers. A failure right after app start looks the same as no Pro; that is fine because the skin recovers on the next poll. `SignalRGBApi=0` forces launcher mode. Free mode (no Pro) was added after testing on the PC (SignalRGB 2.5.74, free tier): `signalrgb://effect/apply/<name>?params` is accepted without Pro, and `Solid Color` has `color`, `breathe` and `speed` properties (read from the effect file), so brightness is the color scaled toward black (`SignalRGBColor`) with `breathe=false`, and 0 is a black color rather than a real off. Nothing can be read back, so the ring shows the last value the skin sent (kept in `State.inc` as `SignalRGBBright`). Each URL brings the SignalRGB window up briefly. An effect must be installed first (`signalrgb://effect/install/<name>`; Solid Color ships with the app). `SignalRGBEffect=` (empty) keeps the old launcher. Layout (like Fan Control): SignalRGB logo (`signalrgb.png`, from the app icon), hover text `CASE LIGHTS 40%`, then a double arrow (`move-horizontal.png`) that applies `SignalRGBMoveEffect` (+ `SignalRGBMoveParams`); no ring, scroll anywhere. `Scripts\SignalRGBApply.ps1` opens the link and hides the window that SignalRGB raises for every URL (verified: window hidden, tray kept), unless the window was already open.
+Do not wait on knowing whether the user has Pro. The skin detects it: if the `GET /api/v1/lighting` call answers with a `global_brightness` value, it runs in API mode (ring, scroll, on/off). If the call fails or returns no such field, it runs as a plain launcher: Ink-tinted icon (not accent) that opens the app, hover label `SIGNALRGB`, no ring, no scroll. It keeps polling every 2 s, so it switches to API mode as soon as the API answers. A failure right after app start looks the same as no Pro; that is fine because the skin recovers on the next poll. `SignalRGBApi=0` forces launcher mode. Free mode (no Pro) was added after testing on the PC (SignalRGB 2.5.74, free tier): `signalrgb://effect/apply/<name>?params` is accepted without Pro, and `Solid Color` has `color`, `breathe` and `speed` properties (read from the effect file), so brightness is the color scaled toward black (`SignalRGBColor`) with `breathe=false`, and 0 is a black color rather than a real off. Nothing can be read back, so the ring shows the last value the skin sent (kept in `State.inc` as `SignalRGBBright`). Each URL brings the SignalRGB window up briefly. An effect must be installed first (`signalrgb://effect/install/<name>`; Solid Color ships with the app). `SignalRGBEffect=` (empty) keeps the old launcher. Layout (like Fan Control): SignalRGB logo (`signalrgb.png`, from the app icon), hover text `CASE LIGHTS 40%`, then a double arrow (`move-horizontal.png`) that applies `SignalRGBMoveEffect` (+ `SignalRGBMoveParams`); no ring, scroll anywhere. `Scripts\SignalRGBApply.ps1` opens the link and hides the window that SignalRGB raises for every URL (verified: window hidden, tray kept), unless the window was already open.
 
 ### Settings (SignalRGB page)
 | Key | Default | Control |
@@ -192,7 +192,7 @@ No DeepCool statement. Open-source drivers for other DeepCool displays report th
 
 ---
 
-## Checks on Vishnu's PC
+## Checks on the test PC
 
 Fan Control
 1. Does launching `FanControl.exe` from a normal (non-admin) process show a UAC prompt? Decides `FanControlUseTasks`.
@@ -202,7 +202,7 @@ Fan Control
 5. Do HWiNFO and Fan Control coexist without sensor conflicts (both poll the Super I/O)?
 
 SignalRGB
-6. Does Vishnu have SignalRGB Pro? (The skin auto-detects it; this only confirms which mode he'll see.)
+6. Does the tester have SignalRGB Pro? (The skin auto-detects it; this only confirms which mode they will see.)
 7. With SignalRGB running, does `curl http://localhost:16038/api/v1/lighting` answer? Does the brightness PATCH change lights; does `enabled=false` turn every LED off?
 8. Does `signalrgb://view/dashboard` bring the window up from the tray?
 

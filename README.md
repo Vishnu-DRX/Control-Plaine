@@ -70,4 +70,4 @@ A skin missing, blank or not responding, a plugin that will not load, a blank Wi
 
 ## Licence and credits
 
-Skins are licensed CC BY-NC-SA 4.0 (the `License` line in each skin's `[Metadata]`). Icons are based on [Lucide](https://lucide.dev) (ISC licence). Third-party plugins and tools (MediaPlayer, Ookla Speedtest CLI, Fan Control, SignalRGB and so on) belong to their authors and are downloaded or installed separately, never committed here.
+Skins are licensed CC BY-NC-SA 4.0 (see [LICENSE](LICENSE); the `License` line in each skin's `[Metadata]`). Many icons are based on [Lucide](https://lucide.dev) (ISC licence); all third-party notices are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Third-party plugins and tools (MediaPlayer, Ookla Speedtest CLI, Fan Control, SignalRGB and so on) belong to their authors and are downloaded or installed separately, never committed here.

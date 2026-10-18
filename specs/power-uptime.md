@@ -1,6 +1,6 @@
 # Spec: Power and Uptime skins
 
-Investigation output for the V1 build. Source of truth for behaviour and look: `docs/DESIGN-V1.md` and the V1 canvas. This file says **how** to build it in Rainmeter, what changes from the design, and what must be checked on Vishnu's PC.
+Investigation output for the V1 build. Source of truth for behaviour and look: `docs/DESIGN-V1.md` and the V1 canvas. This file says **how** to build it in Rainmeter, what changes from the design, and what must be checked on the test PC.
 
 Shared conventions come from `specs/foundation-settings.md` and this spec follows them: the skin template (section 2), `Defaults.inc` per skin, `User.inc` for settings, `State.inc` for runtime state, Core.inc for fade/accent/full-screen, the shared styles, and the agreed keys `PowerFirst`, `PowerConfirm`, `PowerPickerStart`, `UptimeWarnDays`, `UptimeDetails` (this spec first called it `UptimeAlways`), `PowerScheduledAt`. No FOUNDATION file is edited by this work.
 
@@ -136,9 +136,9 @@ With Fast Startup on, Shut down is a hibernate of the kernel and does **not** re
 
 ## Limits
 1. **A shutdown cancelled outside the skin** (someone runs `shutdown /a`) keeps showing a countdown until it expires. Windows has no clean way to ask "is a shutdown pending?". Restarts are detected (boot time check) and hibernate is verified (task query), so this only affects shut down / restart cancelled by hand.
-2. **Fast Startup + scheduled shut down** then power on: boot time does not change, so a stale countdown could show until its due time passes. Does not apply on Vishnu's PC (Fast Startup is off, probe 2026-10-10).
+2. **Fast Startup + scheduled shut down** then power on: boot time does not change, so a stale countdown could show until its due time passes. Does not apply on the test PC (Fast Startup is off, probe 2026-10-10).
 
-## Check on Vishnu's PC before calling these done
+## Checks on the test PC before calling these done
 
 Probe results (2026-10-10, `/mnt/project-files/Control-Plaine-probes.md`): **1 done** (Hibernate available, Fast Startup off, hybrid sleep unavailable), **3 done** for registering without admin (firing on time still to see), **4 done** (query 0 present / 1 absent, delete 0), **5 done** (schedule 0, second 1190, `/a` 0, `/a` with nothing 1116; toast look not seen). Still open: 2, 3 (firing), 6, 7, 8, 9.
 

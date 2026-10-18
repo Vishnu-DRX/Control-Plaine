@@ -34,7 +34,7 @@ SignalRGBPort=16038
 ; Needs an effect with a "color" property, such as Solid Color. Empty =
 ; launcher only. Set the color to match the one you use in SignalRGB.
 SignalRGBEffect=Solid Color
-; Full-brightness color, six hex digits, no # (Vishnu's cyan).
+; Full-brightness color, six hex digits, no #. A starting colour only: set it to the one you use in SignalRGB.
 SignalRGBColor=00AE57
 
 ; Text before the percentage.

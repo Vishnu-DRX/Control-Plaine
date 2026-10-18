@@ -1,6 +1,6 @@
 # Control-Plaine design V1
 
-Phase 1 design, signed off by Vishnu on 10 October 2026. This is the build spec for the next rebuild of the suite. The visual source of truth is the mockup canvas: https://claude.ai/artifact/EYVaqvHoYVwzN69cj1RWwz (each board shows every state of one skin; "Control-Plaine V1" board is the index).
+Phase 1 design, signed off on 10 October 2026. This is the build spec for the next rebuild of the suite. The visual source of truth was the mockup canvas of the design phase (private, not part of this repository); the per-skin specs in `specs/` and the committed skins now carry the same information.
 
 Final icons are in `docs/icons/` as 24x24 SVGs (white strokes). Render them to PNG at 1x/2x/3x for Rainmeter, or draw them with Shape meters.
 
@@ -16,7 +16,7 @@ Final icons are in `docs/icons/` as 24x24 SVGs (white strokes). Render them to P
 | Detail (device name, counts, labels) | Medium/Semibold 500 to 600, 9 to 10px, tracking 0.20 to 0.30em |
 | Text shadow | 0 1px 3px rgba(0,0,0,0.45) on all skin text and icons |
 | Brightness at rest | values 80%, details/icons 60%, tracks 18%; hover lifts to 95 to 100% |
-| Accent | Windows accent colour, read from `HKCU\Software\Microsoft\Windows\DWM\AccentColor` (ABGR DWORD, convert to RGB). Vishnu's is cyan; mockups use #00E5FF. Settings can override. |
+| Accent | Windows accent colour, read from `HKCU\Software\Microsoft\Windows\DWM\AccentColor` (ABGR DWORD, convert to RGB). The default Windows accent is cyan; mockups use #00E5FF. Settings can override. |
 | Warn | #FFAA3C (low battery, restart recommended, max fans on is accent not warn) |
 | Ring | radius 22, stroke 5, round caps, track rgba(255,255,255,0.18), fill = accent, starts at 12 o'clock |
 | Links/actions | 9 to 10px semibold capitals with a 1px accent underline |
@@ -90,13 +90,13 @@ Rules: monitored values are always visible (volume %, output device, bin count/s
 - Settings: click target, speedtest.exe path, name brightness at rest.
 
 ### Fan Control (app skin, generic)
-- Designed for Fan Control by Rem0o (Vishnu runs V277). Header comment must say so and list what to change for other software.
+- Designed for Fan Control by Rem0o (V277 at the time). Header comment must say so and list what to change for other software.
 - Rest: fan icon only, dim.
 - Hover: icon brightens, average fan speed `46%` (Value) and a grey outlined `MAX` bubble.
 - Click MAX toggles max fans. On: bubble filled with accent and it stays visible at rest. Hover while on shows `100%`.
 - Click the icon opens the Fan Control app.
 - Max toggle: switch Fan Control to a "Max" config (all fans 100%) and back to the normal config, e.g. `FanControl.exe -c Max.json` (verify it works while Fan Control is already running).
-- Average %: Fan Control has no API, so read fan control % (or RPM) from LibreHardwareMonitor or HWiNFO. Ask Vishnu which he has installed.
+- Average %: Fan Control has no API, so read fan control % (or RPM) from LibreHardwareMonitor or HWiNFO. Ask which one is installed.
 - Settings: app path, normal profile, max profile, sensor source.
 
 ### SignalRGB (app skin, generic)
@@ -118,7 +118,7 @@ Rules: monitored values are always visible (volume %, output device, bin count/s
 
 ### Controllers
 - Hidden unless a game controller or wheel is connected (USB or Bluetooth). Only game controllers are listed, nothing else.
-- Vertical list, one row per device: icon, then battery. Icons: `controller-xbox.svg` (Fluent, MIT), `controller-dualsense.svg`, `wheel-moza.svg` (D-shaped, flat bottom). Vishnu may want AI-generated icon art later; keep the same simple outline style.
+- Vertical list, one row per device: icon, then battery. Icons: `controller-xbox.svg` (Fluent, MIT), `controller-dualsense.svg`, `wheel-moza.svg` (D-shaped, flat bottom). AI-generated icon art may replace these later; keep the same simple outline style.
 - Battery: at rest only shown when below 50% (setting). On hover every device's battery shows. Low (under 15%) in orange, charging in accent with a bolt. Wheel has no battery.
 - Hover a row: it brightens, others dim, and its name shows (`XBOX`, `DUALSENSE`, `MOZA R3`).
 - Click: DualSense opens DSX; Moza opens Moza Pit House; any other controller opens its Windows device settings (`ms-settings:bluetooth`).
@@ -138,4 +138,4 @@ Rules: monitored values are always visible (volume %, output device, bin count/s
 - App skins read all program paths, process names and commands from variables so anyone can repoint them.
 - Start every skin's .ini with a comment block: what it shows, what it was designed for, and what other users can adjust.
 - Things to verify on the PC before calling a skin done: listed under each skin as "verify".
-- Commits: author Vishnu-DRX, Claude as co-author.
+- Commits: authored by the maintainer's GitHub account, Claude as co-author.

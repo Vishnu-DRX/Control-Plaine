@@ -6,7 +6,7 @@
 
 - **ASCII only** in `.ini`, `.inc` and `.lua` (lint). Rainmeter reads other encodings differently on different machines. `.gitattributes` stores `.ini`, `.inc` and `.lua` with CRLF.
 - **No inline `;` comments.** Rainmeter has none; a comment goes on its own line (lint). Text values that legitimately contain `;` (`Text=`, `ToolTip`) are exempt.
-- **No hardcoded user paths** such as `C:\Users\name\...` (lint). Use `%LOCALAPPDATA%`, `%ProgramFiles%`, a protocol link, or a path setting in `Defaults.inc`.
+- **No hardcoded user paths** such as `C:\Users\name\...` (lint). Lint P2 also rejects drive letters other than `C:`, "<Name>'s PC" style text, personal e-mail addresses, claude.ai project/thread links and committed `.dll`/`.exe`/archive files in tracked files (allow-list `P2_ALLOW` in `tools/lint.py` for files that explain them). Use `%LOCALAPPDATA%`, `%ProgramFiles%`, a protocol link, or a path setting in `Defaults.inc`.
 - No `#` inside stored setting values.
 - Do not commit `@Resources\User.inc` or `State.inc` (git-ignored) or third-party binaries (plugins are downloaded by the installer).
 
