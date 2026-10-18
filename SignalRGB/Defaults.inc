@@ -45,6 +45,16 @@ SignalRGBMoveEffect=Side to Side
 SignalRGBMoveParams=direction=All%20Directions&color1=%2300AE57&color2=%23000000&speed=11&rainbow=false
 
 ; ---- Runtime, not settings ----
+; Set by the needs check (Scripts\Needs.lua) at runtime; 1 until it says
+; otherwise. 0 hides the function. See docs/guide/first-time-setup.md.
+; 0 unless a required need is missing (1 hides the skin).
+SignalRGBNeedBlocked=0
+; 1 while the Pro API is expected to answer (brightness read-back).
+SignalRGBHasApi=1
+; 1 while an effect and colour are set (scroll control and percentage).
+SignalRGBHasBrightness=1
+; 1 while a move effect is set (the double arrow).
+SignalRGBHasMove=1
 ; Written by SignalRGB.lua to @Resources\State.inc; these are the
 ; start values for a fresh install.
 SignalRGBBright=100

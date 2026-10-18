@@ -37,6 +37,13 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 DeepCool app (1.2.6 was tested). It has no start-minimised option, so `Scripts\HideWindow.ps1` starts it and hides its window. Closing uses `taskkill`.
 
+## When something is missing
+
+- **DeepCool app not found at `DeepCoolPath`:** the skin hides itself until the path is fixed (Settings shows what to set).
+- **No process name** (`DeepCoolProcess` empty): the bulb is hidden. Starting and stopping from the logo is unchanged.
+
+Settings marks each with an amber **!**; fixing it brings the function back without a restart (see [first-time setup](first-time-setup.md)).
+
 ## Known limits
 
 DeepCool's helper service keeps running either way. Any tray app can be toggled by changing the path and process.
