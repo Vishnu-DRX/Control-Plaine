@@ -20,8 +20,10 @@ Control-Plaine\                 config root; always #ROOTCONFIG#, never the lite
   <Skin>\Defaults.inc           that skin's setting defaults
   Settings\General.ini, <Skin>.ini    one Settings page per tab
   specs\                        per-skin and foundation specs (design history plus rules)
-  docs\                         guides (users), dev (this folder), icons, DESIGN-V1.md
-  tools\                        lint.py, install.ps1, render-icons, fan-tasks.ps1
+  docs\                         guides (users), dev (this folder), sop (procedures), icons, skins.json, DESIGN-V1.md
+  site\                         static showcase site (not published until the owner says so)
+  .claude\skills\               repo skills that wrap the procedures in docs\sop
+  tools\                        lint.py, test_*.py (offline tests), new-skin.py + templates\, install.ps1, render-icons, fan-tasks.ps1, helpers\
   tools\layout\                 shipped layout source (not an .ini, so Rainmeter does not list it as a skin)
 ```
 
@@ -44,12 +46,14 @@ Later files override earlier ones, so `User.inc` beats both defaults files and `
 
 ## What each shared file is for
 
-- **Theme.inc**: colours, alpha levels that do not follow settings, type sizes and tracking, ring and icon geometry, fade timing. Not user settings. Legacy v1 names sit at the bottom and are being removed; do not use them in new code.
+- **Theme.inc**: colours, alpha levels that do not follow settings, type sizes and tracking, ring and icon geometry, fade timing. Not user settings. `Ink`, `InkContrast` and `Warn` are the dark-mode values; the `...Light` twins are used in light mode.
 - **Defaults.inc** (root): general settings (scale, accent, brightness, full-screen hide, lock) plus runtime variables marked "not settings".
 - **Core.inc**: `#Accent#` (Windows accent or custom, live), `#AlphaDetail#`/`#AlphaValue#` (rest levels from `RestBrightness`), `#Sz#` (the skin's size: `Scale`, times `SizeBoost` for skins that opt in), `TipHidden*` (tooltip gate), the `mVisible` measure and the `mFade` hover fade that drives `#Reveal#` from 0 to 1.
 - **Styles.inc**: `sDisplay`, `sValue`, `sTitle`, `sDetail`, `sReveal`, `sLink`, `sWarn`, `sAccent`, `sIcon`, `sIconFade`, `sHit`, `sRing`. Combine with `|` (later wins). Read the comments at the top of the file for the rules of each.
 
-Read these three files before inventing a new token, style or helper. Alignment helpers (left/right) and light/dark tokens are being added to `Core.inc`/`Theme.inc`; check them there, and the plans owner before editing.
+- **Helpers resolved by `Scripts\Core.lua`** (mCore, at load and on refresh) from the skin's `SkinSide`, `SkinDetails` and `SkinTheme` and the global overrides `AlignAll`, `DetailsAll`, `Theme`: `Side` (left or right), `Mir` (0 or 1, to mirror an X), `TA` and `TAT` (text alignment words), `Lead` and `Trail` (letter-spacing padding so tracked text lines up), `RevealMin` (0, or 1 when details always show), `Mode` (dark or light) and the ink tokens that follow it. Meters that use them need `DynamicVariables=1`. Rules and recipes: `specs/alignment.md`, `specs/theme.md`, `specs/tooltips.md`.
+
+Read these files before inventing a new token, style or helper.
 
 ## How settings flow
 

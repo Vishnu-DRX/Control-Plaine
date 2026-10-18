@@ -2,8 +2,6 @@
 
 Output volume as a ring, the percentage and the output device.
 
-*Draft.* Behaviour was read from `Volume/Volume.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** A ring at the current level with the speaker in it. With `VolumeAlign=left` (the default) the ring is first and the text follows; `right` mirrors it (text first, ring last).

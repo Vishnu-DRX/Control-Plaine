@@ -2,8 +2,6 @@
 
 How long Windows has been running; orange when a restart is due.
 
-*Draft.* Behaviour was read from `Uptime/Uptime.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** Invisible until hovered (unless `UptimeDetails` is `always`).

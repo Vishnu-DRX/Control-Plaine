@@ -79,7 +79,6 @@ nav a:hover { color: var(--text); }
 
 .daydate .dd-day { font-size: 36px; letter-spacing: .4em; line-height: 1.1; }
 .daydate .dd-date { font-size: 12px; font-weight: 600; letter-spacing: .3em; opacity: .8; margin-top: 4px; }
-.daydate .dd-time { font-size: 12px; font-weight: 600; letter-spacing: .25em; margin-top: 8px; }
 .stage[data-side="right"] .daydate .dd-day { letter-spacing: .4em; margin-right: -.4em; }
 
 .ico { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -95,8 +94,6 @@ nav a:hover { color: var(--text); }
 .ring .fill { stroke: var(--accent); stroke-linecap: round; }
 .vol-text, .wf-text, .bin-text, .fan-text { display: flex; flex-direction: column; gap: 4px; }
 
-.spin { animation: spin 6s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 .more { margin-top: 18px; color: var(--muted); font-size: 14px; }
 .more b { font-size: 11px; font-weight: 600; letter-spacing: .2em; color: var(--text); }
@@ -114,7 +111,6 @@ footer .dim { opacity: .7; margin-top: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .spin { animation: none; }
   .reveal, .dim, .icons, .btn, .switch button { transition: none; }
 }
 @media (max-width: 520px) { nav { gap: 14px; } .hero { padding-top: 56px; } }

@@ -2,8 +2,6 @@
 
 Recycle Bin size, with an Empty link.
 
-*Draft.* Behaviour was read from `RecycleBin/RecycleBin.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** The trash icon. With `RecycleBinAlign=left` (the default) it is first and the text follows; `right` mirrors it (text first, icon last).
@@ -35,7 +33,7 @@ Rainmeter's bundled RecycleManager plugin; covers all drives.
 
 ## Known limits
 
--
+None known.
 
 ## When something is missing
 

@@ -32,6 +32,8 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | [reviews/](reviews/) | You want the independent code review reports (safety, efficiency, maintainability) and finding ids. |
 | [sop/README.md](sop/README.md) | You are doing a repeatable job: add a skin (`tools/new-skin.py`), a setting or an icon, change a shared file, fix a bug, review, or test on the PC. |
 | [sop/add-a-skin.md](sop/add-a-skin.md), [add-a-setting](sop/add-a-setting.md), [add-an-icon](sop/add-an-icon.md), [change-a-shared-file](sop/change-a-shared-file.md), [fix-a-bug](sop/fix-a-bug.md), [code-review-checklist](sop/code-review-checklist.md), [pc-test-protocol](sop/pc-test-protocol.md) | The one procedure for that job. |
+| [../.claude/skills/](../.claude/skills/) | You are a Claude session and want the repo skills (add-skin, pc-test, review); each wraps one procedure above and tells you to verify the repo first. |
+| [../site/README.md](../site/README.md) | You are changing the showcase site (illustrations, preview, the disabled Pages workflow). |
 | [pc-test-pass.md](pc-test-pass.md) | Vishnu's single full pass on the PC (left and right, light and dark, tooltips, setup), grouped by gate. |
 
 ## Design and specs

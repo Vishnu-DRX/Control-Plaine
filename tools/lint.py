@@ -542,6 +542,43 @@ else:
     if not top or top.group(1) != suite_version:
         problems.append(f'CHANGELOG.md: I3 newest numbered section ({top.group(1) if top else "none"}) differs from Theme.inc ({suite_version})')
 
+# I4: every skin has a README row (a link to its guide) and is named on the
+# showcase site (site/index.html), so the three skin lists cannot drift.
+readme_text = (ROOT / 'README.md').read_text('ascii', 'replace')
+site_text = (ROOT / 'site' / 'index.html').read_text('ascii', 'replace').upper()
+for s in skins_json:
+    if s.get('guide', 'missing') not in readme_text:
+        problems.append(f'README.md: I4 has no row linking {s.get("guide")}')
+    if s.get('name', 'missing').upper() not in site_text:
+        problems.append(f'site/index.html: I4 does not name {s.get("name")}')
+
+# I5: every setting in a skin's Defaults.inc (above its '---- Runtime, not
+# settings ----' comment) is named in the skin's guide page, so the guides cannot
+# drift from the settings.
+for s in skins_json:
+    dfile = ROOT / s.get('folder', 'missing') / 'Defaults.inc'
+    gfile = ROOT / s.get('guide', 'missing')
+    if not (dfile.exists() and gfile.exists()):
+        continue
+    guide_text = gfile.read_text('ascii', 'replace')
+    for line in dfile.read_text('ascii', 'replace').splitlines():
+        if re.match(r'^;\s*-+\s*Runtime, not settings\s*-+', line):
+            break
+        m = re.match(r'^(\w+)=', line)
+        if m and f'`{m.group(1)}`' not in guide_text:
+            problems.append(f'{s["guide"]}: I5 does not document {m.group(1)} (from {s["folder"]}/Defaults.inc)')
+
+# I6: repo skills (.claude/skills/*/SKILL.md) stay generic, so rot is caught
+# here: every path or command in backticks must still exist.
+for skill in sorted((ROOT / '.claude' / 'skills').glob('*/SKILL.md')):
+    stext = skill.read_text('ascii', 'replace')
+    refs = {tok for chunk in re.findall(r'`([^`]+)`', stext) for tok in chunk.split()}
+    for ref in sorted(refs):
+        if re.search(r'[<>*$|;=()]', ref) or '/' not in ref.replace('\\', '/') or not re.search(r'(\.(md|py|js|ps1|lua|inc|ini|json|txt|yml)|/)$', ref):
+            continue
+        if not (ROOT / ref.replace('\\', '/')).exists():
+            problems.append(f'{skill.relative_to(ROOT)}: I6 names {ref}, which does not exist')
+
 # L7: every icon is white with alpha (so ImageTint=#Ink# follows light mode) or
 # is on the allow-list in tools/check_icons.py with a reason and a -light twin.
 sys.path.insert(0, str(ROOT / 'tools'))
