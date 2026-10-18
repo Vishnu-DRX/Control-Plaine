@@ -431,6 +431,57 @@ else:
         else:
             print('warning: ' + msg)
 
+# GD7 (R5-N1): every `reg = 'mName'` in NeedsList.lua must be a Registry measure
+# defined in the ini of the skin that owns the need, and in Settings\Chrome.inc
+# (the Settings windows evaluate every skin's needs too). Needs.lua reads the
+# measure by name; a name that exists nowhere reads as "not installed".
+def registry_measures(text):
+    return set(re.findall(r'^\[(\w+)\]\s*\r?\n(?:[^\[\r\n][^\r\n]*\r?\n)*?Measure=Registry\b', text, re.M))
+
+
+chrome_file = ROOT / '@Resources' / 'Settings' / 'Chrome.inc'
+chrome_regs = registry_measures(chrome_file.read_text('ascii', 'replace')) if chrome_file.exists() else set()
+for name, skin_needs in needs.items():
+    ini = ROOT / name / f'{name}.ini'
+    skin_regs = registry_measures(ini.read_text('ascii', 'replace')) if ini.exists() else set()
+    for n in skin_needs:
+        for reg in re.findall(r"\breg = '(\w+)'", n['text']):
+            if reg not in skin_regs:
+                problems.append(f'NeedsList.lua {name}/{n["id"]}: GD7 reg {reg} is not a Registry measure in {name}/{name}.ini')
+            if reg not in chrome_regs:
+                problems.append(f'NeedsList.lua {name}/{n["id"]}: GD7 reg {reg} is not a Registry measure in Settings/Chrome.inc')
+
+# GD8 (R5-N13): the need gate of a skin ([mBlocked], or [mNeedGate] in Volume,
+# RecycleBin and Media) is one pattern: a Calc measure that reads
+# #<Skin>NeedBlocked#, DynamicVariables=1, IfCondition on itself, a true action
+# that sets SelfHidden 1 and updates mVisible, a false action that sets
+# SelfHidden, and no IfConditionMode=1 (it would re-run the actions every update).
+for name in SKIN_FOLDERS:
+    ini = ROOT / name / f'{name}.ini'
+    if not ini.exists():
+        continue
+    text = ini.read_text('ascii', 'replace')
+    for gm in re.finditer(r'^\[(mBlocked|mNeedGate)\]\s*\r?\n((?:[^\[\r\n][^\r\n]*\r?\n?)*)', text, re.M):
+        gate, body = gm.group(1), gm.group(2)
+        opts = {}
+        for line in body.splitlines():
+            if '=' in line and not line.startswith(';'):
+                k, _, v = line.partition('=')
+                opts[k.strip()] = v.strip()
+        where = f'{name}/{name}.ini [{gate}]'
+        if opts.get('Measure') != 'Calc' or opts.get('Formula') != f'#{name}NeedBlocked#':
+            problems.append(f'{where}: GD8 must be Measure=Calc with Formula=#{name}NeedBlocked#')
+        if opts.get('DynamicVariables') != '1':
+            problems.append(f'{where}: GD8 needs DynamicVariables=1')
+        if opts.get('IfCondition') != f'{gate} = 1':
+            problems.append(f'{where}: GD8 IfCondition must be "{gate} = 1"')
+        if 'SelfHidden 1' not in opts.get('IfTrueAction', '') or 'mVisible' not in opts.get('IfTrueAction', ''):
+            problems.append(f'{where}: GD8 IfTrueAction must set SelfHidden 1 and update mVisible')
+        if 'SelfHidden' not in opts.get('IfFalseAction', ''):
+            problems.append(f'{where}: GD8 IfFalseAction must set SelfHidden')
+        if opts.get('IfConditionMode', '0') != '0':
+            problems.append(f'{where}: GD8 no IfConditionMode=1 (runs the bangs on every update)')
+
 # Onboarding.ini only calls Onboarding.lua functions that exist, and the
 # detection and onboarding scripts run nothing and write no files (GD6, O9).
 onb_ini = ROOT / 'Settings' / 'Onboarding.ini'

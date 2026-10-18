@@ -9,6 +9,7 @@ You can leave at any time. **SKIP SETUP** changes no setting (skins already swit
 - The installer (`tools\install.ps1`) opens Settings at the end, so the setup begins by itself on a new install.
 - Any later right-click, **Control-Plaine settings** opens the setup only while `SetupDone` is not `1` in `State.inc`.
 - If you already had a `State.inc` when you ran the installer, it marks setup done so an existing profile is not asked again.
+- If you updated by pulling the repo and refreshing (no installer), there is no `SetupDone` yet, so the setup also starts the first time you open Settings; choose **SKIP SETUP** to keep everything as it is and not be asked again.
 - **General > RUN SETUP AGAIN** (at the right of the LOCK POSITIONS row) starts it whenever you want. Your current settings stay until you change them.
 
 ## The steps

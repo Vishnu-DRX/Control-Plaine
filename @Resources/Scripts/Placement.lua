@@ -111,7 +111,14 @@ function P.stack(names, area, edge, scale, boost)
 			else
 				x = area.x + P.MARGIN + offset
 			end
-			out[#out + 1] = { name = name, x = x, y = y, w = w, h = h }
+			-- Too many columns for a narrow or portrait screen: keep the skin on
+			-- screen (it may overlap the previous column) and say so.
+			local clamped = false
+			local lo, hi = area.x + P.MARGIN, area.x + area.w - P.MARGIN - w
+			if hi < lo then hi = lo end
+			if x > hi then x, clamped = hi, true end
+			if x < lo then x, clamped = lo, true end
+			out[#out + 1] = { name = name, x = x, y = y, w = w, h = h, clamped = clamped or nil }
 			y = y + h + P.GAP
 			colW = math.max(colW, w)
 			count = count + 1

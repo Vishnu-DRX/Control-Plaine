@@ -473,6 +473,9 @@ local function chosenEdge()
 	return var('AlignAll') == 'right' and 'right' or 'left'
 end
 
+-- True when the last stacking had to pull a skin back onto the screen.
+local placeClamped = false
+
 -- Move every loaded skin Placement knows into its place.
 local function placeSkins()
 	if not Place then return 0 end
@@ -486,7 +489,9 @@ local function placeSkins()
 	local boost = tonumber(var('SizeBoost', '1.25')) or 1
 	local spots = Place.stack(names, list[n], chosenEdge(), scale, boost)
 	local root = SKIN:GetVariable('ROOTCONFIG')
+	placeClamped = false
 	for _, s in ipairs(spots) do
+		if s.clamped then placeClamped = true end
 		SKIN:Bang('!Move', tostring(s.x), tostring(s.y), root .. '\\' .. s.name)
 	end
 	return #spots
@@ -550,7 +555,9 @@ function PlaceNote()
 	for _, name in ipairs(SKINS) do
 		if active[name] and Place and Place.SIZES[name] then count = count + 1 end
 	end
-	return string.format('%d SKINS STACKED ON THE %s EDGE. DRAG ANY OF THEM TO FINE-TUNE.', count, chosenEdge():upper())
+	local note = string.format('%d SKINS STACKED ON THE %s EDGE. DRAG ANY OF THEM TO FINE-TUNE.', count, chosenEdge():upper())
+	if placeClamped then note = note .. ' THE SCREEN IS TOO SMALL FOR ALL OF THEM: SOME OVERLAP.' end
+	return note
 end
 
 function Copy()
