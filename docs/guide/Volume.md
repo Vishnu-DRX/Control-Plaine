@@ -6,8 +6,8 @@ Output volume as a ring, the percentage and the output device.
 
 ## At rest and on hover
 
-- **At rest:** A ring at the current level, the percentage (MUTED when muted) and the device name.
-- **On hover:** Brightens. Scrolling anywhere on the skin changes the volume.
+- **At rest:** A ring at the current level with the speaker in it. With `VolumeAlign=left` (the default) the ring is first and the text follows; `right` mirrors it (text first, ring last).
+- **On hover:** The percentage (MUTED when muted), a hairline and the device name appear, and the ring turns accent. With `VolumeDetails=always` they stay visible. Scrolling anywhere on the skin changes the volume.
 
 ## Actions
 
@@ -23,6 +23,8 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `VolumeAlign` | `left` | `left`: ring first, text after it. `right`: the mirror image inside the same box. `AlignAll` in Settings overrides it. |
+| `VolumeDetails` | `hover` | `hover`: percentage, hairline and device name show on hover. `always`: they stay visible. `DetailsAll` overrides it. |
 | `VolumeStep` | `2` | Percent per scroll notch. |
 | `VolumeScrollUnmutes` | `1` | Turning the volume up while muted unmutes. |
 | `VolumeRingStroke` | `5` | Ring thickness in px. |
