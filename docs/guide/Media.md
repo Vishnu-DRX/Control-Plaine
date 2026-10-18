@@ -6,8 +6,8 @@ The song playing in any app, with progress ring and controls.
 
 ## At rest and on hover
 
-- **At rest:** Title, artist and a progress ring with play/pause. Hidden while nothing is playing (`MediaHideIdle`).
-- **On hover:** Brightens; previous and next chevrons appear. A title too long for the line slides once when the song changes and again on hover (`MediaScrollTitles`).
+- **At rest:** A progress ring with play/pause, and the title and artist next to it (ring first by default; `MediaAlign=right` puts the ring last). Hidden while nothing is playing (`MediaHideIdle`).
+- **On hover:** Brightens; previous and next chevrons appear (Previous at the left end of the line, Next at the right end, on both sides). With `MediaDetails=always` they stay shown. A title too long for the line slides once when the song changes and again on hover (`MediaScrollTitles`): it starts at its first letter, moves left and stops with the last letter at the edge of the line, then goes back.
 
 ## Actions
 
@@ -24,6 +24,8 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `MediaAlign` | `left` | `left`: ring first, text after it. `right`: text first, ring last (how it was drawn before). The skin's box and hit area are the same on both sides. |
+| `MediaDetails` | `hover` | `hover`: chevrons and the brighter state show on hover. `always`: they stay shown. |
 | `MediaHideIdle` | `1` | The skin disappears when no app is playing. |
 | `MediaSource` | `any` | Which players it follows: `any` (Windows media session) or `wnp` (WebNowPlaying Redux). |
 | `MediaScrollTitles` | `1` | Long names slide (1) or are cut with an ellipsis (0). |
