@@ -20,7 +20,7 @@ PlaynitePath=%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe
 PlayniteSkipSplash=1
 
 ; ---- Runtime, not settings ----
-; Set by Playnite.lua from Setup\NeedsList.lua at load and about once a
+; Set by Core.lua from Setup\NeedsList.lua at load and about once a
 ; minute. BLOCKED (PlaynitePath not found) hides the skin.
 PlayniteNeedState=OK
 PlayniteNeedBlocked=0

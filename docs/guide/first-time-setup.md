@@ -46,3 +46,5 @@ Click a mark to open the setup for just that skin. The check repeats about once 
 ## Troubleshooting
 
 See [troubleshooting.md](troubleshooting.md). To start again from nothing, use **General > RUN SETUP AGAIN**, or delete the `SetupDone` line from `@Resources\State.inc`.
+
+Each skin also checks what it needs by itself when it loads and about once a minute, even with Settings closed. If an optional item is missing, that one function stays hidden; if a required item is missing, the skin hides itself. After you install the item, the skin picks it up within about a minute, or at once after a refresh.
