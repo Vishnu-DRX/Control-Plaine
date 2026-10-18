@@ -42,6 +42,9 @@ AlignAll=skin
 ; Whether hover-only details stay visible. skin = each skin uses its own
 ; <Skin>Details, hover or always = every skin follows this instead.
 DetailsAll=skin
+; Tooltips on every skin. skin = each skin uses its own <Skin>Tooltips, on =
+; every tooltip shows, off = every tooltip is hidden. Applied when a skin loads.
+TooltipsAll=skin
 ; 1 = a hovered icon takes the accent colour, 0 = it stays the ink colour.
 HoverAccent=1
 ; Hide every skin while a full-screen app is in front. Off by default: the
@@ -58,6 +61,8 @@ LockPositions=0
 SelfHidden=0
 ; Hover fade level, 0 to 1, driven by mFade.
 Reveal=0
+; Settings pages only: 1 makes the TOOLTIPS row one line (Settings\Tooltips.inc).
+TipCompact=0
 ; Per skin, set by the skin before it includes Core.inc:
 ; Fallbacks for a skin that does not arrange itself (Core.lua reads these).
 SkinSide=left

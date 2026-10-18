@@ -17,7 +17,7 @@ Connected game controllers and their batteries.
 
 ## Settings
 
-Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Besides the options below, every skin has `ControllersTooltips` (1 = show its tooltips, 0 = hide them all; default 1). Global options (size, accent, brightness, alignment) are on [Settings](settings.md).
+Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Besides the options below, every skin has `ControllersTooltips` (the TOOLTIPS row on this skin's page: 1 = show its tooltips, 0 = hide them all; default 1; `TooltipsAll` on the Advanced tab can force all skins on or off). Global options (size, accent, brightness, alignment) are on [Settings](settings.md).
 
 > Defaults below were read from `Controllers/Defaults.inc` when this page was written. The file is the source of truth; if they differ, trust the file and fix this page.
 

@@ -126,7 +126,7 @@ for path in sorted(ROOT.rglob('*')):
     if rel.parts[0] == 'Settings':
         if not in_order(found, SETTINGS_ORDER):
             problems.append(f'{rel}: Settings page must include {", ".join(SETTINGS_ORDER)} in that order')
-        for key in re.findall(r'^(?:Align|Details)Key=(\w+)\s*$', text, re.M):
+        for key in re.findall(r'^(?:Align|Details|Tip)Key=(\w+)\s*$', text, re.M):
             if key not in defined:
                 problems.append(f'{rel}: setting {key} has no default in a Defaults.inc')
         for key in re.findall(KEY_CALLS, text):
@@ -169,7 +169,7 @@ rowkeys = set()
 for page in (ROOT / 'Settings').glob('*.ini'):
     ptext = page.read_text('ascii', 'replace')
     rowkeys |= set(re.findall(KEY_CALLS, ptext))
-    rowkeys |= set(re.findall(r'^(?:Align|Details)Key=(\w+)\s*$', ptext, re.M))
+    rowkeys |= set(re.findall(r'^(?:Align|Details|Tip)Key=(\w+)\s*$', ptext, re.M))
 rowkeys = {k.lower() for k in rowkeys}
 for f in sorted(ROOT.glob('*/Defaults.inc')):
     runtime = False
@@ -186,6 +186,44 @@ for w in warnings:
         problems.append(w)
     else:
         print('warning: ' + w)
+
+# T3, T4: tooltips. A skin with any ToolTipText (in its ini or its script) hides
+# them all through the shared lookup, which includes TooltipsAll (Core.inc), and
+# has a <Skin>Tooltips default and a TOOLTIPS row on its Settings page. See
+# specs/tooltips.md.
+core_inc = (ROOT / '@Resources' / 'Core.inc').read_text('ascii', 'replace')
+for tip in ('TipHidden1', 'TipHidden0'):
+    if not re.search(rf'^{tip}=.*\[#TooltipsAll\]', core_inc, re.M):
+        problems.append(f'@Resources/Core.inc: T3 {tip} must be looked up through [#TooltipsAll]')
+if not re.search(r'^TooltipsAll=skin\s*$', (ROOT / '@Resources' / 'Defaults.inc').read_text('ascii', 'replace'), re.M):
+    problems.append('@Resources/Defaults.inc: T4 needs TooltipsAll=skin')
+adv = (ROOT / 'Settings' / 'Advanced.ini')
+adv_text = adv.read_text('ascii', 'replace') if adv.exists() else ''
+for value in ('skin', 'on', 'off'):
+    if f"Set('TooltipsAll','{value}'" not in adv_text:
+        problems.append(f"Settings/Advanced.ini: T4 needs a TOOLTIPS ON ALL SKINS choice Set('TooltipsAll','{value}','all')")
+for name in SKIN_FOLDERS:
+    ini = ROOT / name / f'{name}.ini'
+    if not ini.exists():
+        continue
+    itext = ini.read_text('ascii', 'replace')
+    script = ROOT / '@Resources' / 'Scripts' / f'{name}.lua'
+    stext = script.read_text('ascii', 'replace') if script.exists() else ''
+    if 'ToolTipText' not in itext and 'ToolTipText' not in stext:
+        continue
+    head = itext.split('\n[', 2)
+    rainmeter = head[1] if len(head) > 1 and head[1].startswith('Rainmeter]') else ''
+    if not re.search(rf'^ToolTipHidden=#TipHidden\[#{name}Tooltips\]#\s*$', rainmeter, re.M):
+        problems.append(f'{name}/{name}.ini: T3 [Rainmeter] needs ToolTipHidden=#TipHidden[#{name}Tooltips]# '
+                        f'(a skin with tooltips must hide them through the shared lookup)')
+    if not re.search(rf'^{name}Tooltips=1\s*$', (ROOT / name / 'Defaults.inc').read_text('ascii', 'replace'), re.M):
+        problems.append(f'{name}/Defaults.inc: T4 needs {name}Tooltips=1')
+    page = ROOT / 'Settings' / f'{name}.ini'
+    ptext = page.read_text('ascii', 'replace') if page.exists() else ''
+    if not (re.search(rf'^TipKey={name}Tooltips\s*$', ptext, re.M)
+            and re.search(r'^TipY=\d+\s*$', ptext, re.M)
+            and '#@#Settings\\Tooltips.inc' in includes(ptext)):
+        problems.append(f'Settings/{name}.ini: T4 needs TipKey={name}Tooltips, TipY and @include of #@#Settings\\Tooltips.inc')
 
 # L7: every icon is white with alpha (so ImageTint=#Ink# follows light mode) or
 # is on the allow-list in tools/check_icons.py with a reason and a -light twin.
