@@ -16,7 +16,7 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | [guide/install.md](guide/install.md) | Installing or updating. |
 | [guide/settings.md](guide/settings.md) | You need the general options or want to edit `User.inc`. |
 | [guide/troubleshooting.md](guide/troubleshooting.md) | A skin is missing, blank or not responding. |
-| [guide/DayDate.md](guide/DayDate.md), [Power](guide/Power.md), [Uptime](guide/Uptime.md), [Volume](guide/Volume.md), [Media](guide/Media.md), [RecycleBin](guide/RecycleBin.md), [Playnite](guide/Playnite.md), [WiFi](guide/WiFi.md), [FanControl](guide/FanControl.md), [SignalRGB](guide/SignalRGB.md), [DeepCool](guide/DeepCool.md), [Controllers](guide/Controllers.md) | You need what one skin does, its options and its requirements. |
+| [guide/DayDate.md](guide/DayDate.md), [Power](guide/Power.md), [Uptime](guide/Uptime.md), [Volume](guide/Volume.md), [Media](guide/Media.md), [RecycleBin](guide/RecycleBin.md), [Playnite](guide/Playnite.md), [WiFi](guide/WiFi.md), [FanControl](guide/FanControl.md), [SignalRGB](guide/SignalRGB.md), [DeepCool](guide/DeepCool.md), [Controllers](guide/Controllers.md), [SettingsButton](guide/SettingsButton.md) | You need what one skin does, its options and its requirements. |
 | [skins.json](skins.json) | You need the skin list and one-liners as data (README and site source). |
 
 ## Working on the repo (docs/dev)

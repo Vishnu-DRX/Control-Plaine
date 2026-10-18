@@ -72,6 +72,12 @@
       "name": "Controllers",
       "oneLiner": "Connected game controllers and their batteries.",
       "guide": "docs/guide/Controllers.md"
+    },
+    {
+      "folder": "SettingsButton",
+      "name": "Settings Button",
+      "oneLiner": "A gear that opens the Settings window.",
+      "guide": "docs/guide/SettingsButton.md"
     }
   ]
 }
