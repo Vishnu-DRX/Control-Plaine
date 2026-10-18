@@ -1,6 +1,7 @@
 # Personal settings stay on the PC.
 @Resources/User.inc
 @Resources/State.inc
+@Resources/User.inc.tmp
 *.bak
 
 __pycache__/
