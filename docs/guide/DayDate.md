@@ -25,6 +25,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | `DayDateAlign` | `left` | Which edge the two lines line up to: `left` or `right`. The skin keeps the same size and place on both. (It used to be `right`; the lines now start on the left.) |
 | `DayDateDetails` | `hover` | `hover`: dim at rest, brighter on hover. `always`: both lines stay at the hover brightness. |
 | `DayDateDateLine` | `show` | `show`: the small date line is always visible. `hover`: it is hidden until the mouse is over the skin. |
+| `DayDateTheme` | `auto` | Colours: `auto` follows the global Theme (SKINS FOR on General), `dark` is white, `light` is black. The COLOURS row on this skin's page sets it. In light mode the dim and bright levels get the light-mode boost. |
 | `DayDateClick` | `calendar` | What a click opens: `calendar`, or any program, file or URI (CUSTOM in Settings). |
 
 The global `AlignAll` and `DetailsAll` (General) override `DayDateAlign` and `DayDateDetails`. `DetailsAll=always` also shows the date line, because everything then rests at the hover level. `DayDateDateLine` is not changed by either.
