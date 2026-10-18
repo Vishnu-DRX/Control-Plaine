@@ -15,17 +15,12 @@ local lastBody, lastLook
 local lastKick = 0
 local count = 0
 
--- Needs (Setup\NeedsList.lua, Scripts\Needs.lua): which optional functions
--- exist. Sets ControllersHasDsx, ControllersHasWheel and ControllersHasOther
--- (0/1), which the click overlays in Controllers.ini follow, and
--- ControllersNeedBlocked (1 hides the whole skin). Checked at load and about
--- once a minute; reads files only.
-local Needs, NEEDS
-local lastDetect = 0
+-- Needs: Core.lua (mCore) checks them and sets ControllersHasDsx,
+-- ControllersHasWheel, ControllersHasOther (0/1) and ControllersNeedBlocked
+-- (1 hides the whole skin). This script only reads those flags.
 local lastSig
 local blocked = false
 local has = { Dsx = 1, Wheel = 1, Other = 1 }
-local DETECT_EVERY = 60
 
 local function var(name)
 	return SKIN:ReplaceVariables('#' .. name .. '#')
@@ -72,24 +67,11 @@ local function target(kind)
 	return other, 'Open controller settings', ''
 end
 
-local function loadNeeds()
-	local at = SKIN:GetVariable('@')
-	local okLib, lib = pcall(dofile, at .. 'Scripts\\Needs.lua')
-	local okList, list = pcall(dofile, at .. 'Setup\\NeedsList.lua')
-	if okLib and okList and type(lib) == 'table' and type(list) == 'table' and list.Controllers then
-		Needs, NEEDS = lib, list.Controllers
-	end
-end
-
--- Returns true when the outcome changed since the last check.
+-- Reads the flags; true when they changed since the last call.
 local function detect()
-	if not Needs then return false end
-	local okEval, res = pcall(Needs.evaluate, 'Controllers', NEEDS, Needs.rainmeterEnv(SKIN))
-	if not okEval or type(res) ~= 'table' then return false end
-	Needs.apply(res, function(name, value) SKIN:Bang('!SetVariable', name, value) end)
-	blocked = res.state == 'BLOCKED'
-	for name in pairs(has) do has[name] = res.features[name] or 1 end
-	local sig = res.state .. has.Dsx .. has.Wheel .. has.Other
+	blocked = var('ControllersNeedBlocked') == '1'
+	for name in pairs(has) do has[name] = var('ControllersHas' .. name) == '0' and 0 or 1 end
+	local sig = tostring(blocked) .. has.Dsx .. has.Wheel .. has.Other
 	local changed = sig ~= lastSig
 	lastSig = sig
 	return changed
@@ -133,12 +115,7 @@ local function apply(devices, look)
 end
 
 function Update()
-	local changed = false
-	if not Needs and lastDetect == 0 then loadNeeds() end
-	if os.time() - lastDetect >= DETECT_EVERY or lastDetect == 0 then
-		lastDetect = os.time()
-		changed = detect()
-	end
+	local changed = detect()
 
 	local text = ''
 	local f = io.open(file, 'r')
