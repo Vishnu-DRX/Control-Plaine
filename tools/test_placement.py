@@ -37,7 +37,7 @@ def check(cond, msg):
 
 def stack(names, area, edge, scale, boost=1.25):
     res = P.stack(lua.table_from(names), lua.table(**area), edge, scale, boost)
-    return [{k: res[i][k] for k in ('name', 'x', 'y', 'w', 'h')} for i in range(1, len(res) + 1)]
+    return [{k: res[i][k] for k in ('name', 'x', 'y', 'w', 'h')} | {'clamped': bool(res[i]['clamped'])} for i in range(1, len(res) + 1)]
 
 
 ORDER = [P.ORDER[i] for i in range(1, len(P.ORDER) + 1)]
@@ -100,7 +100,7 @@ for aname, area in AREAS.items():
                 for b in res[i + 1:]:
                     sep = (a['x'] + a['w'] <= b['x'] or b['x'] + b['w'] <= a['x'] or
                            a['y'] + a['h'] <= b['y'] or b['y'] + b['h'] <= a['y'])
-                    check(sep, f'{tag}: {a["name"]} overlaps {b["name"]}')
+                    check(sep or a['clamped'] or b['clamped'], f'{tag}: {a["name"]} overlaps {b["name"]}')
             # Columns: same x edge flush; fixed gap inside a column; wrapped columns start at the top.
             cols = {}
             for r in res:
@@ -130,6 +130,16 @@ for aname, area in AREAS.items():
 # 1080p at 100% fits a single column (this is what the shipped layout relies on).
 res = stack([n for n in ALL if n != 'SettingsButton'], AREAS['landscape'], 'left', 1.0)
 check(len({r['x'] for r in res}) == 1, '1920x1040 at 100%: a single column')
+
+# R5-N15: a narrow portrait screen must not push a column past the far edge.
+narrow = {'x': 0, 'y': 0, 'w': 500, 'h': 400}
+for edge in ('left', 'right'):
+    res = stack(ALL, narrow, edge, 1.5)
+    for r in res:
+        check(r['x'] >= MARGIN and r['x'] + r['w'] <= narrow['w'] - MARGIN or r['w'] > narrow['w'] - 2 * MARGIN,
+              f'narrow {edge}: {r["name"]} outside the area (x={r["x"]}, w={r["w"]})')
+check(any(r['clamped'] for r in stack(ALL, narrow, 'left', 1.5)), 'narrow screen: a skin is reported as clamped')
+check(not any(r['clamped'] for r in stack(ALL, AREAS['landscape'], 'left', 1.0)), '1920x1040: nothing is clamped')
 
 # Only the requested skins, in the fixed order, however the caller lists them.
 res = stack(['Volume', 'DayDate', 'NotASkin', 'Power'], AREAS['landscape'], 'right', 1.25)

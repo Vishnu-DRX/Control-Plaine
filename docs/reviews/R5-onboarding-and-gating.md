@@ -21,16 +21,16 @@ Status: fixed here = changed in this PR; open = described, not changed.
 | R5-N7 | medium | fixed here | tools/install.ps1:42 | Appending `SetupDone=1` with `-Encoding ascii` corrupts a UTF-16 State.inc, and glues onto the last line when it has no line break |
 | R5-N8 | low | fixed here | @Resources/Scripts/Needs.lua:236 | `parseHelpers` key pattern `%w+` drops `required_for` and `optional_for` |
 | R5-N9 | low | fixed here | tools/helpers/MediaPlayer.ps1:12 | `Get-Content -Encoding Byte` throws under PowerShell 7 (R4-T5 again, in the new helper) |
-| R5-N10 | medium | open | @Resources/Scripts/Settings.lua:169, tools/install.ps1:37 | An existing user who only runs `git pull` (no installer) has no `SetupDone` and gets the first-run setup on the first Settings open |
+| R5-N10 | medium | open, documented (decision kept) | @Resources/Scripts/Settings.lua:169, tools/install.ps1:37 | An existing user who only runs `git pull` (no installer) has no `SetupDone` and gets the first-run setup on the first Settings open |
 | R5-N11 | medium | open, [PC] | @Resources/Scripts/Onboarding.lua:433-436,561 | Arguments with `"` and spaces go through `SKIN:Bang` unquoted (`!SetOption mRun Parameter`, `!SetClip`); if Rainmeter splits them, the helper runs with a truncated command |
-| R5-N12 | medium | open | @Resources/Setup/Helpers.txt:73-79 | The elevated RUN IT FOR ME runs `fan-tasks.ps1` from the user-writable repo; the UAC prompt names powershell.exe, not the script |
-| R5-N13 | low | open | Playnite/Playnite.ini:64, DeepCool/DeepCool.ini, FanControl/FanControl.ini, SignalRGB/SignalRGB.ini | `IfConditionMode=1` on `mBlocked` runs `!SetVariable` + `!UpdateMeasure mVisible` on every update |
-| R5-N14 | low | open | @Resources/Setup/NeedsList.lua:126-128 | `why` says DualSense "battery detail and the click are hidden"; only the click and tooltip are gated |
-| R5-N15 | low | open | @Resources/Scripts/Placement.lua:101-107 | Many columns on a narrow or portrait screen run past the far edge; nothing clamps `x` |
-| R5-N16 | low | open | @Resources/Scripts/Settings.lua:170-176 | On first run the Settings window stays loaded behind Onboarding (Initialize returns without deactivating itself) |
-| R5-N17 | low | open | @Resources/Setup/NeedsList.lua (`bundled`) | `bundled` checks always pass, so the Volume and RecycleBin BLOCKED paths (`mNeedGate`) can never run and no test reaches them |
-| R5-N18 | low | open | @Resources/Scripts/Power.lua (`abandoned`) | A stale `abandoned[measure]` flag swallows the next real `Done()` if the abandoned step never reports back |
-| R5-N19 | low | open | tools/layout/Control-Plaine.layout | The layout has no `SettingsButton` section (file belongs to the lint/layout worker) |
+| R5-N12 | medium | accepted risk, documented (pc-gates) | @Resources/Setup/Helpers.txt:73-79 | The elevated RUN IT FOR ME runs `fan-tasks.ps1` from the user-writable repo; the UAC prompt names powershell.exe, not the script |
+| R5-N13 | low | fixed (follow-up) | Playnite/Playnite.ini:64, DeepCool/DeepCool.ini, FanControl/FanControl.ini, SignalRGB/SignalRGB.ini | `IfConditionMode=1` on `mBlocked` runs `!SetVariable` + `!UpdateMeasure mVisible` on every update |
+| R5-N14 | low | fixed (follow-up) | @Resources/Setup/NeedsList.lua:126-128 | `why` says DualSense "battery detail and the click are hidden"; only the click and tooltip are gated |
+| R5-N15 | low | fixed (follow-up) | @Resources/Scripts/Placement.lua:101-107 | Many columns on a narrow or portrait screen run past the far edge; nothing clamps `x` |
+| R5-N16 | low | open, skipped | @Resources/Scripts/Settings.lua:170-176 | On first run the Settings window stays loaded behind Onboarding (Initialize returns without deactivating itself) |
+| R5-N17 | low | open, skipped | @Resources/Setup/NeedsList.lua (`bundled`) | `bundled` checks always pass, so the Volume and RecycleBin BLOCKED paths (`mNeedGate`) can never run and no test reaches them |
+| R5-N18 | low | open, skipped | @Resources/Scripts/Power.lua (`abandoned`) | A stale `abandoned[measure]` flag swallows the next real `Done()` if the abandoned step never reports back |
+| R5-N19 | low | fixed (follow-up) | tools/layout/Control-Plaine.layout | The layout has no `SettingsButton` section (file belongs to the lint/layout worker) |
 
 ## Scenario and fix
 
@@ -77,3 +77,20 @@ Status: fixed here = changed in this PR; open = described, not changed.
 - **State machine (Onboarding).** `stepIndex` falls back to step 1 on an unknown `OnbStep`; fix mode shows only SETUP and DONE ends it; `Finish`/`SkipSetup` both write `SetupDone=1` and clear the progress keys; `Back`, `GoIndex` and `Next` cannot leave the list; `OnbPre` makes the "turn off blocked skins" step run once; `asking`, `running` and `copied` are in-memory and reset by `Select`/`goStep`/`RunDone`. `PlaceScreen` cycles screens with `n % #list + 1`; `Place.screens` always returns at least one screen, so the string formats cannot index nil.
 - **install.ps1.** Helper list parsed with the same rules as the Lua parser; `Test-Helper` handles `file:` and `path:` and expands `%ENV%`; missing program is reported, not fatal; layout backups use a timestamp with seconds, existing layout kept before overwrite (R4-T3 closed); `Select-String` on `SetupDone=` handles a BOM file.
 - **Lint and tests** (after the fixes): 0 lint problems; `test_core`, `test_onboarding`, `test_onboarding_flow`, `test_placement`, `test_controllers_gating` and the rest: 0 failures.
+
+## Follow-up status (WP-R5 fixes)
+
+| id | status | what was done or why not |
+| --- | --- | --- |
+| R5-N10 | documented, behaviour unchanged | `docs/guide/first-time-setup.md` now says that an existing profile updated only by pulling the repo sees the setup at its first Settings open, and that SKIP SETUP changes nothing and marks it done. The first-run contract is a product decision. |
+| R5-N11 | open, [PC] | Stays a PC gate (`docs/pc-gates.md`, Onboarding). The fix depends on how `SKIN:Bang` quotes (R1-S3). |
+| R5-N12 | accepted risk, documented | The UAC prompt names powershell.exe, and the script is read from the repo at the moment of consent. Same trust class as running any repo script as admin; the SOURCE line shows the path. Recorded as a check in `docs/pc-gates.md`. Guide wording (the UAC prompt belongs to the Fan Control tasks) is left to the docs worker. |
+| R5-N13 | fixed | `IfConditionMode=1` removed from `mBlocked` in Playnite, DeepCool, FanControl and SignalRGB. Lint rule GD8 keeps all seven need gates (`mBlocked`, `mNeedGate`) in one pattern. |
+| R5-N14 | fixed | NeedsList text now says "The DualSense click and tooltip are off." (the battery row is not gated). |
+| R5-N15 | fixed | `Placement.stack` clamps `x` to the work area (a skin may then overlap the previous column on a screen that is too small) and marks it `clamped`; the PLACEMENT note adds "THE SCREEN IS TOO SMALL FOR ALL OF THEM: SOME OVERLAP." Offline test in `tools/test_placement.py`. [PC] check unchanged. |
+| R5-N16 | skipped | Deactivating the General window in `Initialize()` would also remove the page that appears after FINISH (Onboarding only deactivates itself), so it changes behaviour and cannot be checked without Rainmeter. Stays a [PC] gate. |
+| R5-N17 | skipped | The audio and recycle plugins ship with Rainmeter, so `bundled` is right; the gates are a safety net for a broken install. No cheap, correct fix; a test would need a fake plugin check in `Needs.lua`. |
+| R5-N18 | skipped | Whether RunCommand still calls `Done` after the watchdog gave up is the open R2-N1/N2 PC gate. Expiring the flag blind could let a late `Done` end the wrong step. |
+| R5-N19 | already fixed | `tools/layout/Control-Plaine.layout` has a `SettingsButton` section on main (WP-I). |
+
+New lint checks (`tools/lint.py`): GD7, every `reg =` name in NeedsList.lua is a Registry measure in the owning skin ini and in `Settings/Chrome.inc` (would have caught R5-N1); GD8, the need-gate pattern above.

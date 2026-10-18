@@ -134,7 +134,7 @@ return {
 		  why = 'Scripts\\Controllers.ps1 is missing from the skin folder; reinstall.' },
 		{ id = 'dsx', label = 'DUALSENSE APP', level = 'optional', feature = 'Dsx',
 		  check = { target = 'ControllersDualSenseApp' }, key = 'ControllersDualSenseApp', onboard = true,
-		  why = 'DualSense battery detail and the click are hidden.' },
+		  why = 'The DualSense click and tooltip are off.' },
 		{ id = 'wheel', label = 'PIT HOUSE', level = 'optional', feature = 'Wheel',
 		  check = { target = 'ControllersWheelApp' }, key = 'ControllersWheelApp', onboard = true,
 		  why = 'The wheel click is off.' },
