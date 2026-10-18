@@ -40,7 +40,7 @@ SCALE = float(os.environ.get('ICON_SCALE', 1))
 # @Resources\Defaults.inc.
 BOOST = 1.25
 APP = {'airplane', 'arrow-down', 'arrow-up', 'deepcool', 'ethernet', 'fan', 'gauge',
-       'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'snowflake', 'wifi', 'wifi-1',
+       'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'settings', 'snowflake', 'wifi', 'wifi-1',
        'wifi-2', 'wifi-no-internet-badge'}
 APP_SCALE = SCALE * BOOST   # the Controllers canvas below is boosted too
 
@@ -77,6 +77,25 @@ SKIP = {'signalrgb'}
 # Variants that swap into one slot share one sub-pixel offset, so they do not
 # jump when the skin changes icon.
 SAME_SHIFT = {'wifi-1': 'wifi', 'wifi-2': 'wifi', 'wifi-no-internet-badge': 'wifi'}
+
+# Icons with colour (the Warn orange badge) also get a <name>-light.png for
+# light mode: a tint multiplies, so black ink would turn the badge black. The
+# twin has a black body and the light-mode orange (WarnLight in Theme.inc). The
+# skin draws both untinted. Keep in step with COLOURED in tools/check_icons.py.
+LIGHT = {'globe-disconnected', 'wifi-no-internet-badge'}
+
+
+def light_svg(svg):
+    s = re.sub(r'#fff\b', '#000', svg).replace('#ffaa3c', '#d66e00')
+    # The dark disc that hides the globe behind the badge becomes a cut-out.
+    if ' fill="#1a1d22"' in s:
+        cut = ('<defs><mask id="cut" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">'
+               '<rect width="24" height="24" fill="#fff" stroke="none"/>'
+               '<circle cx="19" cy="18" r="5" fill="#000" stroke="none"/></mask></defs><g mask="url(#cut)">')
+        s = (s.replace(' fill="#1a1d22"', '').replace('<circle cx="19"', '</g><circle cx="19"', 1)
+             .replace('<circle cx="11"', cut + '<circle cx="11"', 1))
+    return s
+
 
 # Sub-pixel offsets tried per axis, in px. Kept within half a pixel so an icon
 # never drifts visibly off centre.
@@ -187,16 +206,23 @@ def main():
 
         # ---- Everything else: icon centred in a square box ----
         files = sorted(SRC.glob('*.svg'), key=lambda f: (f.stem in SAME_SHIFT, f.stem))
+        jobs = []
         for f in files:
+            jobs.append((f, False))
+            if f.stem in LIGHT:
+                jobs.append((f, True))
+        for f, light in jobs:
             name = f.stem
             if name in FIT or name in SKIP:
                 continue
-            box = round(BOX.get(name, 32) * (APP_SCALE if name in APP else SCALE))
+            box =round(BOX.get(name, 32) * (APP_SCALE if name in APP else SCALE))
             # The DeepCool logo sits on a 3-unit grid: 4 px cells keep every
             # block the same size.
             icon = round(box * 0.8) if name == 'deepcool' else box * 3 / 4
             k = icon / 24
             svg = strip(f.read_text(encoding='utf8'))
+            if light:
+                svg = light_svg(svg)
             # Block logos on a pixel grid (deepcool) snap to whole pixels.
             svg = svg.replace('fill="#fff" stroke="none"', 'fill="#fff" stroke="none" shape-rendering="crispEdges"')
 
@@ -214,7 +240,10 @@ def main():
             for dy in STEPS:
                 for dx in STEPS:
                     cells.append((dx, dy, with_view(svg, box, box, -(lead + dx) / k, -(lead + dy) / k, box / k, box / k)))
-            save(name, box, box, cells)
+            if light:
+                # The twin shares its original's sub-pixel offset.
+                SAME_SHIFT[name + '-light'] = name
+            save(name + ('-light' if light else ''), box, box, cells)
         browser.close()
 
 

@@ -16,7 +16,7 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | [guide/install.md](guide/install.md) | Installing or updating. |
 | [guide/settings.md](guide/settings.md) | You need the general options or want to edit `User.inc`. |
 | [guide/troubleshooting.md](guide/troubleshooting.md) | A skin is missing, blank or not responding. |
-| [guide/DayDate.md](guide/DayDate.md), [Power](guide/Power.md), [Uptime](guide/Uptime.md), [Volume](guide/Volume.md), [Media](guide/Media.md), [RecycleBin](guide/RecycleBin.md), [Playnite](guide/Playnite.md), [WiFi](guide/WiFi.md), [FanControl](guide/FanControl.md), [SignalRGB](guide/SignalRGB.md), [DeepCool](guide/DeepCool.md), [Controllers](guide/Controllers.md) | You need what one skin does, its options and its requirements. |
+| [guide/DayDate.md](guide/DayDate.md), [Power](guide/Power.md), [Uptime](guide/Uptime.md), [Volume](guide/Volume.md), [Media](guide/Media.md), [RecycleBin](guide/RecycleBin.md), [Playnite](guide/Playnite.md), [WiFi](guide/WiFi.md), [FanControl](guide/FanControl.md), [SignalRGB](guide/SignalRGB.md), [DeepCool](guide/DeepCool.md), [Controllers](guide/Controllers.md), [SettingsButton](guide/SettingsButton.md) | You need what one skin does, its options and its requirements. |
 | [skins.json](skins.json) | You need the skin list and one-liners as data (README and site source). |
 
 ## Working on the repo (docs/dev)
@@ -34,6 +34,7 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | --- | --- |
 | [DESIGN-V1.md](DESIGN-V1.md) | You need the original design intent and per-skin behaviour. |
 | [../specs/foundation-settings.md](../specs/foundation-settings.md) | You are touching shared files, the skin template or the Settings window. |
+| [../specs/tooltips.md](../specs/tooltips.md) | You are changing tooltips, `TooltipsAll`, or a skin's `ToolTipHidden` line. |
 | [../specs/power-uptime.md](../specs/power-uptime.md), [volume-media](../specs/volume-media.md), [wifi](../specs/wifi.md), [app-skins](../specs/app-skins.md) (Fan Control, SignalRGB, DeepCool), [controllers](../specs/controllers.md), [daydate-bin-playnite](../specs/daydate-bin-playnite.md) | You are changing that skin and want the reasoning and what was checked on a real PC. |
 | [icons/](icons/) | You are adding or changing an icon (SVG sources). |
 

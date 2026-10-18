@@ -6,7 +6,7 @@
 [Variables]
 ; Size of every skin, 0.5 to 3.0 (Settings shows it as a percent).
 Scale=1
-; Extra size for Controllers, Fan Control, DeepCool, Wi-Fi and SignalRGB only,
+; Extra size for Controllers, Fan Control, DeepCool, Wi-Fi, SignalRGB and Settings Button only,
 ; on top of Scale (1 = none). Those skins define Sz=(#Scale#*#SizeBoost#).
 SizeBoost=1.25
 ; Font for all text: Segoe UI Variable Display, or Segoe UI on Windows 10 or a

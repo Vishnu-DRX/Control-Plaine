@@ -27,7 +27,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKINS = ['DayDate', 'Power', 'Uptime', 'Volume', 'Media', 'RecycleBin', 'Playnite',
-         'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers']
+         'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers', 'SettingsButton']
 failed = 0
 
 

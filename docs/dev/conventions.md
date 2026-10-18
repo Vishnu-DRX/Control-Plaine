@@ -32,6 +32,7 @@ Design language, in short: quiet at rest, detail on hover, subtle hover, Windows
 
 - Rings and lines must be sharp: draw with Round caps, keep text X positions on whole pixels, and size icons so Rainmeter never resamples them.
 - Icons are Lucide-based SVGs in `docs/icons/`, rendered by `tools/render-icons.js` (dev-time, needs Playwright) to PNGs in `@Resources/Icons/` at the size they are shown. The icon file must exist (lint).
+- Icons are white with alpha, drawn with `ImageTint=#Ink#`, so light mode (black ink) needs no second set (lint L7, `python tools/check_icons.py` lists each PNG). The only exceptions are icons with an orange `Warn` badge (`globe-disconnected`, `wifi-no-internet-badge`): a tint would turn the badge black, so each has a `<name>-light.png` twin (black body, `WarnLight` orange). A skin draws these two with `ImageTint=255,255,255` and picks the file by `#Mode#` (add `-light` when `Mode` is `light`; Lua re-reads `Mode` in `Update`). A new coloured icon needs an entry in `COLOURED` in `tools/check_icons.py` with the reason, and a twin from `render-icons`.
 - Orange (`Warn`) only for things needing attention; accent only for active state.
 
 ## Performance

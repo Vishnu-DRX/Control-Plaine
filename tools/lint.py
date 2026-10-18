@@ -19,7 +19,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 V2_ORDER = ['#@#Theme.inc', '#@#Defaults.inc', '#@#User.inc', '#@#Core.inc', '#@#Styles.inc']
 SETTINGS_ORDER = V2_ORDER + ['#@#Settings\\Controls.inc', '#@#Settings\\Chrome.inc']
 SKIN_FOLDERS = ['DayDate', 'Power', 'Uptime', 'Volume', 'Media', 'RecycleBin', 'Playnite',
-                'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers']
+                'WiFi', 'FanControl', 'SignalRGB', 'DeepCool', 'Controllers',
+                'SettingsButton']
 # Settings.lua functions whose first argument is a setting key.
 KEY_CALLS = r"(?<![A-Za-z])(?:Fill|Knob|Toggle|Set|Step|Show|ChoiceAlpha|ChoiceLine|EditPath)\('(\w+)'"
 problems = []
@@ -223,6 +224,12 @@ for name in SKIN_FOLDERS:
             and re.search(r'^TipY=\d+\s*$', ptext, re.M)
             and '#@#Settings\\Tooltips.inc' in includes(ptext)):
         problems.append(f'Settings/{name}.ini: T4 needs TipKey={name}Tooltips, TipY and @include of #@#Settings\\Tooltips.inc')
+
+# L7: every icon is white with alpha (so ImageTint=#Ink# follows light mode) or
+# is on the allow-list in tools/check_icons.py with a reason and a -light twin.
+sys.path.insert(0, str(ROOT / 'tools'))
+import check_icons
+problems += check_icons.problems()
 
 for p in problems:
     print(p)
