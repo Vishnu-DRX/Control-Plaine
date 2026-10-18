@@ -5,6 +5,9 @@
 [Variables]
 ; 1 shows this skin's tooltips, 0 hides them all.
 DayDateTooltips=1
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+DayDateTheme=auto
 ; What a click opens: calendar (the Windows calendar flyout, Win+N), or any
 ; program, file or URI (for example https://calendar.google.com).
 DayDateClick=calendar
