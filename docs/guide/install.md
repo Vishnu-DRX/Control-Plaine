@@ -22,7 +22,7 @@ After a plugin is installed, exit and restart Rainmeter once.
 
 1. Put this folder at `Documents\Rainmeter\Skins\Control-Plaine`.
 2. Create empty `@Resources\User.inc` and `@Resources\State.inc`, each containing only `[Variables]`.
-3. In Rainmeter: Manage > Skins, load the skins you want, or copy `Layouts\Control-Plaine` into `%APPDATA%\Rainmeter\Layouts` and load it from Manage > Layouts.
+3. In Rainmeter: Manage > Skins, load the skins you want, or copy `tools\layout\Control-Plaine.layout` to `%APPDATA%\Rainmeter\Layouts\Control-Plaine\Rainmeter.ini` (create the folder) and load it from Manage > Layouts. It puts the skins in a column at the left of your main screen; the setup's PLACEMENT step moves them.
 4. Install what each skin you use needs (see its page in this folder).
 
 ## Skin positions

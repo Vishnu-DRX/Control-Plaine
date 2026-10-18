@@ -19,9 +19,20 @@ The steps are listed down the left; click one to jump to it.
 2. **SKINS.** One switch per skin, the same as General. A skin whose required app is missing starts switched off, with the reason under its name; switch it on if you want it anyway. Skins you switch off are unloaded and have no setup rows.
 3. **SETUP.** For each skin you kept, what it needs: a program path, a plugin or a tool. Each row shows **FOUND** or **NOT FOUND** (checked by looking for files and registry entries only; nothing is started). Click a path to type it, the same box as on the skin's page. Click a row for details: why the skin wants it, whether it is **required** (without it the skin stops working) or **optional** (without it only one function is hidden), and what happens if you skip it.
 4. **LOOK.** Size, colours (auto, light wallpaper, dark wallpaper), left or right edge for every skin, details on hover or always, tooltips, and the accent. Changes show on the real skins at once. Each skin can still differ later on its own page.
-5. **DONE.** What is on, what still needs attention, and where the settings are stored.
+5. **PLACEMENT.** Choose a screen and an edge. See below.
+6. **DONE.** What is on, what still needs attention, and where the settings are stored.
 
-A PLACEMENT step (choose a screen and an edge) is planned and is not shown yet.
+## Placement
+
+The installed layout puts the skins in one column at the left of your main screen so they start on screen. This step restacks the skins you kept where you want them.
+
+- **SCREEN.** Shows the usable size of the screen (the work area, without the taskbar). With more than one display, click it to use the next screen.
+- **EDGE.** LEFT or RIGHT. The skins stack top to bottom in a fixed order (date and clock, uptime, power, volume, media, recycle bin, then the app skins, with Controllers last because it grows with the number of controllers) in a column along that edge, 24 px in from the edge and 16 px apart. Only skins that are switched on are moved.
+- **STACK.** Does it again, for example after you dragged things about or switched a skin on.
+
+Nothing moves until you click a screen or an edge; going on without clicking keeps every skin where it is. Choosing moves the skins at once, so you see the result. If the column does not fit the screen height (a large size on a small screen), it continues in a second column next to the first. Drag any skin afterwards (General > LOCK POSITIONS must be off).
+
+The skins' sizes are not readable from the Settings window, so the step uses a table of each skin's size at 100% (in `@Resources\Scripts\Placement.lua`) times your size setting. If a skin is wider than the table says, the right edge of that skin can sit a few pixels off the column; drag it.
 
 ## Install helpers
 
