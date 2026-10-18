@@ -10,10 +10,10 @@ powershell -ExecutionPolicy Bypass -File tools\install.ps1
 
 *Draft; the installer is changing (onboarding, layout move). Read `tools/install.ps1` for what it does today.* As of this draft it:
 
-1. Links the repo into `Documents\Rainmeter\Skins\Control-Plaine` (a junction, so `git pull` updates the live skins).
+1. Links the repo into `Documents\Rainmeter\Skins\Control-Plaine` (a junction, so `git pull` updates the live skins). It stops if that folder already exists and is not a link to this repo.
 2. Creates `@Resources\User.inc` and `@Resources\State.inc` (both git-ignored).
 3. Installs the helpers marked `installer=1` in `@Resources\Setup\Helpers.txt` when they are missing: the IsFullScreen plugin, `MediaPlayer.dll` (into `%APPDATA%\Rainmeter\Plugins`) and the Ookla Speedtest CLI (winget). The first-run setup in Settings uses the same list.
-4. Saves your current desktop as a backup layout, installs the Control-Plaine layout and loads it.
+4. Saves your current desktop as a backup layout (`Before Control-Plaine <date time>`, every run), keeps your own `Control-Plaine` layout as `Control-Plaine before update <date time>`, installs the Control-Plaine layout and loads it.
 5. Opens Settings, which starts the [first-time setup](first-time-setup.md) unless this profile already had a `State.inc`.
 
 After a plugin is installed, exit and restart Rainmeter once.

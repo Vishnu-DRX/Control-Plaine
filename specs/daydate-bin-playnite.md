@@ -160,7 +160,7 @@ Original controller art instead of the Lucide gamepad, `PLAYNITE` label, skip-sp
 
 ## PC probe results (2026-10-11, `/mnt/project-files/Control-Plaine-probes.md`)
 - Rainmeter 4.5.26, Segoe UI Variable installed: nested variables, FontWeight and the foundation styles are all available.
-- Playnite exe confirmed at `C:\Users\Vishnu A\AppData\Local\Playnite\Playnite.DesktopApp.exe` (the `%LOCALAPPDATA%` default resolves to it; Vishnu's User.inc already holds it).
+- Playnite exe confirmed at `%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe` (the `%LOCALAPPDATA%` default resolves to it; Vishnu's User.inc already holds it).
 - Original icon confirmed: `Skins\Playnite launcher\white-controller-icon.png`, 764x511.
 - Still open (visual): checks 1 to 7 below.
 
