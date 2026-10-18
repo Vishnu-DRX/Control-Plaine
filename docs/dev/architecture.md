@@ -13,7 +13,8 @@ Control-Plaine\                 config root; always #ROOTCONFIG#, never the lite
     Core.inc                    shared measures: accent, full-screen hide, hover fade, rest alphas
     Styles.inc                  shared meter styles
     Settings\Chrome.inc, Controls.inc   Settings window panel and row styles
-    Scripts\                    <Skin>.lua per skin, Settings.lua, helper .ps1 scripts
+    Scripts\                    <Skin>.lua per skin, Settings.lua, Onboarding.lua, Needs.lua, helper .ps1 scripts
+    Setup\                      NeedsList.lua (what each skin needs), Helpers.txt (install allow-list)
     Icons\                      PNGs rendered from docs\icons\*.svg
   <Skin>\<Skin>.ini             one skin per folder
   <Skin>\Defaults.inc           that skin's setting defaults
@@ -56,6 +57,10 @@ Read these three files before inventing a new token, style or helper. Alignment 
 2. The Settings window (`Settings\<Skin>.ini`, a variant of one Settings config) calls `@Resources\Scripts\Settings.lua` (`Toggle`, `Set`, `Step`, `EditPath`...). It writes the key to `@Resources\User.inc`, sets the variable live, and refreshes the target skins.
 3. Skins read `#Key#` and refresh. Row-building recipes are in the comment block at the top of `@Resources/Settings/Controls.inc`.
 4. Runtime state a skin writes itself (a pending power schedule, the Fan Control MAX flag) goes to `State.inc` and is documented in the skin's `Defaults.inc` under "Runtime, not settings".
+
+## First-run setup and needs
+
+`Settings.lua` `Initialize` checks `State.inc` for `SetupDone`; if it is not `1` it loads `Settings\Onboarding.ini` (one file, step in `OnbStep`) instead of the requested page. `Scripts\Onboarding.lua` drives the steps and reuses `Settings.lua` for every write (`Set`, `EditPath`, `SkinOn`), so no setting is defined twice. What a skin needs lives only in `@Resources\Setup\NeedsList.lua`; `Scripts\Needs.lua` checks it with file-exists and Registry-measure reads (nothing is run, nothing written) and gives each skin a state: OK, DEGRADED (an optional need is missing) or BLOCKED (a mandatory one). It sets `<Skin>Has<Feature>` (0/1), `<Skin>NeedState` and `<Skin>NeedBlocked` for skins that load it; the amber marks in Settings come from the same result. Install commands come only from `@Resources\Setup\Helpers.txt` (the file `tools\install.ps1` also reads); the setup runs one helper only after its button is clicked. Lint checks the list against the Defaults files, the skin list and the helper file. Offline tests: `tools/test_onboarding.py`, `tools/test_onboarding_flow.py`.
 
 ## Hiding and visibility
 

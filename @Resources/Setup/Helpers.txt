@@ -1,0 +1,80 @@
+; Control-Plaine | install helpers: the allow-list (single source).
+;
+; Read by Scripts\Onboarding.lua (RUN IT FOR ME / COPY COMMAND / SKIP) and by
+; tools\install.ps1 (entries with installer=1). Nothing outside this file is
+; ever run: the skin runs only an entry listed here, only after the click on
+; that entry's button, and shows the full command first. Users cannot edit
+; the command from Settings. Format: [id] sections of key=value lines; a key
+; may repeat (verify). Lines starting with ; are comments. ASCII only.
+;
+;   label        spaced-capitals name
+;   reason       one line: why a skin wants it
+;   required_for skins that are BLOCKED without it (comma list, may be empty)
+;   optional_for skins that lose a function without it
+;   program      the program to start
+;   args         its arguments. {ROOT} is the Control-Plaine folder with a
+;                trailing backslash; nothing else is substituted.
+;   elevated     1 = Windows shows its UAC prompt (the skin does not hide it)
+;   verify       file:<path> or path:<name>; any one found = installed.
+;                %ENV% variables are expanded.
+;   source       where it comes from (package id, repo script)
+;   restart      1 = Rainmeter must be restarted before the skin sees it
+;   installer    1 = tools\install.ps1 also runs it when it is missing
+;
+; The command shown to the user is "program args".
+
+[speedtest]
+label=SPEEDTEST CLI
+reason=Runs the speed test behind the Wi-Fi gauge icon.
+required_for=
+optional_for=WiFi
+program=winget.exe
+args=install --id Ookla.Speedtest.CLI -e --accept-source-agreements --accept-package-agreements
+elevated=0
+verify=file:%LOCALAPPDATA%\Microsoft\WinGet\Links\speedtest.exe
+verify=file:%LOCALAPPDATA%\Microsoft\WinGet\Packages\Ookla.Speedtest.CLI_Microsoft.Winget.Source_8wekyb3d8bbwe\speedtest.exe
+verify=file:%LOCALAPPDATA%\Programs\Ookla\speedtest.exe
+verify=file:%ProgramFiles%\Ookla\Speedtest CLI\speedtest.exe
+verify=path:speedtest.exe
+source=winget package Ookla.Speedtest.CLI (exact id, winget source)
+restart=0
+installer=1
+
+[mediaplayer]
+label=MEDIAPLAYER PLUGIN
+reason=Lets the Media skin read what any player is playing.
+required_for=Media
+optional_for=
+program=powershell.exe
+args=-NoProfile -ExecutionPolicy Bypass -File "{ROOT}tools\helpers\MediaPlayer.ps1"
+elevated=0
+verify=file:%APPDATA%\Rainmeter\Plugins\MediaPlayer.dll
+source=github.com/i2002/RainmeterMediaPlayer release v1.4 (pinned, GPL-3.0), 64-bit build
+restart=1
+installer=1
+
+[isfullscreen]
+label=ISFULLSCREEN PLUGIN
+reason=Lets the skins hide while a full-screen app is in front.
+required_for=
+optional_for=General
+program=powershell.exe
+args=-NoProfile -ExecutionPolicy Bypass -File "{ROOT}tools\helpers\IsFullScreen.ps1"
+elevated=0
+verify=file:%APPDATA%\Rainmeter\Plugins\IsFullScreen.dll
+source=copy of the IsFullScreen plugin already in Skins\@Vault (64-bit)
+restart=1
+installer=1
+
+[fan-tasks]
+label=FAN CONTROL TASKS
+reason=Scheduled tasks so Fan Control starts without a UAC prompt, plus the sensor feed and the MAX profile.
+required_for=
+optional_for=FanControl
+program=powershell.exe
+args=-NoProfile -Command "Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File','{ROOT}tools\fan-tasks.ps1'"
+elevated=1
+verify=file:%SystemRoot%\System32\Tasks\ControlPlaine\FanOpen
+source=tools\fan-tasks.ps1 in this repo (default Fan Control location; for another folder run it by hand with -FanControlPath)
+restart=0
+installer=0
