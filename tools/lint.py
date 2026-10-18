@@ -422,9 +422,8 @@ else:
             if m.group(1) not in declared:
                 problems.append(f'{name}/{name}.ini: GD1 {name}Has{m.group(1)} is not declared in NeedsList.lua')
     # GD1/GD2: a declared optional feature must be gated in the skin. The
-    # per-skin gating edits are separate packages, so this only warns until
-    # they have merged. Flip GATING_FAILS then.
-    GATING_FAILS = False
+    # per-skin gating edits have merged, so this fails the lint.
+    GATING_FAILS = True
     for name, features in sorted(ungated.items()):
         msg = f'{name}/{name}.ini: GD1 optional features not gated yet (<Skin>Has<Feature>): {", ".join(features)}'
         if GATING_FAILS:
