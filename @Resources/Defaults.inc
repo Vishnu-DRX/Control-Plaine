@@ -26,9 +26,6 @@ HoverBrightness=98
 ; light/dark setting. Each skin's <Skin>Theme (auto, dark, light) overrides it;
 ; auto there means "follow this".
 Theme=dark
-; Which Windows setting auto follows: SystemUsesLightTheme (taskbar and Start)
-; or AppsUseLightTheme (apps).
-ThemeFollow=SystemUsesLightTheme
 ; Light mode: percentage points added to the rest level (black on a light
 ; wallpaper needs more weight to read the same).
 LightBoost=10
@@ -68,3 +65,9 @@ TipCompact=0
 SkinSide=left
 SkinDetails=hover
 SkinTheme=auto
+
+; ---- Edit in User.inc ----
+; Personal values with no Settings row.
+; Which Windows setting auto follows: SystemUsesLightTheme (taskbar and Start)
+; or AppsUseLightTheme (apps).
+ThemeFollow=SystemUsesLightTheme
