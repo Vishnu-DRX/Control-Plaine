@@ -157,7 +157,7 @@ for path in sorted(ROOT.rglob('*')):
     if path.suffix.lower() not in ('.ini', '.inc', '.lua') or '.git' in path.parts:
         continue
     rel = path.relative_to(ROOT)
-    if rel.parts[0] == 'Layouts' or rel.name in ('User.inc', 'State.inc'):
+    if rel.name in ('User.inc', 'State.inc'):
         continue
     raw = path.read_bytes()
     try:
@@ -461,6 +461,86 @@ tabs = re.findall(r"'(\w+)'", tabs_m.group(1)) if tabs_m else []
 for name in SKIN_FOLDERS:
     if name not in tabs:
         problems.append(f"@Resources/Scripts/Settings.lua: S11 TABS is missing '{name}' (CLEAN would delete its settings)")
+
+# I1: one list of skins. SKIN_FOLDERS (this file), the skin folders on disk, the
+# Settings pages and their Tab=, Settings.lua TABS, the General toggles,
+# docs/skins.json (and its guide pages) and the shipped layout must all name the
+# same skins.
+import json
+SHARED_PAGES = {'General', 'Advanced', 'Onboarding'}
+folders = sorted(p.parent.name for p in ROOT.glob('*/Defaults.inc')
+                 if p.parent.name not in ('@Resources', 'Settings') and (p.parent / f'{p.parent.name}.ini').exists())
+if folders != sorted(SKIN_FOLDERS):
+    problems.append(f'I1: skin folders on disk differ from SKIN_FOLDERS at {sorted(set(folders) ^ set(SKIN_FOLDERS))}')
+pages = {p.stem for p in (ROOT / 'Settings').glob('*.ini')}
+for name in sorted(pages - set(SKIN_FOLDERS) - SHARED_PAGES):
+    problems.append(f'I1: Settings/{name}.ini is not a skin or a shared page')
+for name in SKIN_FOLDERS:
+    page = ROOT / 'Settings' / f'{name}.ini'
+    if page.exists() and not re.search(rf'^Tab={name}\s*$', page.read_text('ascii', 'replace'), re.M):
+        problems.append(f'Settings/{name}.ini: I1 needs Tab={name}')
+for name in sorted(set(tabs) - set(SKIN_FOLDERS) - SHARED_PAGES):
+    problems.append(f"@Resources/Scripts/Settings.lua: I1 TABS has '{name}', which is not a skin or shared page")
+general = (ROOT / 'Settings' / 'General.ini').read_text('ascii', 'replace')
+toggles = set(re.findall(r"SkinOn\('(\w+)'\)", general))
+for name in sorted(toggles ^ set(SKIN_FOLDERS)):
+    problems.append(f'Settings/General.ini: I1 skin toggle mismatch for {name} (needs one SkinOn for each skin)')
+try:
+    skins_json = json.loads((ROOT / 'docs' / 'skins.json').read_text('ascii'))['skins']
+except (OSError, ValueError, KeyError) as e:
+    skins_json = []
+    problems.append(f'docs/skins.json: I1 cannot read it ({e})')
+for name in sorted({s['folder'] for s in skins_json} ^ set(SKIN_FOLDERS)):
+    problems.append(f'docs/skins.json: I1 skin list differs from SKIN_FOLDERS at {name}')
+for s in skins_json:
+    if not (ROOT / s.get('guide', 'missing')).exists():
+        problems.append(f'docs/skins.json: I1 guide {s.get("guide")} does not exist')
+layout_file = ROOT / 'tools' / 'layout' / 'Control-Plaine.layout'
+layout_skins = (set(re.findall(r'^\[Control-Plaine\\(\w+)\]', layout_file.read_text('ascii', 'replace'), re.M))
+                if layout_file.exists() else set())
+for name in sorted(layout_skins ^ (set(SKIN_FOLDERS) | {'Settings'})):
+    problems.append(f'tools/layout/Control-Plaine.layout: I1 skin list differs from SKIN_FOLDERS (plus Settings) at {name}')
+
+# I2: docs. Every page under docs/ (and README.md, CHANGELOG.md) is ASCII and
+# its relative links resolve, and docs/INDEX.md lists every page of docs/ (docs/reviews and the
+# index itself excepted) and nothing that is missing.
+index_text = (ROOT / 'docs' / 'INDEX.md').read_text('ascii', 'replace')
+for md in sorted(ROOT.rglob('*.md')):
+    rel = md.relative_to(ROOT)
+    if rel.parts[0] != 'docs' and rel.name not in ('README.md', 'CHANGELOG.md'):
+        continue
+    if len(rel.parts) > 1 and rel.parts[0] != 'docs':
+        continue
+    try:
+        mtext = md.read_bytes().decode('ascii')
+    except UnicodeDecodeError:
+        problems.append(f'{rel}: I2 non-ASCII characters in docs')
+        continue
+    for target in re.findall(r'\]\(([^)\s]+)\)', mtext):
+        if re.match(r'^(https?:|mailto:|#)', target):
+            continue
+        target = target.split('#')[0]
+        if target and not (md.parent / target).exists():
+            problems.append(f'{rel}: I2 broken link {target}')
+for page in sorted((ROOT / 'docs').rglob('*.md')):
+    sub = page.relative_to(ROOT / 'docs').as_posix()
+    if page.name != 'INDEX.md' and not sub.startswith('reviews/') and sub not in index_text:
+        problems.append(f'docs/INDEX.md: I2 does not list {sub}')
+
+# I3: one version. Version= in Theme.inc, every skin and Settings [Metadata], the
+# templates and the newest numbered section of CHANGELOG.md agree.
+version_m = re.search(r'^Version=(\S+)\s*$', (ROOT / '@Resources' / 'Theme.inc').read_text('ascii', 'replace'), re.M)
+suite_version = version_m.group(1) if version_m else None
+if not suite_version:
+    problems.append('@Resources/Theme.inc: I3 needs Version=')
+else:
+    for f in sorted([*ROOT.glob('*/*.ini'), *(ROOT / 'tools' / 'templates').glob('*.tpl')]):
+        vm = re.search(r'^Version=(\S+)\s*$', f.read_text('ascii', 'replace'), re.M)
+        if vm and vm.group(1) != suite_version:
+            problems.append(f'{f.relative_to(ROOT)}: I3 Version={vm.group(1)} differs from Theme.inc ({suite_version})')
+    top = re.search(r'^## (\d+\.\d+\.\d+)\s*$', (ROOT / 'CHANGELOG.md').read_text('ascii', 'replace'), re.M)
+    if not top or top.group(1) != suite_version:
+        problems.append(f'CHANGELOG.md: I3 newest numbered section ({top.group(1) if top else "none"}) differs from Theme.inc ({suite_version})')
 
 # L7: every icon is white with alpha (so ImageTint=#Ink# follows light mode) or
 # is on the allow-list in tools/check_icons.py with a reason and a -light twin.

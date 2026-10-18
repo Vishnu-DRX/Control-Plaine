@@ -19,9 +19,8 @@ Control-Plaine\                      (config root; always referred to as #ROOTCO
     Defaults.inc     FOUNDATION  defaults for GENERAL settings only
     User.inc         git-ignored overrides written by Settings (may be empty)
     State.inc        git-ignored runtime state (e.g. Power's scheduled time); skins write their own keys
-    Core.inc         FOUNDATION  shared measures: accent, full-screen hide, fade
+    Core.inc         FOUNDATION  shared measures: accent, full-screen hide, fade, alignment helpers
     Styles.inc       FOUNDATION  shared meter styles
-    Fade.inc         v1 only (Core.inc has the same fade); removed at integration
     Settings\Chrome.inc    FOUNDATION  panel, wordmark, tab column, footer, close
     Settings\Controls.inc  FOUNDATION  row/toggle/choice/value/path styles
     Scripts\Settings.lua   FOUNDATION  read/write/apply logic for the Settings skin
@@ -31,10 +30,10 @@ Control-Plaine\                      (config root; always referred to as #ROOTCO
   <Skin>\Defaults.inc      SKIN THREAD  defaults for that skin's settings
   Settings\General.ini     FOUNDATION
   Settings\<Skin>.ini      SKIN THREAD fills it (FOUNDATION commits a stub per skin)
-  Layouts\, README.md, CHANGELOG.md, tools\install.ps1   INTEGRATION (coordinator, after skins land)
+  tools\layout\Control-Plaine.layout, README.md, CHANGELOG.md, tools\install.ps1   INTEGRATION (coordinator, after skins land)
 ```
 
-Skin folder names (also Settings page names, `Settings\<name>.ini`): `DayDate`, `Power`, `Uptime`, `Volume`, `Media`, `RecycleBin`, `Playnite`, `WiFi`, `FanControl`, `SignalRGB`, `DeepCool`, `Controllers`, `Settings`.
+Skin folder names (also Settings page names, `Settings\<name>.ini`): `DayDate`, `Power`, `Uptime`, `Volume`, `Media`, `RecycleBin`, `Playnite`, `WiFi`, `FanControl`, `SignalRGB`, `DeepCool`, `Controllers`, `Settings`, `SettingsButton`.
 
 **Sequencing:** the foundation PR must merge before skin threads open their PRs (they rebase on it). Skin threads must not edit FOUNDATION files; if they need a new shared style or token, they ask the foundation thread (via the coordinator) or keep it local to their skin.
 
@@ -225,7 +224,7 @@ IfFalseAction=[!Hide]
 Alternatives considered: Rainmeter 4.5 Game Mode can unload all skins on full screen, but it hits every suite and unloads rather than hides, so not used. When packaging an .rmskin later, IsFullScreen must be bundled.
 
 ### 4.3 Hover fade
-Current `Fade.inc` moves into Core.inc unchanged in mechanics (ActionTimer drives `#Reveal#` 0 to 1 and back after `HideDelay`, updating meter group `Reveal`). Meters that brighten on hover use `Group=Reveal` and alpha `(#AlphaX#+(#AlphaHover#-#AlphaX#)*#Reveal#)`. Per-element hover (one icon in a row, a link) may snap instantly via MouseOverAction; "nothing moves" still applies.
+The hover fade lives in Core.inc (the old `Fade.inc` is gone; the mechanics are the same) (ActionTimer drives `#Reveal#` 0 to 1 and back after `HideDelay`, updating meter group `Reveal`). Meters that brighten on hover use `Group=Reveal` and alpha `(#AlphaX#+(#AlphaHover#-#AlphaX#)*#Reveal#)`. Per-element hover (one icon in a row, a link) may snap instantly via MouseOverAction; "nothing moves" still applies.
 
 ### 4.4 Lock positions
 No measure: Settings runs `[!DraggableGroup 0 ControlPlaine]` / `1`, Rainmeter persists `Draggable=` per config itself. `LockPositions` is saved only so the toggle shows its state.
@@ -347,7 +346,7 @@ Rows are defined in DESIGN-V1.md and the canvas. Keys are prefixed with the skin
 |---|---|
 | DayDate | `DayDateClock` 12, `DayDateWeek` 1, `DayDateAlign` right |
 | Power | `PowerFirst` hibernate, `PowerConfirm` 1, `PowerPickerStart` 60 |
-| Uptime | `UptimeWarnDays` 5, `UptimeAlways` 0 |
+| Uptime | `UptimeWarnDays` 5, `UptimeDetails` hover (replaced `UptimeAlways`) |
 | Volume | `VolumeStep` 2, `VolumeScrollUnmutes` 1, `VolumeRingStroke` 5 |
 | RecycleBin | `RecycleBinShowSize` 1, `RecycleBinConfirm` 1 |
 | Playnite | `PlaynitePath`, `PlayniteSkipSplash` 0 |

@@ -52,7 +52,7 @@ When a skin is loaded and something it needs is missing, an amber **!** shows in
 - at the top of the skin's page as **SETUP NEEDED** (a required item is missing) or **SOME FEATURES OFF** (only optional ones), with the list;
 - next to HIDE IN FULL SCREEN on General when the IsFullScreen plugin is missing.
 
-Click a mark to open the setup for just that skin. The check repeats about once a minute, so installing the missing item clears the mark without a refresh. The skins hiding their own functions when an optional item is missing is rolled out skin by skin; until then the marks tell you what is missing.
+Click a mark to open the setup for just that skin. The check repeats about once a minute, so installing the missing item clears the mark without a refresh. A skin whose optional item is missing hides that one function and keeps working.
 
 ## Troubleshooting
 

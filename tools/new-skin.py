@@ -101,7 +101,7 @@ Shared files have one owner at a time: if another PR is changing one, send the e
  7. docs/skins.json: add {{"folder": "{name}", "name": "{title}", "oneLiner": "...", "guide": "docs/guide/{name}.md"}}.
  8. README.md: add a row to the Skins table. docs/INDEX.md: add the guide to the skin list.
  9. site/index.html: add a card (illustration from the skin's own icons).
-10. CHANGELOG.md and Layouts/: integration-owned; ask before touching (docs/dev/release.md).
+10. CHANGELOG.md and tools/layout/Control-Plaine.layout: integration-owned; ask before touching (docs/dev/release.md).
 11. Cover the skin in the offline tests if it has formulas worth checking
     (tools/test_*.py; add a new file, do not edit another skin's).
 12. python tools/lint.py must print 0 problem(s). Say in the PR what only the PC can check.
