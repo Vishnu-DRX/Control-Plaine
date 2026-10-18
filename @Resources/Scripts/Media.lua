@@ -23,13 +23,38 @@ function Initialize()
 	end
 end
 
--- Back to rest: right-aligned, cut with an ellipsis if too long.
+-- Which side the ring is on is read from Core's variables each time (Core.lua
+-- sets them when the skin loads): Mir 0 = left (text left-aligned, ring
+-- first), 1 = right (text right-aligned, ring last).
+local function mirrored()
+	return tonumber(SKIN:ReplaceVariables('#Mir#')) == 1
+end
+
+-- Whole pixels only: text between pixels is soft.
+local function px(v)
+	return math.floor(v + 0.5)
+end
+
+-- Position of the unclipped text after sliding `offset` px. The text always
+-- starts at its first letter and ends flush with the box edge on the ring
+-- side's far end: left, X=0 going down to -over; right, the right edge goes
+-- from textW + over down to textW. Both move the text leftwards (reading
+-- order), and both stop with the last letter exactly at the box edge.
+local function place(l)
+	if mirrored() then
+		SKIN:Bang('!SetOption', l.meter, 'X', px(l.boxw + l.over - l.offset))
+	else
+		SKIN:Bang('!SetOption', l.meter, 'X', -px(l.offset))
+	end
+end
+
+-- Back to rest: aligned to the ring's side, cut with an ellipsis if too long.
 local function rest(l)
 	l.phase, l.offset, l.count = 'idle', 0, 0
-	SKIN:Bang('!SetOption', l.meter, 'StringAlign', 'Right')
-	SKIN:Bang('!SetOption', l.meter, 'X', '(#TextW#*#Scale#)')
+	SKIN:Bang('!SetOption', l.meter, 'StringAlign', '#TAT#')
+	SKIN:Bang('!SetOption', l.meter, 'X', '(#Mir#*#TextWp#)')
 	SKIN:Bang('!SetOption', l.meter, 'ClipString', 1)
-	SKIN:Bang('!SetOption', l.meter, 'W', '(#TextW#*#Scale#)')
+	SKIN:Bang('!SetOption', l.meter, 'W', '#TextWp#')
 	SKIN:Bang('!UpdateMeter', l.meter)
 end
 
@@ -37,17 +62,20 @@ end
 -- (ClipString=2 would wrap at a word instead, so: no clipping and no W,
 -- an empty value drops the option, and the meter sizes to the text.)
 local function begin(l)
-	SKIN:Bang('!SetOption', l.meter, 'StringAlign', 'Left')
+	SKIN:Bang('!SetOption', l.meter, 'StringAlign', '#TAT#')
 	SKIN:Bang('!SetOption', l.meter, 'X', 0)
 	SKIN:Bang('!SetOption', l.meter, 'ClipString', 0)
 	SKIN:Bang('!SetOption', l.meter, 'W', '')
 	SKIN:Bang('!UpdateMeter', l.meter)
-	l.over = SKIN:GetMeter(l.meter):GetW() - SKIN:GetMeter(l.box):GetW()
+	l.boxw = SKIN:GetMeter(l.box):GetW()
+	l.over = math.ceil(SKIN:GetMeter(l.meter):GetW() - l.boxw)
 	if l.over <= 0 then
 		rest(l)
 		return false
 	end
 	l.phase, l.offset, l.count = 'wait', 0, WAIT
+	place(l)
+	SKIN:Bang('!UpdateMeter', l.meter)
 	return true
 end
 
@@ -100,7 +128,7 @@ function Tick()
 			if l.count <= 0 then l.phase = 'slide' end
 		elseif l.phase == 'slide' then
 			l.offset = math.min(l.over, l.offset + step)
-			SKIN:Bang('!SetOption', l.meter, 'X', -l.offset)
+			place(l)
 			SKIN:Bang('!UpdateMeter', l.meter)
 			if l.offset >= l.over then l.phase, l.count = 'hold', WAIT end
 		elseif l.phase == 'hold' then

@@ -3,6 +3,11 @@
 ; Owned by the Media skin; add keys here with the Media prefix.
 
 [Variables]
+; left: ring first, text after it. right: text first, ring last.
+; The chevrons keep their order on both sides.
+MediaAlign=left
+; hover: chevrons and brighter text only on hover. always: they stay shown.
+MediaDetails=hover
 ; 1 shows this skin's tooltips, 0 hides them all.
 MediaTooltips=1
 ; The skin disappears when no app is playing.
