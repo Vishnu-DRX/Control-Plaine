@@ -1,6 +1,8 @@
 -- Control-Plaine | Uptime
 -- Runs every 15 s (and when the mouse enters) and always rewrites the text,
 -- the colour and the visibility, so nothing depends on a value changing.
+-- Visibility at rest comes from the reminder (Shown) and, when UptimeDetails
+-- is always, from #RevealMin# in Core.inc; there is no separate always key.
 
 local uptime
 
@@ -28,7 +30,7 @@ end
 function Update()
 	local seconds = uptime:GetValue()
 	local due = seconds >= num('UptimeWarnDays') * 86400
-	local shown = due or num('UptimeAlways') ~= 0
+	local shown = due
 	SKIN:Bang('!SetOption', 'UpLabel', 'Text', due and 'RESTART RECOMMENDED' or 'UPTIME')
 	SKIN:Bang('!SetOption', 'UpValue', 'Text', Format(seconds))
 	SKIN:Bang('!SetVariable', 'UpRGB', SKIN:ReplaceVariables(due and '#Warn#' or '#Ink#'))
