@@ -9,6 +9,9 @@ WiFiAlign=left
 ; hover shows the network name and speed test only while hovered, always keeps
 ; them visible. DetailsAll in Settings can override it.
 WiFiDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+WiFiTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 WiFiTooltips=1
 ; What clicking the icon or name opens: settings (Windows Wi-Fi settings),

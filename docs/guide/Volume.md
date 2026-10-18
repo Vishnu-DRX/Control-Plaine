@@ -25,6 +25,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | --- | --- | --- |
 | `VolumeAlign` | `left` | `left`: ring first, text after it. `right`: the mirror image inside the same box. `AlignAll` in Settings overrides it. |
 | `VolumeDetails` | `hover` | `hover`: percentage, hairline and device name show on hover. `always`: they stay visible. `DetailsAll` overrides it. |
+| `VolumeTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin (for dark wallpapers), `light` = black skin (for light wallpapers). |
 | `VolumeStep` | `2` | Percent per scroll notch. |
 | `VolumeScrollUnmutes` | `1` | Turning the volume up while muted unmutes. |
 | `VolumeRingStroke` | `5` | Ring thickness in px. |
