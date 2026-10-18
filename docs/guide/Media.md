@@ -26,6 +26,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | --- | --- | --- |
 | `MediaAlign` | `left` | `left`: ring first, text after it. `right`: text first, ring last (how it was drawn before). The skin's box and hit area are the same on both sides. |
 | `MediaDetails` | `hover` | `hover`: chevrons and the brighter state show on hover. `always`: they stay shown. |
+| `MediaTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin (for dark wallpapers), `light` = black skin (for light wallpapers). |
 | `MediaHideIdle` | `1` | The skin disappears when no app is playing. |
 | `MediaSource` | `any` | Which players it follows: `any` (Windows media session) or `wnp` (WebNowPlaying Redux). |
 | `MediaScrollTitles` | `1` | Long names slide (1) or are cut with an ellipsis (0). |
