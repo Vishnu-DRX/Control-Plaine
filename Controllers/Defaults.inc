@@ -3,6 +3,13 @@
 ; Owned by the Controllers skin; add keys here with the Controllers prefix.
 
 [Variables]
+; Which screen edge the skin sits on: left puts the icon first, right mirrors
+; it (icon last, battery and percent on the inner side of the name). AlignAll
+; in Settings can override it.
+ControllersAlign=left
+; hover shows every battery and the hovered name only while hovered, always
+; keeps them visible. DetailsAll in Settings can override it.
+ControllersDetails=hover
 ; 1 shows this skin's tooltips, 0 hides them all.
 ControllersTooltips=1
 ; At rest, battery shows only under this (%).
