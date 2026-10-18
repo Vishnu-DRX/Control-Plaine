@@ -26,6 +26,24 @@ local function num(key)
 	return tonumber(SKIN:ParseFormula('(' .. val(key) .. ')')) or 0
 end
 
+-- Keys whose value must be a whole number in a range (a port ends up in a URL
+-- or on a command line, so free text is never passed through).
+local INT_RANGE = {
+	SignalRGBPort = { 1, 65535 },
+	ControllersDsxPort = { 1, 65535 },
+}
+
+-- Text from a path box. A quote or line break would split the argument list of
+-- a bang or a command line, so such a value is refused (nil). One trailing
+-- backslash is dropped: before a closing quote it would escape it.
+local function clean(text)
+	text = tostring(text):gsub('^%s+', ''):gsub('%s+$', '')
+	if text:find('["\r\n]') then return nil end
+	text = text:gsub('#', '')
+	if #text > 3 then text = text:gsub('\\+$', '') end
+	return text
+end
+
 local function redraw()
 	SKIN:Bang('!UpdateMeter', '*')
 	SKIN:Bang('!Redraw')
@@ -193,13 +211,19 @@ end
 
 -- Colours are stored R,G,B; accept hex too (00E5FF or #00E5FF).
 local function toRGB(text)
+	text = tostring(text)
 	local hex = text:match('^%s*#?(%x%x%x%x%x%x)%s*$')
 	if hex then
 		return string.format('%d,%d,%d', tonumber(hex:sub(1, 2), 16),
 			tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16))
 	end
 	local r, g, b = text:match('^%s*(%d+)%s*,%s*(%d+)%s*,%s*(%d+)%s*$')
-	if r then return r .. ',' .. g .. ',' .. b end
+	if r and #r <= 3 and #g <= 3 and #b <= 3 then
+		r, g, b = tonumber(r), tonumber(g), tonumber(b)
+		if r <= 255 and g <= 255 and b <= 255 then
+			return string.format('%d,%d,%d', r, g, b)
+		end
+	end
 end
 
 function InputDone(text)
@@ -210,8 +234,16 @@ function InputDone(text)
 		text = toRGB(text)
 		if not text then return end
 	end
-	-- Values may not contain # (Rainmeter would read it as a variable).
-	text = text:gsub('#', '')
+	local range = INT_RANGE[key]
+	if range then
+		local n = tonumber(text:match('^%s*(%d+)%s*$'))
+		if not n or n < range[1] or n > range[2] then return end
+		text = tostring(n)
+	else
+		-- No #, quotes or line breaks (see clean).
+		text = clean(text)
+		if not text then return end
+	end
 	Set(key, text, targets)
 end
 
@@ -249,27 +281,92 @@ end
 local resetAsking = false
 local unknownCache
 
+-- UTF-16LE <-> UTF-8, so a non-Latin-1 character survives a round trip.
+local function fromUtf16(raw)
+	local out, i, n = {}, 1, #raw - (#raw % 2)
+	while i <= n do
+		local c = raw:byte(i) + raw:byte(i + 1) * 256
+		i = i + 2
+		if c >= 0xD800 and c < 0xDC00 and i <= n then
+			local d = raw:byte(i) + raw:byte(i + 1) * 256
+			if d >= 0xDC00 and d < 0xE000 then
+				c = 0x10000 + (c - 0xD800) * 1024 + (d - 0xDC00)
+				i = i + 2
+			end
+		end
+		if c < 0x80 then
+			out[#out + 1] = string.char(c)
+		elseif c < 0x800 then
+			out[#out + 1] = string.char(0xC0 + math.floor(c / 64), 0x80 + c % 64)
+		elseif c < 0x10000 then
+			out[#out + 1] = string.char(0xE0 + math.floor(c / 4096),
+				0x80 + math.floor(c / 64) % 64, 0x80 + c % 64)
+		else
+			out[#out + 1] = string.char(0xF0 + math.floor(c / 262144),
+				0x80 + math.floor(c / 4096) % 64, 0x80 + math.floor(c / 64) % 64, 0x80 + c % 64)
+		end
+	end
+	return table.concat(out)
+end
+
+local function toUtf16(text)
+	local out = {}
+	local function unit(u) out[#out + 1] = string.char(u % 256, math.floor(u / 256)) end
+	local i, n = 1, #text
+	while i <= n do
+		local b = text:byte(i)
+		local c, len = b, 1
+		if b >= 0xF0 then c, len = b % 8, 4
+		elseif b >= 0xE0 then c, len = b % 16, 3
+		elseif b >= 0xC0 then c, len = b % 32, 2 end
+		for k = 1, len - 1 do c = c * 64 + ((text:byte(i + k) or 0x80) % 64) end
+		i = i + len
+		if c >= 0x10000 then
+			c = c - 0x10000
+			unit(0xD800 + math.floor(c / 1024))
+			unit(0xDC00 + c % 1024)
+		else
+			unit(c)
+		end
+	end
+	return table.concat(out)
+end
+
 local function readFile(path)
 	local f = io.open(path, 'rb')
 	if not f then return nil, false end
 	local raw = f:read('*a')
 	f:close()
 	local wide = raw:sub(1, 2) == '\255\254'
-	if wide then raw = raw:sub(3) end
-	if raw:sub(1, 3) == '\239\187\191' then raw = raw:sub(4) end
-	return (raw:gsub('%z', '')), wide
+	if wide then
+		raw = fromUtf16(raw:sub(3))
+	elseif raw:sub(1, 3) == '\239\187\191' then
+		raw = raw:sub(4)
+	end
+	return raw, wide
 end
 
-local function writeFile(path, text, wide)
-	local f = io.open(path, 'wb')
-	if not f then return false end
+-- Writes a temp file and renames it over the target, so a crash or a full disk
+-- cannot leave User.inc empty. keepBackup keeps one generation as <file>.bak.
+local function writeFile(path, text, wide, keepBackup)
 	text = text:gsub('\r?\n', '\r\n')
-	if wide then
-		f:write('\255\254', (text:gsub('.', '%0\0')))
-	else
-		f:write(text)
-	end
+	local tmp = path .. '.tmp'
+	local f = io.open(tmp, 'wb')
+	if not f then return false end
+	local ok = f:write(wide and ('\255\254' .. toUtf16(text)) or text)
 	f:close()
+	if not ok then os.remove(tmp) return false end
+	if keepBackup then
+		os.remove(path .. '.bak')
+		os.rename(path, path .. '.bak')
+	else
+		os.remove(path)
+	end
+	if not os.rename(tmp, path) then
+		os.rename(path .. '.bak', path)
+		os.remove(tmp)
+		return false
+	end
 	return true
 end
 
@@ -350,7 +447,7 @@ function CleanUnknown()
 		if not (k and drop[k:lower()]) then out[#out + 1] = line end
 	end
 	while #out > 0 and out[#out] == '' do out[#out] = nil end
-	writeFile(userInc, table.concat(out, '\n') .. '\n', wide)
+	writeFile(userInc, table.concat(out, '\n') .. '\n', wide, true)
 	unknownCache = nil
 	SKIN:Bang('!Refresh')
 end
@@ -371,8 +468,10 @@ function Reset()
 		return
 	end
 	resetAsking = false
+	pending, pendingTargets = {}, {}
+	SKIN:Bang('!CommandMeasure', 'mCommit', 'Stop 1')
 	local _, wide = readFile(userInc)
-	writeFile(userInc, '[Variables]\n', wide)
+	writeFile(userInc, '[Variables]\n', wide, true)
 	SKIN:Bang('!DraggableGroup', '1', 'ControlPlaine')
 	unknownCache = nil
 	apply('all')
