@@ -13,6 +13,10 @@ Wi-Fi signal and network name, with a manual speed test.
 
 `WiFiAlign` = `left` puts the icon first and the text after it. `right` mirrors the skin inside the same box: text first, icon last, and the speed test result reads from the icon inward (down, up, ping). The window never moves or resizes. `WiFiDetails` = `hover` shows the network name and speed test only on hover; `always` keeps them visible. The global ALIGN and DETAILS rows on [Settings](settings.md) can override both.
 
+## Light and dark
+
+`WiFiTheme` = `auto` follows the global Theme; `dark` or `light` sets this skin alone. In light mode the icons, text and speed test icon are black and the accent is darkened. The NO INTERNET and NOT CONNECTED icons keep their orange badge in both modes (light mode uses a black-bodied copy of the icon).
+
 ## Actions
 
 - Click the icon or name: opens `WiFiClick` (default: Windows Wi-Fi settings).
@@ -31,6 +35,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | `WiFiDetails` | `hover` | `hover` or `always`. |
 | `WiFiClick` | `settings` | `settings` (Windows Wi-Fi settings) or any program, file or URI. |
 | `WiFiSpeedtestPath` | `%LOCALAPPDATA%\Microsoft\WinGet\Links\speedtest.exe` | Ookla Speedtest CLI. If empty or wrong the skin also looks in the usual places (WinGet Links and Packages folders, Programs\\Ookla, Program Files), so an empty box still runs the test when it is installed. |
+| `WiFiTheme` | `auto` | `auto` follows the global theme, `dark` = white, `light` = black. The COLOURS row on this skin's page sets it. |
 | `WiFiInterface` | `0` | Which wireless adapter to read (0 = first). Under ADAPTER (ADVANCED) in Settings. |
 
 ## Requirements

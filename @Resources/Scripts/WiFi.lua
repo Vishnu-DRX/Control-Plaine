@@ -166,9 +166,16 @@ function Update()
 		icon, text, warn = 'globe-disconnected', 'Not connected', true
 	end
 
-	if shown.icon ~= icon then
-		shown.icon = icon
-		SKIN:Bang('!SetOption', 'Icon', 'ImageName', '#@#Icons\\' .. icon .. '.png')
+	-- Two icons carry the orange Warn badge, so a tint would turn it black: they
+	-- are drawn untinted, and in light mode from their -light twin (black body).
+	-- Mode is re-read here because it can change while the skin runs.
+	local coloured = icon == 'globe-disconnected' or icon == 'wifi-no-internet-badge'
+	local file = icon .. ((coloured and SKIN:GetVariable('Mode', 'dark') == 'light') and '-light' or '')
+	local key = file .. (coloured and '+' or '')
+	if shown.icon ~= key then
+		shown.icon = key
+		SKIN:Bang('!SetOption', 'Icon', 'ImageName', '#@#Icons\\' .. file .. '.png')
+		SKIN:Bang('!SetOption', 'Icon', 'ImageTint', coloured and '255,255,255' or '#*Ink*#')
 		SKIN:Bang('!UpdateMeter', 'Icon')
 	end
 	color('Name', warn and 'Warn' or 'Ink', warn and NAME_WARN or NAME_REST)
@@ -204,7 +211,7 @@ function LinkClick()
 	end
 	testing = true
 	-- The icon hides under the mouse, so no leave event: reset its colour.
-	SKIN:Bang('!SetVariable', 'GaugeInk', SKIN:GetVariable('Ink'))
+	SKIN:Bang('!SetVariable', 'GaugeInk', '#*Ink*#')
 	os.remove(out)
 	-- "call" keeps cmd from stripping the quotes around the paths.
 	SKIN:Bang('!SetOption', 'mSpeedRun', 'Parameter', 'call "' .. exe ..

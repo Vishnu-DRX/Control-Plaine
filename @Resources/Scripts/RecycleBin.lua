@@ -4,7 +4,7 @@
 -- a change, which is how older skins went stale).
 
 local mCount, mSize
-local last
+local last, lastInk
 
 local UNITS = { 'B', 'KB', 'MB', 'GB', 'TB' }
 
@@ -40,10 +40,16 @@ function Update()
 		warn = bytes > warnGB * 1024 ^ 3
 	end
 
-	local state = text .. (warn and '!' or '')
+	-- Ink and Warn change with the light/dark mode, so they are read on every
+	-- run and a change of either counts as a new state.
+	local ink = SKIN:GetVariable('Ink')
+	local sizeInk = SKIN:GetVariable(warn and 'Warn' or 'Ink')
+	local state = text .. '|' .. sizeInk .. '|' .. ink
 	if state ~= last then
 		SKIN:Bang('!SetOption', 'Detail', 'Text', text)
-		SKIN:Bang('!SetVariable', 'SizeInk', SKIN:GetVariable(warn and 'Warn' or 'Ink'))
+		SKIN:Bang('!SetVariable', 'SizeInk', sizeInk)
+		if ink ~= lastInk then SKIN:Bang('!SetVariable', 'EmptyInk', ink) end
+		lastInk = ink
 		SKIN:Bang('!SetOption', 'Icon', 'ImageName', '#@#Icons\\' .. icon)
 		SKIN:Bang(n > 0 and '!ShowMeter' or '!HideMeter', 'LinkEmpty')
 		SKIN:Bang('!UpdateMeter', '*')

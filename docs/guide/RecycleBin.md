@@ -25,6 +25,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | --- | --- | --- |
 | `RecycleBinAlign` | `left` | `left`: icon first, text after it. `right`: the mirror image inside the same box. `AlignAll` in Settings overrides it. |
 | `RecycleBinDetails` | `hover` | `hover`: title, size and EMPTY show on hover. `always`: they stay visible. `DetailsAll` overrides it. |
+| `RecycleBinTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin (for dark wallpapers), `light` = black skin (for light wallpapers). |
 | `RecycleBinConfirm` | `1` | Windows asks to confirm when you click Empty. |
 | `RecycleBinWarnGB` | `10` | The size turns orange above this many GB. Settings has a row for it (scroll the value). |
 
