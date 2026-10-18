@@ -195,8 +195,8 @@ with tempfile.TemporaryDirectory() as tmp:
     onb = Fake(tmp, 'Onboarding.lua', onb_vars, {'mSettings': settings})
     onb.g.Initialize()
     onb.g.Update()
-    check(onb.g.Title() == 'WELCOME' and onb.g.Progress() == 'STEP 1 OF 5',
-          f'starts at WELCOME, 5 steps while placement is a stub: {onb.g.Title()} {onb.g.Progress()}')
+    check(onb.g.Title() == 'WELCOME' and onb.g.Progress() == 'STEP 1 OF 6',
+          f'starts at WELCOME, 6 steps: {onb.g.Title()} {onb.g.Progress()}')
     check('FOUND' in onb.g.Facts() and 'DISPLAYS' in onb.g.Facts(), 'WELCOME lists what was detected')
     check(onb.sent('!ShowMeterGroup', 'OnbWelcome'), 'WELCOME group is shown')
 
@@ -246,11 +246,20 @@ with tempfile.TemporaryDirectory() as tmp:
     onb.g.Next()
     check(onb.g.Title() == 'LOOK', 'NEXT goes to LOOK')
     onb.g.Next()
-    check(onb.g.Title() == 'DONE' and onb.g.NextLabel() == 'FINISH', 'the stub placement step is skipped')
+    check(onb.g.Title() == 'PLACEMENT', 'NEXT goes to PLACEMENT')
+    check(not onb.sent('!Move'), 'entering PLACEMENT moves nothing')
+    check('1920 X' in onb.g.ScreenText() or 'X' in onb.g.ScreenText(), f'screen text: {onb.g.ScreenText()!r}')
+    onb.g.PlaceEdge('right')
+    moves = [b for b in onb.bangs if b[0] == '!Move']
+    check(len(moves) >= 1 and all(b[3].startswith('Control-Plaine\\') for b in moves),
+          f'clicking an edge moves the loaded skins by config name: {moves!r}')
+    check('OnbEdge=right' in state_text(base) and 'OnbPlaced=1' in state_text(base), 'the edge choice is saved')
+    onb.g.Next()
+    check(onb.g.Title() == 'DONE' and onb.g.NextLabel() == 'FINISH', 'NEXT goes to DONE')
     summary = onb.g.Summary()
     check('SKINS ON' in summary and 'SAVED IN' in summary and 'WI-FI' in summary, f'summary: {summary!r}')
     onb.g.Back()
-    check(onb.g.Title() == 'LOOK', 'BACK works')
+    check(onb.g.Title() == 'PLACEMENT', 'BACK works')
     onb.g.Next()
     onb.g.Next()
     check('SetupDone=1' in state_text(base) and onb.sent('!DeactivateConfig'), 'FINISH records SetupDone=1')

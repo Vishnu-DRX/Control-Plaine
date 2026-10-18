@@ -109,7 +109,9 @@ if (Test-Path (Join-Path $dest 'Rainmeter.ini')) {
     Write-Host "Kept your Control-Plaine layout as '$(Split-Path -Leaf $old)'"
 }
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
-Copy-Item (Join-Path $repo 'Layouts\Control-Plaine\Rainmeter.ini') $dest -Force
+# The layout source is tools\layout\Control-Plaine.layout (not an .ini, outside any skin
+# folder, so Rainmeter does not list it as a skin); Rainmeter wants it named Rainmeter.ini.
+Copy-Item (Join-Path $repo 'tools\layout\Control-Plaine.layout') (Join-Path $dest 'Rainmeter.ini') -Force
 
 # 4. Load it.
 if (Test-Path $rainmeter) {

@@ -1,13 +1,18 @@
 -- Control-Plaine | Onboarding
 -- First-run setup inside the Settings window (Settings\Onboarding.ini, one
 -- file; the step is the variable OnbStep). Steps: WELCOME, SKINS, SETUP (what
--- each chosen skin needs), LOOK, PLACEMENT (a stub, WP-O3), DONE.
+-- each chosen skin needs), LOOK, PLACEMENT (screen and edge), DONE.
 --
 -- Detection is Scripts\Needs.lua over Setup\NeedsList.lua: file-exists and
 -- registry reads, nothing is run. Settings are written by Settings.lua (the
 -- same Set / EditPath / SkinOn the skin pages use); this script only keeps its
 -- own progress in State.inc (OnbStep, OnbOnly, OnbPre, OnbSkip, OnbSel,
--- OnbPage) and SetupDone.
+-- OnbPage, OnbScreen, OnbEdge, OnbPlaced) and SetupDone.
+--
+-- PLACEMENT: Scripts\Placement.lua does the maths (one column on a screen
+-- edge); this script reads the screens, and moves the loaded skins with !Move
+-- (the same config names Settings.lua activates). Skins are only moved when the
+-- user clicks a screen or an edge, never on entering the step.
 --
 -- Install helpers come from Setup\Helpers.txt only. Run() starts the one
 -- helper of the selected item, after the click on RUN IT FOR ME, with the
@@ -25,19 +30,19 @@ local NAMES = {
 	Controllers = 'CONTROLLERS', SettingsButton = 'SETTINGS BUTTON', General = 'GENERAL',
 }
 
--- skip = true: the step exists but is not shown yet (placement is WP-O3).
+-- skip = true: the step exists but is not shown.
 local STEPS = {
 	{ id = 'welcome', title = 'WELCOME', group = 'OnbWelcome' },
 	{ id = 'skins', title = 'SKINS', group = 'OnbSkins' },
 	{ id = 'setup', title = 'SETUP', group = 'OnbSetup' },
 	{ id = 'look', title = 'LOOK', group = 'OnbLook' },
-	{ id = 'place', title = 'PLACEMENT', group = 'OnbPlace', skip = true },
+	{ id = 'place', title = 'PLACEMENT', group = 'OnbPlace' },
 	{ id = 'done', title = 'DONE', group = 'OnbDone' },
 }
 local GROUPS = { 'OnbWelcome', 'OnbSkins', 'OnbSetup', 'OnbLook', 'OnbPlace', 'OnbDone' }
 local PER_PAGE = 5
 
-local Needs, NEEDS, HELPERS
+local Needs, NEEDS, HELPERS, Place
 local rootPath, statePath, env
 local results = {}
 local active = {}
@@ -80,6 +85,12 @@ local function loadLibs()
 		Needs, NEEDS = lib, list
 	else
 		SKIN:Bang('!Log', 'Control-Plaine onboarding: could not load Scripts\\Needs.lua or Setup\\NeedsList.lua', 'Error')
+	end
+	local okPlace, place = pcall(dofile, at .. 'Scripts\\Placement.lua')
+	if okPlace and type(place) == 'table' then
+		Place = place
+	else
+		SKIN:Bang('!Log', 'Control-Plaine onboarding: could not load Scripts\\Placement.lua', 'Error')
 	end
 	local f = io.open(at .. 'Setup\\Helpers.txt', 'rb')
 	if f and Needs then
@@ -365,6 +376,9 @@ local function close()
 	save('OnbOnly', '')
 	save('OnbSel', '')
 	save('OnbPage', 0)
+	save('OnbPlaced', 0)
+	save('OnbScreen', '')
+	save('OnbEdge', '')
 	SKIN:Bang('!DeactivateConfig')
 end
 
@@ -435,6 +449,110 @@ function RunDone()
 	render()
 end
 
+-- ---------- placement step ----------
+
+local function screens()
+	local list, primary = Place.screens(function(name)
+		return SKIN:ReplaceVariables('#' .. name .. '#')
+	end)
+	return list, primary
+end
+
+-- Chosen screen (index into the list) and edge, with their defaults: the
+-- primary screen, and the edge the skins already face (AlignAll right, else left).
+local function chosenScreen()
+	local list, primary = screens()
+	local n = tonumber(var('OnbScreen'))
+	if n and list[n] then return n, list end
+	return primary, list
+end
+
+local function chosenEdge()
+	local e = var('OnbEdge')
+	if e == 'left' or e == 'right' then return e end
+	return var('AlignAll') == 'right' and 'right' or 'left'
+end
+
+-- Move every loaded skin Placement knows into its place.
+local function placeSkins()
+	if not Place then return 0 end
+	readActive()
+	local names = {}
+	for _, name in ipairs(SKINS) do
+		if active[name] then names[#names + 1] = name end
+	end
+	local n, list = chosenScreen()
+	local scale = tonumber(var('Scale', '1')) or 1
+	local boost = tonumber(var('SizeBoost', '1.25')) or 1
+	local spots = Place.stack(names, list[n], chosenEdge(), scale, boost)
+	local root = SKIN:GetVariable('ROOTCONFIG')
+	for _, s in ipairs(spots) do
+		SKIN:Bang('!Move', tostring(s.x), tostring(s.y), root .. '\\' .. s.name)
+	end
+	return #spots
+end
+
+-- Click on the screen word: next screen, and stack there.
+function PlaceScreen()
+	if not Place then return end
+	local n, list = chosenScreen()
+	save('OnbScreen', n % #list + 1)
+	save('OnbEdge', chosenEdge())
+	save('OnbPlaced', 1)
+	placeSkins()
+	redraw()
+end
+
+function PlaceEdge(edge)
+	if not Place or (edge ~= 'left' and edge ~= 'right') then return end
+	local n = chosenScreen()
+	save('OnbScreen', n)
+	save('OnbEdge', edge)
+	save('OnbPlaced', 1)
+	placeSkins()
+	redraw()
+end
+
+-- Same as clicking the current edge again: stack once more (after the user
+-- dragged things about, or switched a skin on).
+function PlaceAgain()
+	PlaceEdge(chosenEdge())
+end
+
+-- Choice highlight for EDGE (nothing is lit until the user has chosen).
+function EdgeAlpha(edge)
+	return (var('OnbPlaced') == '1' and chosenEdge() == edge) and 255 or 115
+end
+
+function EdgeLine(edge)
+	return (var('OnbPlaced') == '1' and chosenEdge() == edge) and 255 or 0
+end
+
+function ScreenText()
+	if not Place then return '' end
+	local n, list = chosenScreen()
+	local s = list[n]
+	local word = #list > 1 and string.format('SCREEN %d OF %d', n, #list) or 'SCREEN'
+	return string.format('%s  %d X %d', word, s.w, s.h)
+end
+
+function ScreenNote()
+	if not Place then return '' end
+	local _, list = chosenScreen()
+	return #list > 1 and 'Click to use the next screen. The usable area, without the taskbar.' or 'Your only screen. The usable area, without the taskbar.'
+end
+
+function PlaceNote()
+	if var('OnbPlaced') ~= '1' then
+		return 'Nothing has moved yet. Click a screen or an edge to stack your skins there, or go on to keep them where they are.'
+	end
+	local count = 0
+	for _, name in ipairs(SKINS) do
+		if active[name] and Place and Place.SIZES[name] then count = count + 1 end
+	end
+	return string.format('%d SKINS STACKED ON THE %s EDGE. DRAG ANY OF THEM TO FINE-TUNE.', count, chosenEdge():upper())
+end
+
 function Copy()
 	local it = selected()
 	local h = it and it.helper and HELPERS.byId[it.helper]
@@ -501,6 +619,8 @@ function Intro()
 		return 'What your skins need. Click a row for details. A required item that is missing stops its skin; an optional one only hides a function.'
 	elseif id == 'look' then
 		return 'Applies to every skin now. Each skin can differ later on its own page.'
+	elseif id == 'place' then
+		return 'Stack the skins you kept in a column on one edge of a screen. Drag them anywhere afterwards.'
 	elseif id == 'done' then
 		return 'Setup is saved. Change anything later in Settings.'
 	end
@@ -680,6 +800,9 @@ function Summary()
 	rows[#rows + 1] = string.format('LOOK  SIZE %d%%  COLOURS %s  EDGE %s  DETAILS %s  TOOLTIPS %s',
 		math.floor((tonumber(var('Scale', '1')) or 1) * 100 + 0.5), pick('Theme'), pick('AlignAll'),
 		pick('DetailsAll'), pick('TooltipsAll'))
+	if var('OnbPlaced') == '1' then
+		rows[#rows + 1] = string.format('PLACEMENT  %s EDGE OF SCREEN %d', chosenEdge():upper(), (chosenScreen()))
+	end
 	rows[#rows + 1] = 'SAVED IN  @Resources\\User.inc'
 	rows[#rows + 1] = 'HELP  docs\\guide\\first-time-setup.md  AND  docs\\guide\\troubleshooting.md'
 	return table.concat(rows, '\n')
