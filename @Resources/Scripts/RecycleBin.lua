@@ -44,7 +44,6 @@ function Update()
 	if state ~= last then
 		SKIN:Bang('!SetOption', 'Detail', 'Text', text)
 		SKIN:Bang('!SetVariable', 'SizeInk', SKIN:GetVariable(warn and 'Warn' or 'Ink'))
-		SKIN:Bang('!SetVariable', 'SizeAlpha', SKIN:GetVariable(warn and 'AlphaValue' or 'AlphaDetail'))
 		SKIN:Bang('!SetOption', 'Icon', 'ImageName', '#@#Icons\\' .. icon)
 		SKIN:Bang(n > 0 and '!ShowMeter' or '!HideMeter', 'LinkEmpty')
 		SKIN:Bang('!UpdateMeter', '*')
