@@ -20,7 +20,7 @@ The mode is named after the wallpaper:
 | `HoverBrightness` | 30 to 100 | `98` | Hover level, never below rest. |
 | `LightBoost` | 0 to 40 | `10` | Percentage points added to the rest level in light mode. |
 
-Settings rows: brightness on General (WP-G); SKINS FOR (`Theme`), LIGHT MODE BOOST and ACCENT DARKENING (`AccentLight`, `AccentLightK`) as one-line rows at the bottom of General (WP-L3). Each skin's COLOURS row (`<Skin>Theme`: AUTO / WHITE / BLACK) comes from `@Resources\Settings\Theme.inc`, included by the skin's page with `ThemeKey` and `ThemeY` set; WP-L2 adds it per skin, and lint fails a skin that sets `SkinTheme` without it. `ThemeFollow` has no row yet (edit `User.inc`).
+Settings rows: brightness on General (WP-G); SKINS FOR (`Theme`), LIGHT MODE BOOST and ACCENT DARKENING (`AccentLight`, `AccentLightK`) as one-line rows at the bottom of General (WP-L3). Each skin's COLOURS row (`<Skin>Theme`: AUTO / WHITE / BLACK) comes from `@Resources\Settings\Theme.inc`, included by the skin's page with `ThemeKey` and `ThemeY` set; WP-L2 adds it per skin, and lint fails a skin that sets `SkinTheme` without it. `ThemeFollow` has no row (edit `User.inc`).
 
 **Default is `dark`, not `auto`.** The plan decided `auto`, but also needs "defaults leave everything as today" (L8) and says which Windows setting `auto` follows is to be settled on the PC. Shipping `auto` first would turn his skins black if Windows is on its light theme while his wallpaper is dark. Flip `Theme=dark` to `auto` in `Defaults.inc` once the registry choice is confirmed at gate G1.
 

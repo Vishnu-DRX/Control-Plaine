@@ -26,6 +26,9 @@ SignalRGBApi=auto
 ; Port of SignalRGB's local API.
 SignalRGBPort=16038
 
+; ---- Edit in User.inc ----
+; Personal values with no Settings row.
+
 ; Free mode (no SignalRGB Pro): the skin applies this effect with the
 ; signalrgb://effect/apply link and sets brightness by scaling its color.
 ; Needs an effect with a "color" property, such as Solid Color. Empty =
