@@ -14,3 +14,8 @@ SettingsButtonTooltips=1
 ; Colours for this skin: auto follows the global Theme, dark = white,
 ; light = black.
 SettingsButtonTheme=auto
+
+; ---- Runtime, not settings ----
+; 1 once first-run setup has finished. State.inc (included after this file)
+; holds the real value; 0 here means first run, so the skin opens Settings once.
+SetupDone=0
