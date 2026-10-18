@@ -123,6 +123,8 @@ function Show(key, format)
 		return string.format('%d%%', math.floor(n + 0.5))
 	elseif format == 'scale' and n then
 		return string.format('%d%%', math.floor(n * 100 + 0.5))
+	elseif format == 'pts' and n then
+		return string.format('+%d', math.floor(n + 0.5))
 	elseif format == 'ms' and n then
 		return string.format('%d MS', math.floor(n + 0.5))
 	elseif format == 'px' and n then
