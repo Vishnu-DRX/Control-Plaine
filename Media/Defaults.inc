@@ -8,6 +8,9 @@
 MediaAlign=left
 ; hover: chevrons and brighter text only on hover. always: they stay shown.
 MediaDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+MediaTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 MediaTooltips=1
 ; The skin disappears when no app is playing.

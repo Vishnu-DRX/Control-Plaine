@@ -10,6 +10,9 @@ VolumeAlign=left
 ; hover shows the text only while hovered, always keeps it visible.
 ; DetailsAll in Settings can override it.
 VolumeDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+VolumeTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 VolumeTooltips=1
 ; Percent per scroll notch.

@@ -10,6 +10,9 @@ RecycleBinAlign=left
 ; hover shows the text only while hovered, always keeps it visible.
 ; DetailsAll in Settings can override it.
 RecycleBinDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+RecycleBinTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 RecycleBinTooltips=1
 ; Windows asks to confirm when you click Empty.
