@@ -7,7 +7,8 @@ A switch for the DeepCool app that drives the case screen.
 ## At rest and on hover
 
 - **At rest:** The DeepCool logo: accent while the app runs, grey when closed.
-- **On hover:** CASE SCREEN (or DEEPCOOL) and a bulb.
+- **On hover:** CASE SCREEN (or DEEPCOOL) and a bulb. With `DeepCoolDetails=always` they stay visible.
+- **Left or right:** `DeepCoolAlign=right` mirrors the skin inside the same box: label and bulb first, logo last. The skin never moves or resizes.
 
 ## Actions
 
@@ -22,12 +23,14 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `DeepCoolAlign` | `left` | `left`: logo first, text after it. `right`: the mirror image (text first, logo last). The global AlignAll can override it. |
+| `DeepCoolDetails` | `hover` | `hover`: label and bulb show while hovered. `always`: they stay visible. The global DetailsAll can override it. |
 | `DeepCoolPath` | `C:\DeepCool\DeepCool.exe` | The program that drives the case screen. |
 | `DeepCoolProcess` | `DeepCool.exe` | Process name used to tell if it is running. |
 | `DeepCoolStartHidden` | `1` | Open straight to the tray, no window. |
 | `DeepCoolArgs` | `(empty)` | Extra start arguments. |
 | `DeepCoolLabel` | `screen` | Hover label: `screen` (CASE SCREEN) or `app` (DEEPCOOL). |
-| `DeepCoolOffDelay` | `7` | Seconds STOPPING TELEMETRY stays after the app has exited (the screen takes about this long to go dark). |
+| `DeepCoolOffDelay` | `7` | Seconds STOPPING TELEMETRY stays after the app has exited (the screen takes about this long to go dark). Under ADVANCED at the bottom of the page. |
 
 ## Requirements
 
