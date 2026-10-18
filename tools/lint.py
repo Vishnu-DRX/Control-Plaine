@@ -442,6 +442,15 @@ if onb_ini.exists() and onb_lua.exists():
     if len(re.findall(r"SKIN:Bang\('!SetOption', 'mRun', 'Program'", lua_text)) != 1:
         problems.append('Onboarding.lua: mRun Program must be set in exactly one place (Run, from Helpers.txt)')
 
+# S11: CLEAN deletes User.inc keys that no listed Defaults file defines, so a
+# skin missing from TABS in Settings.lua would lose its saved settings.
+tabs_src = (ROOT / '@Resources' / 'Scripts' / 'Settings.lua').read_text('ascii', 'replace')
+tabs_m = re.search(r'local TABS = \{(.*?)\}', tabs_src, re.S)
+tabs = re.findall(r"'(\w+)'", tabs_m.group(1)) if tabs_m else []
+for name in SKIN_FOLDERS:
+    if name not in tabs:
+        problems.append(f"@Resources/Scripts/Settings.lua: S11 TABS is missing '{name}' (CLEAN would delete its settings)")
+
 # L7: every icon is white with alpha (so ImageTint=#Ink# follows light mode) or
 # is on the allow-list in tools/check_icons.py with a reason and a -light twin.
 sys.path.insert(0, str(ROOT / 'tools'))
