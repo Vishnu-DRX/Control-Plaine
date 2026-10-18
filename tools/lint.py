@@ -213,10 +213,9 @@ for name in SKIN_FOLDERS:
 # B10: every setting key in a Defaults.inc has a Settings row (a Fill, Knob,
 # Toggle, Set, Step, Show, ChoiceAlpha, ChoiceLine or EditPath call, or an
 # AlignKey / DetailsKey). Keys after a '---- Runtime, not settings ----' comment
-# in a Defaults.inc are state, not settings, and are exempt.
-# WARNING ONLY for now: per-skin PRs are still adding their rows. Flip
-# B10_FAILS to True once they have merged.
-B10_FAILS = False
+# in a Defaults.inc are state, not settings, and are exempt. So are keys after a
+# '---- Edit in User.inc ----' comment: personal values with no Settings row.
+B10_FAILS = True
 warnings = []
 rowkeys = set()
 for page in (ROOT / 'Settings').glob('*.ini'):
@@ -227,7 +226,7 @@ rowkeys = {k.lower() for k in rowkeys}
 for f in sorted(ROOT.glob('*/Defaults.inc')):
     runtime = False
     for line in f.read_text('ascii', 'replace').splitlines():
-        if re.match(r'^;\s*-+\s*Runtime, not settings\s*-+', line):
+        if re.match(r'^;\s*-+\s*(Runtime, not settings|Edit in User\.inc)\s*-+', line):
             runtime = True
             continue
         m = re.match(r'^(\w+)=', line)
