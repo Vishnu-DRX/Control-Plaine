@@ -9,6 +9,10 @@ Wi-Fi signal and network name, with a manual speed test.
 - **At rest:** Wi-Fi icon (lit arcs = signal strength). Warnings show at rest: NO INTERNET, NOT CONNECTED, AIRPLANE MODE; a wired link shows ETHERNET.
 - **On hover:** The network name, and a speed test icon at its right. A test shows a spinner and live speed, then download, upload and ping, which fade out and the name returns.
 
+## Left or right
+
+`WiFiAlign` = `left` puts the icon first and the text after it. `right` mirrors the skin inside the same box: text first, icon last, and the speed test result reads from the icon inward (down, up, ping). The window never moves or resizes. `WiFiDetails` = `hover` shows the network name and speed test only on hover; `always` keeps them visible. The global ALIGN and DETAILS rows on [Settings](settings.md) can override both.
+
 ## Actions
 
 - Click the icon or name: opens `WiFiClick` (default: Windows Wi-Fi settings).
@@ -23,8 +27,11 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `WiFiAlign` | `left` | `left` or `right`. |
+| `WiFiDetails` | `hover` | `hover` or `always`. |
 | `WiFiClick` | `settings` | `settings` (Windows Wi-Fi settings) or any program, file or URI. |
-| `WiFiSpeedtestPath` | `%LOCALAPPDATA%\Microsoft\WinGet\Links\speedtest.exe` | Ookla Speedtest CLI. If empty or wrong the skin also looks in the usual places. |
+| `WiFiSpeedtestPath` | `%LOCALAPPDATA%\Microsoft\WinGet\Links\speedtest.exe` | Ookla Speedtest CLI. If empty or wrong the skin also looks in the usual places (WinGet Links and Packages folders, Programs\\Ookla, Program Files), so an empty box still runs the test when it is installed. |
+| `WiFiInterface` | `0` | Which wireless adapter to read (0 = first). Under ADAPTER (ADVANCED) in Settings. |
 
 ## Requirements
 
@@ -32,4 +39,4 @@ Ookla Speedtest CLI 1.x for the speed test (`winget install Ookla.Speedtest.CLI`
 
 ## Known limits
 
-If the name stays blank on a PC with more than one wireless adapter, set `WiFiInterface` in the skin.
+If the name stays blank on a PC with more than one wireless adapter, raise `WiFiInterface` (Settings > WI-FI > ADAPTER).
