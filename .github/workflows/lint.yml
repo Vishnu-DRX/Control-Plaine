@@ -10,4 +10,4 @@ jobs:
           python-version: '3.12'
       - run: python tools/lint.py
       - run: pip install lupa
-      - run: python tools/test_core.py
+      - run: for t in tools/test_*.py; do python "$t" || exit 1; done
