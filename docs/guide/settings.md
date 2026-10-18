@@ -32,8 +32,8 @@ If `User.inc` holds a setting no skin uses any more, a line at the right of the 
 | FONT | `FontFace` | `Segoe UI Variable Display` | Choose `Segoe UI` on Windows 10 or if the Variable font is missing. |
 | TOOLTIPS ON ALL SKINS | `TooltipsAll` | `skin` | `skin` = each skin uses its own `<Skin>Tooltips`; `on` shows every tooltip; `off` hides every tooltip. Skins reload when you change it. |
 | SIZE BOOST | `SizeBoost` | `1.25` | Extra size for Controllers, Fan Control, DeepCool, Wi-Fi, SignalRGB and Settings Button, on top of Scale. Icons are pre-rendered at 1.25, so other values make them softer. |
-| RESET SETTINGS | n/a | n/a | Click, then click again to confirm: empties `User.inc` and refreshes every skin. |
-| CLEAN UNKNOWN SETTINGS | n/a | n/a | Lists keys in `User.inc` that no skin defines (for example a removed setting) and deletes them. |
+| RESET SETTINGS | n/a | n/a | Click, then click again to confirm: empties `User.inc` and refreshes every skin. The old file is kept as `User.inc.bak` (one generation). |
+| CLEAN UNKNOWN SETTINGS | n/a | n/a | Lists keys in `User.inc` that no skin defines (for example a removed setting) and deletes them. The old file is kept as `User.inc.bak`. |
 
 The footer of every page has REFRESH ALL, OPEN SKINS FOLDER and OPEN USER.INC.
 
@@ -46,3 +46,7 @@ Every skin also has a TOOLTIPS row on its own page (`<Skin>Tooltips`, 1 = toolti
 ## Not settings
 
 `@Resources\State.inc` holds runtime state the skins write themselves (for example a pending power schedule). Leave it alone.
+
+## What the path and text boxes accept
+
+A value with a double quote or a line break is ignored, a `#` is removed, and one trailing backslash is dropped (so a folder path works). Port boxes (`SignalRGBPort`, `ControllersDsxPort`) accept only a whole number from 1 to 65535; AccentColor accepts `#RRGGBB` or three numbers from 0 to 255.
