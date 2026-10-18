@@ -11,3 +11,6 @@ SettingsButtonAlign=left
 SettingsButtonDetails=hover
 ; 1 shows this skin's tooltips, 0 hides them all.
 SettingsButtonTooltips=1
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+SettingsButtonTheme=auto

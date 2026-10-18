@@ -27,6 +27,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | --- | --- | --- |
 | `SettingsButtonAlign` | `left` | `left` or `right`: which screen edge it sits on. `AlignAll` can override it. |
 | `SettingsButtonDetails` | `hover` | `hover` or `always`: when SETTINGS shows. `DetailsAll` can override it. |
+| `SettingsButtonTheme` | `auto` | Colours: `auto` follows the global Theme (SKINS FOR on General), `dark` is white, `light` is black. The COLOURS row on this skin's page sets it. |
 
 ## Requirements
 
