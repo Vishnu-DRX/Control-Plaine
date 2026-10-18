@@ -3,6 +3,12 @@
 ; Owned by the DeepCool skin; add keys here with the DeepCool prefix.
 
 [Variables]
+; Which screen edge the skin sits on: left puts the icon first, right mirrors
+; it (text first, icon last). AlignAll in Settings can override it.
+DeepCoolAlign=left
+; hover shows the label and bulb only while hovered, always keeps them visible.
+; DetailsAll in Settings can override it.
+DeepCoolDetails=hover
 ; 1 shows this skin's tooltips, 0 hides them all.
 DeepCoolTooltips=1
 ; DeepCool program that drives the case screen.
