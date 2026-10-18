@@ -3,6 +3,8 @@
 ; Owned by the Playnite skin; add keys here with the Playnite prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+PlayniteTooltips=1
 ; Playnite program.
 PlaynitePath=%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe
 ; Open Playnite without its splash screen.

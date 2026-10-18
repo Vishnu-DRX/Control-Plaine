@@ -3,6 +3,8 @@
 ; Owned by the SignalRGB skin; add keys here with the SignalRGB prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+SignalRGBTooltips=1
 ; What clicking the icon opens. auto = the SignalRGB launcher, found through
 ; its signalrgb:// registration (the exe sits in a versioned folder that
 ; changes with every update). Or a program path, or a link.

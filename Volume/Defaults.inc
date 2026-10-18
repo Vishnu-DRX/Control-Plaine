@@ -3,6 +3,8 @@
 ; Owned by the Volume skin; add keys here with the Volume prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+VolumeTooltips=1
 ; Percent per scroll notch.
 VolumeStep=2
 ; Turning the volume up while muted unmutes.

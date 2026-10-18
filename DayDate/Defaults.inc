@@ -3,6 +3,8 @@
 ; Owned by the DayDate skin; add keys here with the DayDate prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+DayDateTooltips=1
 ; What a click opens: calendar (the Windows calendar flyout, Win+N), or any
 ; program, file or URI (for example https://calendar.google.com).
 DayDateClick=calendar

@@ -257,6 +257,14 @@ Shape2=Arc c,(c-R),(c+R*Sin(a)),(c-R*Cos(a)),0,0,(a>PI?1:0) | Fill Color 0,0,0,0
 ```
 As built, Theme.inc provides `#RingTrack#` and `#RingFill#` modifier strings, coloured by `RingColor` (default `#Accent#`) with width `RingWidth` (default `RingStroke`); a skin overrides either in its own [Variables] or with `!SetVariable`. At value >= 0.999 draw Shape2 as a full Ellipse (an arc with equal ends draws nothing); at 0 hide it.
 
+### 5.1 Tooltips
+Every skin follows the same rules, so the wording reads as one suite:
+- Every clickable or scrollable element has a tooltip, except where the skin already names it on screen (Power's icon labels, Controllers' app rows, which Vishnu asked to keep without one).
+- Verb first, sentence case, no article, no "Click to" and no full stop: "Open Task Manager", "Mute or unmute", "Scroll to change brightness". Scroll-only controls start with "Scroll to".
+- Elements that do the same click share one text. A toggle names what the click does next ("Set all fans to 100%" then "Restore normal fan speeds").
+- Rainmeter's own tooltip style and delay are left alone; there is no delay option to match.
+- Each skin has a `<Skin>Tooltips` key in its Defaults.inc (1 on, 0 off). Core.inc maps it through `TipHidden1`/`TipHidden0`, and the skin's [Rainmeter] section sets `ToolTipHidden=#TipHidden[#<Skin>Tooltips]#`, so one key hides every tooltip of that skin, including ones set by its script.
+
 ## 6. Typography, scale, icons: how close Rainmeter gets
 
 | Design | Rainmeter | Gap |
