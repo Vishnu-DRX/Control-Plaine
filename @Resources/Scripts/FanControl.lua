@@ -4,7 +4,7 @@
 -- actually using (Configurations\CACHE). After a switch the shown % climbs (or
 -- falls) while SPEEDING UP / SLOWING DOWN and a spinner show, until the fans
 -- have got there.
--- The numbers come from %TEMP%\ControlPlaine-fans.txt, written every 2 s by
+-- The numbers come from %ProgramData%\ControlPlaine\FanControl\fans.txt, written every 2 s by
 -- Scripts\FanControlSensors.ps1, which runs as the \ControlPlaine\FanSensors
 -- task (Fan Control's sensor feed only answers admin programs). The file is
 --   ts|<unix seconds>
@@ -107,7 +107,7 @@ function Initialize()
 	cacheFile = configDir .. '\\CACHE'
 
 	spin = dofile(var('@') .. 'Scripts\\Spinner.lua').new('Spinner', 'mSpin')
-	sensorFile = (os.getenv('TEMP') or '') .. '\\ControlPlaine-fans.txt'
+	sensorFile = (os.getenv('ProgramData') or 'C:\\ProgramData') .. '\\ControlPlaine\\FanControl\\fans.txt'
 	startReader()
 
 	maxOn = tonumber(var('FanControlMaxOn', '0')) == 1 and 1 or 0
