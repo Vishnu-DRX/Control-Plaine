@@ -8,7 +8,7 @@ From the repo folder in PowerShell:
 powershell -ExecutionPolicy Bypass -File tools\install.ps1
 ```
 
-*Draft; the installer is changing (onboarding, layout move). Read `tools/install.ps1` for what it does today.* As of this draft it:
+The installer (`tools\install.ps1`):
 
 1. Links the repo into `Documents\Rainmeter\Skins\Control-Plaine` (a junction, so `git pull` updates the live skins). It stops if that folder already exists and is not a link to this repo.
 2. Creates `@Resources\User.inc` and `@Resources\State.inc` (both git-ignored).
@@ -27,7 +27,7 @@ After a plugin is installed, exit and restart Rainmeter once.
 
 ## Skin positions
 
-The shipped layout carries window positions from the author's screen. Drag the skins where you want them (General has a lock option to stop accidental drags) or use Rainmeter's layout manager.
+The shipped layout stacks the skins in one column at the left of your main screen so they start on screen. The first-time setup's PLACEMENT step restacks them on the screen and edge you choose (see [first-time setup](first-time-setup.md)). You can also drag any skin (General has LOCK POSITIONS to stop accidental drags) or use Rainmeter's layout manager.
 
 ## Updating
 

@@ -6,7 +6,7 @@ Copies the repo into a temp directory, generates a throwaway skin there, checks
 the generated files, runs that copy's tools/lint.py (1) as generated and (2)
 after the shared registration steps that the script deliberately does not do
 (SKIN_FOLDERS, TABS, the Settings tab, the General toggle, skins.json, the
-layout, the INDEX), applied here
+layout, the INDEX, the README row and the site), applied here
 programmatically. Nothing is written to the real repo. Standard library only.
 """
 import importlib.util
@@ -73,6 +73,10 @@ def register(copy, name):
         f.write(f'\n[Control-Plaine\\{name}]\nActive=1\nWindowX=24\nWindowY=24\n')
     with (copy / 'docs' / 'INDEX.md').open('a', encoding='ascii', newline='\n') as f:
         f.write(f'\n[guide/{name}.md](guide/{name}.md)\n')
+    with (copy / 'README.md').open('a', encoding='ascii', newline='\n') as f:
+        f.write(f'\n| {name} | x | [guide](docs/guide/{name}.md) |\n')
+    with (copy / 'site' / 'index.html').open('a', encoding='ascii', newline='\n') as f:
+        f.write(f'\n<!-- {name} -->\n')
 
 
 def main():
@@ -80,7 +84,7 @@ def main():
     mod = load_script()
     with tempfile.TemporaryDirectory() as tmp:
         copy = pathlib.Path(tmp) / 'repo'
-        shutil.copytree(ROOT, copy, ignore=shutil.ignore_patterns('.git', '.claude', 'node_modules', '__pycache__'))
+        shutil.copytree(ROOT, copy, ignore=shutil.ignore_patterns('.git', 'node_modules', '__pycache__'))
         code, problems = lint(copy)
         check(code == 0, f'baseline lint of the copy is not clean: {problems[:3]}')
 

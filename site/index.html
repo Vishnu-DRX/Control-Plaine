@@ -60,29 +60,28 @@
       <article class="card">
         <div class="demo" tabindex="0" aria-label="Day-Date illustration">
           <div class="daydate">
-            <div class="dd-day">FRIDAY</div>
+            <div class="dd-day">SUNDAY</div>
             <div class="dd-date">18 OCTOBER 2026</div>
-            <div class="reveal dd-time">14:32 &nbsp; WEEK 42</div>
           </div>
         </div>
         <h3>DAY-DATE</h3>
-        <p>Day name and date. Time and week number on hover.</p>
+        <p>The day name over the date. Click opens the calendar.</p>
       </article>
 
       <article class="card">
         <div class="demo" tabindex="0" aria-label="Power illustration">
           <div class="power">
             <div class="icons">
-              <svg class="ico"><use href="#i-lock"/></svg>
               <svg class="ico"><use href="#i-hibernate"/></svg>
-              <svg class="ico"><use href="#i-restart"/></svg>
               <svg class="ico"><use href="#i-shutdown"/></svg>
+              <svg class="ico"><use href="#i-restart"/></svg>
+              <svg class="ico"><use href="#i-lock"/></svg>
             </div>
             <div class="reveal small">HIBERNATE</div>
           </div>
         </div>
         <h3>POWER</h3>
-        <p>Four dim icons. Names on hover. Restart and shut down ask twice.</p>
+        <p>Four dim icons. The name shows on hover, with a schedule link. Restart and shut down ask twice.</p>
       </article>
 
       <article class="card">
@@ -93,13 +92,13 @@
               <circle cx="32" cy="32" r="22" class="fill" stroke-dasharray="88.4 138.2" transform="rotate(-90 32 32)"/>
             </svg>
             <div class="vol-text">
-              <div class="value">64%</div>
+              <div class="reveal value">64%</div>
               <div class="reveal small">SPEAKERS</div>
             </div>
           </div>
         </div>
         <h3>VOLUME</h3>
-        <p>A thin ring at the current level. Scroll, click or switch output.</p>
+        <p>A ring at the current level. Percentage and output on hover. Scroll to change the volume.</p>
       </article>
 
       <article class="card">
@@ -107,13 +106,13 @@
           <div class="wifi">
             <svg class="ico big"><use href="#i-wifi"/></svg>
             <div class="wf-text">
-              <div class="value dim">HOME NETWORK</div>
+              <div class="reveal value">HOME NETWORK</div>
               <div class="reveal small">SPEED TEST</div>
             </div>
           </div>
         </div>
         <h3>WI-FI</h3>
-        <p>Signal and network name. Speed test on hover.</p>
+        <p>Signal strength at rest. Network name and a speed test on hover.</p>
       </article>
 
       <article class="card">
@@ -121,31 +120,31 @@
           <div class="bin">
             <svg class="ico big"><use href="#i-trash"/></svg>
             <div class="bin-text">
-              <div class="value">12 ITEMS &middot; 84 MB</div>
+              <div class="reveal value">84 MB</div>
               <div class="reveal small">EMPTY BIN</div>
             </div>
           </div>
         </div>
         <h3>RECYCLE BIN</h3>
-        <p>Count and size always visible. Empty it from the hover link.</p>
+        <p>The trash icon at rest. Size on hover, with an Empty link when there is something to empty.</p>
       </article>
 
       <article class="card">
         <div class="demo" tabindex="0" aria-label="Fan Control illustration">
           <div class="fan">
-            <svg class="ico big spin"><use href="#i-fan"/></svg>
+            <svg class="ico big"><use href="#i-fan"/></svg>
             <div class="fan-text">
-              <div class="value">42%</div>
-              <div class="reveal small">NORMAL &middot; MAX</div>
+              <div class="reveal value">42%</div>
+              <div class="reveal small">FANS &middot; MAX</div>
             </div>
           </div>
         </div>
         <h3>FAN CONTROL</h3>
-        <p>Fan speed at a glance. Switch profile on hover.</p>
+        <p>A fan icon at rest. Average speed and a one-click MAX switch on hover.</p>
       </article>
     </div>
 
-    <p class="more">Also in the suite: <b>UPTIME</b>, <b>MEDIA</b>, <b>PLAYNITE</b>, <b>SIGNALRGB</b>, <b>DEEPCOOL</b> and <b>CONTROLLERS</b>. See the README for the full list.</p>
+    <p class="more">Also in the suite: <b>UPTIME</b>, <b>MEDIA</b>, <b>PLAYNITE</b>, <b>SIGNALRGB</b>, <b>DEEPCOOL</b> and <b>CONTROLLERS</b> and a <b>SETTINGS BUTTON</b>. See the README for the full list.</p>
   </section>
 
   <section id="options">
@@ -164,7 +163,7 @@
     <h2 class="label">INSTALL</h2>
     <p>Needs Rainmeter on Windows. From the repo folder in PowerShell:</p>
     <pre><code>powershell -ExecutionPolicy Bypass -File tools\install.ps1</code></pre>
-    <p>The installer links the repo into your Skins folder, creates your settings files and loads the Control-Plaine layout. The README covers the manual route.</p>
+    <p>The installer links the repo into your Skins folder, creates your settings files, installs the plugins the skins need, loads the Control-Plaine layout and opens Settings, which starts a short first-time setup. The README covers the manual route.</p>
     <p><a class="btn" href="https://github.com/Vishnu-DRX/Control-Plaine">VIEW ON GITHUB</a></p>
   </section>
 </main>

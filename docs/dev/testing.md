@@ -6,6 +6,12 @@
 
 Run it before every commit. A green lint is necessary, not sufficient.
 
+Lint also checks the docs: every page under `docs/` is ASCII with working relative links and is listed in `docs/INDEX.md` (I2), the skin list agrees across the folders, Settings, `docs/skins.json` and the layout (I1), one version everywhere (I3), every key a skin's `Defaults.inc` lists as a setting is named in its guide page, every skin has a README row and a site card, and every path or command a repo skill in `.claude/skills` names still exists.
+
+## Offline tests
+
+`pip install lupa`, then run each `tools/test_*.py` (`for t in tools/test_*.py; do python "$t" || break; done`; CI does the same). They run the Lua scripts and the formula maths of the skins offline: alignment and theme helpers (`test_core.py`), per-skin checks, the Settings engine, onboarding and the scaffold (`test_newskin.py`). A new skin with formulas worth checking gets its own new `tools/test_<skin>.py`.
+
 ## What only a PC can check
 
 Anything that depends on Rainmeter or Windows actually running: layout and sharpness, hover behaviour, fades, plugins loading, tooltips, light/dark, helper scripts, scheduled tasks, app integrations. Cloud sessions cannot verify these; say so in the PR and list what needs a PC check.

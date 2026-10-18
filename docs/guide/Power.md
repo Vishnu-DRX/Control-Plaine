@@ -2,8 +2,6 @@
 
 Hibernate (or sleep), shut down, restart and lock, with a schedule picker.
 
-*Draft.* Behaviour was read from `Power/Power.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** Four dim icons.

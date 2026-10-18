@@ -2,12 +2,10 @@
 
 Case lights brightness and a move effect, through SignalRGB.
 
-*Draft.* Behaviour was read from `SignalRGB/SignalRGB.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** The SignalRGB logo (accent while the lights are on).
-- **On hover:** The label and brightness (default "Case lights 40%") and a double arrow.
+- **On hover:** The label and brightness (for example "Case lights 40%") and a double arrow.
 
 ## Actions
 
@@ -23,6 +21,8 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `SignalRGBAlign` | `left` | Which screen edge it sits on: `left` puts the logo first, `right` mirrors it (text first, logo last). `AlignAll` on the Advanced tab can override it. |
+| `SignalRGBDetails` | `hover` | `hover` shows the label and arrow only while hovered, `always` keeps them visible. `DetailsAll` can override it. |
 | `SignalRGBPath` | `auto` | What the logo opens: `auto` (the launcher, found through its `signalrgb://` registration), a program path or a link. |
 | `SignalRGBTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin, `light` = black skin. |
 | `SignalRGBStep` | `5` | Brightness change per scroll notch (%). |
