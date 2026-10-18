@@ -11,6 +11,7 @@ widths are estimates; the real ones need Rainmeter.
 Usage: python3 tools/test_ringskins.py   (needs: pip install lupa)
 """
 import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -147,7 +148,10 @@ def test_ringclick():
     try:
         import lupa
     except ImportError:
-        print('lupa missing: skipping RingClick test')
+        # CI always has lupa; a silent skip must not look like a pass there.
+        print('SKIPPED: lupa missing, RingClick test not run (pip install lupa)')
+        if os.environ.get('CI'):
+            check(False, 'lupa missing in CI')
         return
     for scale in (1.0, 1.5):
         lua = lupa.LuaRuntime(unpack_returned_tuples=True)

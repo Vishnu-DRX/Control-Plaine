@@ -1,5 +1,7 @@
 name: lint
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -9,5 +11,5 @@ jobs:
         with:
           python-version: '3.12'
       - run: python tools/lint.py
-      - run: pip install lupa
+      - run: pip install lupa==2.8
       - run: for t in tools/test_*.py; do python "$t" || exit 1; done

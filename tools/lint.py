@@ -169,7 +169,7 @@ for path in sorted(ROOT.rglob('*')):
         problems.append(f'{rel}: hardcoded user path, move it to a Defaults.inc or User.inc')
     if path.suffix.lower() in ('.ini', '.inc'):
         for line in text.splitlines():
-            if re.match(r'^[A-Za-z]\w*=.*\s;\s', line) and 'Text=' not in line and 'ToolTip' not in line:
+            if re.match(r'^[A-Za-z]\w*=.*(\s;|;\s)', line) and not re.match(r'^(Text|ToolTipText|ToolTipTitle|Description|Information)\w*=', line):
                 problems.append(f'{rel}: inline ; comment (Rainmeter has none, put it on its own line): {line.strip()}')
     for name in re.findall(r'#@#Icons\\([\w-]+\.png)', text):
         if not (ROOT / '@Resources' / 'Icons' / name).exists():
@@ -199,7 +199,7 @@ for path in sorted(ROOT.rglob('*')):
             problems.append(f'{rel}: [Rainmeter] needs Group=ControlPlaine')
         if 'ContextTitle=Control-Plaine settings' not in text or '#ROOTCONFIG#\\Settings' not in text:
             problems.append(f'{rel}: needs the Control-Plaine settings right-click entry')
-        if re.search(r'\[!(Show|Hide)\]', text):
+        if re.search(r'\[!(show|hide)(\s[^\]]*)?\]', text, re.I):
             problems.append(f'{rel}: use SelfHidden + mVisible instead of !Show/!Hide')
         if re.search(r'^SkinSide=', text, re.M):
             check_aligned(rel, text)
@@ -207,6 +207,18 @@ for path in sorted(ROOT.rglob('*')):
             check_themed(rel, text)
     else:
         problems.append(f'{rel}: a skin must include Core.inc (the v1 Fade.inc skins are gone)')
+
+# P1: no personal profile path in docs, scripts or site files either. Example
+# paths such as C:\\Users\\name\\ are fine.
+PLACEHOLDER_USER = re.compile(r'[A-Za-z]:\\Users\\(?:name|you|me|user|username|<[^>]*>|%[^%]*%)\\', re.I)
+for path in sorted(ROOT.rglob('*')):
+    if path.suffix.lower() not in ('.md', '.py', '.ps1', '.js', '.json', '.html', '.yml', '.svg') or '.git' in path.parts:
+        continue
+    if 'node_modules' in path.parts:
+        continue
+    for m in re.finditer(r'[A-Za-z]:\\Users\\[^\\\s]*\\?', path.read_text('utf-8', 'replace')):
+        if not PLACEHOLDER_USER.match(m.group(0)):
+            problems.append(f'{path.relative_to(ROOT)}: P1 personal user path {m.group(0)!r}')
 
 for name in SKIN_FOLDERS:
     if not (ROOT / name / 'Defaults.inc').exists():

@@ -13,7 +13,13 @@ $rainmeter = Join-Path $env:ProgramFiles 'Rainmeter\Rainmeter.exe'
 # 1. Put the suite in the Skins folder (a junction, so git pull updates it in place).
 if ((Resolve-Path $repo).Path -ne $target) {
     if (Test-Path $target) {
-        Write-Host "Skins\Control-Plaine already exists, leaving it as is."
+        $item = Get-Item $target -Force
+        $linked = $item.LinkType -eq 'Junction' -and
+            (Resolve-Path ($item.Target | Select-Object -First 1)).Path -eq (Resolve-Path $repo).Path
+        if (-not $linked) {
+            throw "$target already exists and is not a link to this repo ($repo). Rename or delete it, then run this again."
+        }
+        Write-Host "Skins\Control-Plaine is already linked to this repo."
     } else {
         New-Item -ItemType Junction -Path $target -Target $repo | Out-Null
         Write-Host "Linked $target -> $repo"
@@ -85,14 +91,23 @@ foreach ($h in Read-Helpers (Join-Path $repo '@Resources\Setup\Helpers.txt')) {
 if ($restart) { Write-Host "Restart Rainmeter (Exit, then start it) so it loads the new plugin." }
 
 # 3. Back up the current desktop as a layout, then install the Control-Plaine layout.
-$stamp = Get-Date -Format 'yyyy-MM-dd'
-$backup = Join-Path $layouts "Before Control-Plaine $stamp"
-if (-not (Test-Path $backup)) {
+#    Every run backs up (the name has the time), and a Control-Plaine layout
+#    the user saved from Rainmeter is kept too, before it is overwritten.
+$stamp = Get-Date -Format 'yyyy-MM-dd HH-mm-ss'
+$currentIni = Join-Path $env:APPDATA 'Rainmeter\Rainmeter.ini'
+if (Test-Path $currentIni) {
+    $backup = Join-Path $layouts "Before Control-Plaine $stamp"
     New-Item -ItemType Directory -Path $backup | Out-Null
-    Copy-Item (Join-Path $env:APPDATA 'Rainmeter\Rainmeter.ini') $backup
+    Copy-Item $currentIni $backup
     Write-Host "Saved current desktop as layout '$(Split-Path -Leaf $backup)'"
 }
 $dest = Join-Path $layouts 'Control-Plaine'
+if (Test-Path (Join-Path $dest 'Rainmeter.ini')) {
+    $old = Join-Path $layouts "Control-Plaine before update $stamp"
+    New-Item -ItemType Directory -Path $old | Out-Null
+    Copy-Item (Join-Path $dest 'Rainmeter.ini') $old
+    Write-Host "Kept your Control-Plaine layout as '$(Split-Path -Leaf $old)'"
+}
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 Copy-Item (Join-Path $repo 'Layouts\Control-Plaine\Rainmeter.ini') $dest -Force
 
