@@ -33,6 +33,13 @@ local function scale()
 	return num('Scale')
 end
 
+-- PowerHasSchedule is 0 when Windows' task scheduler is not available
+-- (Needs.lua): SCHEDULE is then left out. A schedule already pending can
+-- still be cancelled.
+local function canSchedule()
+	return num('PowerHasSchedule') ~= 0
+end
+
 local function slotOf(key)
 	for i, k in pairs(slots) do
 		if k == key then return i end
@@ -88,6 +95,7 @@ end
 -- Ink, Accent and Warn are read on every paint (Update runs it each second),
 -- so a light/dark change shows without a refresh.
 local function paint()
+	if picking and not canSchedule() then picking = nil end
 	local ink, accent, warn = var('Ink'), var('Accent'), var('Warn')
 	local rest, lit = num('AlphaDetail'), num('AlphaHover')
 
@@ -173,7 +181,7 @@ local function paint()
 		linkKey = focus
 		linkKeep = 1
 		SKIN:Bang('!SetOption', 'Link', 'Text', 'CANCEL')
-	elseif focus then
+	elseif focus and canSchedule() then
 		linkKey = focus
 		SKIN:Bang('!SetOption', 'Link', 'Text', 'SCHEDULE')
 	else
@@ -405,6 +413,8 @@ function LinkClick()
 	if not key then return end
 	if key == sched.action then
 		queueCancel('COULD NOT CANCEL')
+	elseif not canSchedule() then
+		return
 	else
 		picking = key
 		pickMinutes = math.max(PICK_MIN, math.min(PICK_MAX, num('PowerPickerStart')))
@@ -428,7 +438,7 @@ end
 
 function SetSchedule()
 	local key = picking
-	if not key then return end
+	if not key or not canSchedule() then return end
 	picking = nil
 	local seconds = pickMinutes * 60
 	-- One schedule at a time: undo the old one first.

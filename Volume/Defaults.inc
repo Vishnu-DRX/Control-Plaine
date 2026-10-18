@@ -23,3 +23,10 @@ VolumeScrollUnmutes=1
 VolumeRingStroke=5
 ; What the speaker icon opens: ms-settings:apps-volume (Windows mixer) or sndvol.exe (classic).
 VolumeMixer=ms-settings:apps-volume
+
+; ---- Runtime, not settings ----
+; Set by the needs check (Needs.lua). VolumeHasMixer: 1 while the mixer target
+; can be opened, 0 turns the speaker click off (no tooltip, no click).
+; VolumeNeedBlocked: 1 hides the skin (the audio plugin is missing).
+VolumeHasMixer=1
+VolumeNeedBlocked=0

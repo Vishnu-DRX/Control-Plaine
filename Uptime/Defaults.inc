@@ -19,3 +19,8 @@ UptimeAlign=left
 ; reminder past UptimeWarnDays shows itself either way). DetailsAll in
 ; Settings can override it.
 UptimeDetails=hover
+
+; ---- Runtime, not settings ----
+; 1 while the click target can be opened. Set by the needs check (Needs.lua);
+; 0 turns the click off (no tooltip, no click).
+UptimeHasClick=1

@@ -37,3 +37,7 @@ Nothing to install.
 ## Known limits
 
 Another language: set `DayRef` in the skin to its widest day name, so the fixed edge fits.
+
+## When something is missing
+
+The click that opens the calendar needs a target. If `DayDateClick` points at something that cannot be opened, the click is turned off: no tooltip, no click, and the day and date look the same. Set a valid target in Settings and it comes back within about a minute, no refresh needed.

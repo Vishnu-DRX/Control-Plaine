@@ -1,6 +1,7 @@
 -- Control-Plaine | RecycleBin
 -- Shows the bin size ("3.2 GB", orange above RecycleBinWarnGB), swaps the
--- full/empty icon and shows or hides the EMPTY link beside the size. Runs on every update (no IfConditions: they only fire on
+-- full/empty icon and shows or hides the EMPTY link beside the size (it stays
+-- hidden while RecycleBinHasEmpty is 0, see Needs.lua). Runs on every update (no IfConditions: they only fire on
 -- a change, which is how older skins went stale).
 
 local mCount, mSize
@@ -44,14 +45,15 @@ function Update()
 	-- run and a change of either counts as a new state.
 	local ink = SKIN:GetVariable('Ink')
 	local sizeInk = SKIN:GetVariable(warn and 'Warn' or 'Ink')
-	local state = text .. '|' .. sizeInk .. '|' .. ink
+	local canEmpty = on('RecycleBinHasEmpty')
+	local state = text .. '|' .. sizeInk .. '|' .. ink .. '|' .. tostring(canEmpty)
 	if state ~= last then
 		SKIN:Bang('!SetOption', 'Detail', 'Text', text)
 		SKIN:Bang('!SetVariable', 'SizeInk', sizeInk)
 		if ink ~= lastInk then SKIN:Bang('!SetVariable', 'EmptyInk', ink) end
 		lastInk = ink
 		SKIN:Bang('!SetOption', 'Icon', 'ImageName', '#@#Icons\\' .. icon)
-		SKIN:Bang(n > 0 and '!ShowMeter' or '!HideMeter', 'LinkEmpty')
+		SKIN:Bang((n > 0 and canEmpty) and '!ShowMeter' or '!HideMeter', 'LinkEmpty')
 		SKIN:Bang('!UpdateMeter', '*')
 		SKIN:Bang('!Redraw')
 		last = state
@@ -61,6 +63,7 @@ end
 
 -- EMPTY link. EmptyBin shows Windows' confirm dialog; EmptyBinSilent does not.
 function Empty()
+	if not on('RecycleBinHasEmpty') then return end
 	-- The link may hide under the mouse, so no leave event: reset its colour.
 	SKIN:Bang('!SetVariable', 'EmptyInk', SKIN:GetVariable('Ink'))
 	SKIN:Bang('!CommandMeasure', 'mCount',

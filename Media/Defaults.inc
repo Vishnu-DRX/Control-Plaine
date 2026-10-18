@@ -23,3 +23,8 @@ MediaScrollTitles=1
 ; Plugin that reads the player, set together with MediaSource:
 ; MediaPlayer (MediaPlayer.dll, any player) or WebNowPlaying (WebNowPlaying Redux).
 MediaPlugin=MediaPlayer
+
+; ---- Runtime, not settings ----
+; Set by the needs check (Needs.lua): 1 hides the skin because the plugin it
+; reads the player with is missing.
+MediaNeedBlocked=0
