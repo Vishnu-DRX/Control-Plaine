@@ -33,12 +33,17 @@ local function active()
 	return api or effectMode
 end
 
-local function show()
-	setVar('ApiMode', active() and 1 or 0)
-	-- Accent while the lights are on; in free mode only while the move effect runs.
+-- Accent while the lights are on; in free mode only while the move effect runs.
+-- Re-read on every Update: Ink and Accent change with the light/dark mode.
+local function tint()
 	local lit = active() and enabled and bright > 0
 	if effectMode and not api then lit = lit and mode == 'move' end
 	setVar('IconTint', lit and SKIN:GetVariable('Accent') or SKIN:GetVariable('Ink'))
+end
+
+local function show()
+	setVar('ApiMode', active() and 1 or 0)
+	tint()
 	local name = SKIN:GetVariable('SignalRGBLabel', 'Case lights')
 	if not active() then
 		setVar('BrightText', 'SignalRGB')
@@ -70,8 +75,8 @@ function Initialize()
 end
 
 function Update()
-	-- The accent can change while running (Core.inc follows Windows).
-	if active() then show() end
+	-- The accent and the light/dark mode can change while running (Core.lua).
+	if active() then show() else tint() end
 	return active() and (enabled and bright or 0) or -1
 end
 

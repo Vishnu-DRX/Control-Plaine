@@ -9,6 +9,9 @@ SignalRGBAlign=left
 ; hover shows the text only while hovered, always keeps it visible.
 ; DetailsAll in Settings can override it.
 SignalRGBDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+SignalRGBTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 SignalRGBTooltips=1
 ; What clicking the icon opens. auto = the SignalRGB launcher, found through

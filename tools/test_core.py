@@ -5,6 +5,8 @@ Needs lupa (pip install lupa), which embeds Lua.
 1. Scripts\\Core.lua, run against a fake SKIN, resolves Side Mir TA TAT Lead
    Trail RevealMin Reveal HoverTint for every AlignAll/SkinSide/DetailsAll/
    SkinDetails/HoverAccent combination, and falls back safely on bad values.
+   It also resolves Mode, Ink, InkContrast, Warn, Accent and the effective
+   brightness for every Theme/SkinTheme/ThemeLock/Windows-theme combination.
 2. The SignalRGB meters' X formulas, read from SignalRGB.ini, are evaluated
    for both sides at scale 100, 125 and 150% and checked: same box, whole
    pixels where they are right-anchored, the right layout the mirror image of
@@ -26,11 +28,26 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # ---------- 1. Core.lua ----------
 
+class FakeMeasure:
+    def __init__(self, value):
+        self.value = value
+
+    def GetValue(self):
+        return self.value
+
+    def GetStringValue(self):
+        return str(self.value)
+
+
 class FakeSkin:
     """Just enough of Rainmeter's SKIN for Core.lua."""
 
-    def __init__(self, variables):
+    def __init__(self, variables, measures=None):
         self.vars = dict(variables)
+        self.measures = measures or {}
+
+    def GetMeasure(self, name):
+        return self.measures[name]
 
     def GetVariable(self, name, default=None):
         return self.vars.get(name, default)
@@ -44,9 +61,9 @@ class FakeSkin:
             self.vars[args[0]] = str(args[1])
 
 
-def run_core(variables):
+def run_core(variables, measures=None):
     lua = LuaRuntime(unpack_returned_tuples=True)
-    skin = FakeSkin(variables)
+    skin = FakeSkin(variables, measures)
     lua.globals().SKIN = skin
     lua.execute((ROOT / '@Resources' / 'Scripts' / 'Core.lua').read_text())
     lua.globals().Initialize()
@@ -63,7 +80,7 @@ check.failed = 0
 
 
 def test_core():
-    base = {'Accent': '0,158,155', 'Ink': '255,255,255'}
+    base = {'AccentColor': '0,158,155', 'Ink': '255,255,255'}
     for all_, skin, dall, sdet, hover in itertools.product(
             ['skin', 'left', 'right', 'garbage', ''], ['left', 'right', 'Right ', 'oops'],
             ['skin', 'hover', 'always', 'x'], ['hover', 'always', 'oops'], ['1', '0', '']):
@@ -86,13 +103,94 @@ def test_core():
           'defaults when nothing is set')
     # The accent follows Windows while running: HoverTint tracks it on Update.
     lua, s = run_core({**base})
-    s.vars['Accent'] = '10,20,30'
+    s.vars['AccentColor'] = '10,20,30'
     lua.globals().Update()
     check(s.vars['HoverTint'] == '10,20,30', 'HoverTint follows Accent on Update')
     # Update must not undo a hover fade in progress.
     s.vars['Reveal'] = '0.5'
     lua.globals().Update()
     check(s.vars['Reveal'] == '0.5', 'Update leaves Reveal alone')
+
+
+THEME_BASE = {'Ink': '255,255,255', 'InkContrast': '0,0,0', 'Warn': '255,170,60', 'InkLight': '0,0,0',
+              'InkContrastLight': '255,255,255', 'WarnLight': '214,110,0', 'AccentColor': '0,200,100',
+              'AccentFollowWindows': '1', 'AccentLight': '1', 'AccentLightK': '0.7',
+              'RestBrightness': '60', 'HoverBrightness': '98', 'LightBoost': '10'}
+
+
+def theme(variables, win=0, accent='0,0,0'):
+    # win is the Windows light-theme value, accent the mAccent text.
+    measures = {'mWinTheme': FakeMeasure(win), 'mAccent': FakeMeasure(accent)}
+    return run_core({**THEME_BASE, **variables}, measures)
+
+
+def test_theme():
+    # Mode: lock beats everything, a skin beats the global, auto follows Windows.
+    for lock, skin, glob, win in itertools.product(['0', '1'], ['auto', 'dark', 'light', 'x'],
+                                                   ['auto', 'dark', 'light', 'x'], [0, 1]):
+        _, s = theme({'ThemeLock': lock, 'SkinTheme': skin, 'Theme': glob}, win=win)
+        if lock == '1':
+            want = 'dark'
+        elif skin in ('dark', 'light'):
+            want = skin
+        elif glob in ('dark', 'light'):
+            want = glob
+        elif glob == 'auto':
+            want = 'light' if win else 'dark'
+        else:
+            want = 'dark'
+        tag = f'lock={lock} skin={skin} Theme={glob} win={win}'
+        v = s.vars
+        check(v['Mode'] == want, f'Mode {v["Mode"]} != {want} for {tag}')
+        check(v['Ink'] == ('0,0,0' if want == 'light' else '255,255,255'), f'Ink for {tag}')
+        check(v['InkContrast'] == ('255,255,255' if want == 'light' else '0,0,0'), f'InkContrast for {tag}')
+        check(v['Warn'] == ('214,110,0' if want == 'light' else '255,170,60'), f'Warn for {tag}')
+        check(v['Accent'] == ('0,140,70' if want == 'light' else '0,200,100'), f'Accent for {tag}: {v["Accent"]}')
+    # The Settings window names its page in Tab and is always dark.
+    _, s = theme({'Tab': 'SignalRGB', 'Theme': 'light'})
+    check(s.vars['Mode'] == 'dark' and s.vars['Ink'] == '255,255,255', 'a Tab page is locked dark')
+    # Defaults change nothing: dark, today's brightness, today's hover alpha.
+    _, s = theme({'Theme': 'dark'})
+    check(s.vars['RestEff'] == '60' and s.vars['HoverEff'] == '98', 'dark brightness is untouched')
+    check(round(float(s.vars['HoverEff']) * 2.55) == 250, 'AlphaHover stays 250')
+    # Light adds the boost to rest, hover is never below rest, both cap at 100.
+    _, s = theme({'Theme': 'light'})
+    check(s.vars['RestEff'] == '70' and s.vars['HoverEff'] == '98', 'light boost on rest')
+    _, s = theme({'Theme': 'light', 'LightBoost': '0'})
+    check(s.vars['RestEff'] == '60', 'LightBoost=0 restores the unboosted level')
+    _, s = theme({'Theme': 'light', 'RestBrightness': '90', 'LightBoost': '30', 'HoverBrightness': '80'})
+    check(s.vars['RestEff'] == '100' and s.vars['HoverEff'] == '100', 'rest and hover cap at 100, hover >= rest')
+    _, s = theme({'Theme': 'light', 'AccentLight': '0'})
+    check(s.vars['Accent'] == '0,200,100', 'AccentLight=0 keeps the accent')
+    # Garbage numbers fall back instead of erroring.
+    _, s = theme({'Theme': 'light', 'RestBrightness': 'abc', 'LightBoost': 'x', 'AccentLightK': 'y'})
+    check(s.vars['RestEff'] == '60' and s.vars['Accent'] == '0,200,100', 'bad numbers fall back')
+    # Accent: Windows' value wins while following, 0,0,0 means not read.
+    _, s = theme({}, accent='1,2,3')
+    check(s.vars['Accent'] == '1,2,3', 'Windows accent')
+    _, s = theme({}, accent='0,0,0')
+    check(s.vars['Accent'] == '0,200,100', 'unreadable Windows accent keeps AccentColor')
+    _, s = theme({'AccentFollowWindows': '0'}, accent='1,2,3')
+    check(s.vars['Accent'] == '0,200,100', 'AccentFollowWindows=0 uses AccentColor')
+    # HoverTint is the (darkened) accent, or the ink when HoverAccent=0.
+    _, s = theme({'Theme': 'light'})
+    check(s.vars['HoverTint'] == '0,140,70', 'HoverTint is the darkened accent in light mode')
+    _, s = theme({'Theme': 'light', 'HoverAccent': '0'})
+    check(s.vars['HoverTint'] == '0,0,0', 'HoverTint is the ink with HoverAccent=0')
+    # A Windows switch shows within an Update, with no refresh.
+    lua, s = theme({'Theme': 'auto'}, win=0)
+    check(s.vars['Mode'] == 'dark', 'auto starts dark')
+    s.measures['mWinTheme'].value = 1
+    lua.globals().Update()
+    check(s.vars['Mode'] == 'light' and s.vars['Ink'] == '0,0,0' and s.vars['RestEff'] == '70',
+          'Windows switch to light is picked up')
+    s.measures['mWinTheme'].value = 0
+    lua.globals().Update()
+    check(s.vars['Mode'] == 'dark' and s.vars['Ink'] == '255,255,255' and s.vars['RestEff'] == '60',
+          'and back')
+    # L11: the registry measure missing altogether falls back to dark.
+    lua, s = run_core({**THEME_BASE, 'Theme': 'auto'}, {})
+    check(s.vars['Mode'] == 'dark', 'auto with no registry measure is dark')
 
 
 # ---------- 2. SignalRGB layout formulas ----------
@@ -176,6 +274,7 @@ def test_signalrgb():
 
 def main():
     test_core()
+    test_theme()
     rows = test_signalrgb()
     print('| scale | side | box W | hit W | icon X | text anchor X | arrow X |')
     print('| --- | --- | --- | --- | --- | --- | --- |')
