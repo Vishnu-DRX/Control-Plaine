@@ -12,7 +12,7 @@ powershell -ExecutionPolicy Bypass -File tools\install.ps1
 
 1. Links the repo into `Documents\Rainmeter\Skins\Control-Plaine` (a junction, so `git pull` updates the live skins).
 2. Creates `@Resources\User.inc` and `@Resources\State.inc` (both git-ignored).
-3. Installs the IsFullScreen plugin, downloads `MediaPlayer.dll` into `%APPDATA%\Rainmeter\Plugins`, and installs the Ookla Speedtest CLI with winget if it is missing.
+3. Installs the IsFullScreen plugin, downloads `MediaPlayer.dll` into `%APPDATA%\Rainmeter\Plugins`, and, only if you run the installer with `-WithSpeedtest`, installs the Ookla Speedtest CLI with winget. It stops if `Skins\Control-Plaine` already exists and is not a link to this repo. Every run saves your current desktop as a layout named `Before Control-Plaine <date time>` and keeps your own `Control-Plaine` layout as `Control-Plaine before update <date time>` before replacing it.
 4. Saves your current desktop as a backup layout, installs the Control-Plaine layout and loads it.
 
 After a plugin is installed, exit and restart Rainmeter once.

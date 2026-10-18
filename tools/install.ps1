@@ -2,6 +2,10 @@
 # Run from the repo folder: powershell -ExecutionPolicy Bypass -File tools\install.ps1
 # Links the repo into the Rainmeter Skins folder, creates User.inc, installs the layout and loads it.
 
+param(
+    # Also install the Ookla Speedtest CLI (winget) for the Wi-Fi skin's SPEED TEST link.
+    [switch]$WithSpeedtest
+)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $skins = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Rainmeter\Skins'
@@ -12,7 +16,12 @@ $rainmeter = Join-Path $env:ProgramFiles 'Rainmeter\Rainmeter.exe'
 # 1. Put the suite in the Skins folder (a junction, so git pull updates it in place).
 if ((Resolve-Path $repo).Path -ne $target) {
     if (Test-Path $target) {
-        Write-Host "Skins\Control-Plaine already exists, leaving it as is."
+        $item = Get-Item $target -Force
+        $linked = $item.LinkType -eq 'Junction' -and (Resolve-Path ($item.Target | Select-Object -First 1)).Path -eq (Resolve-Path $repo).Path
+        if (-not $linked) {
+            throw "$target already exists and is not a link to this repo ($repo). Rename or delete it, then run this again."
+        }
+        Write-Host "Skins\Control-Plaine is already linked to this repo."
     } else {
         New-Item -ItemType Junction -Path $target -Target $repo | Out-Null
         Write-Host "Linked $target -> $repo"
@@ -54,7 +63,7 @@ $mediaDll = Join-Path $plugins 'MediaPlayer.dll'
 # (Rainmeter then logs "Unable to load ... error 193"). Replace anything that
 # is not a real DLL (a DLL starts with "MZ").
 if ((Test-Path $mediaDll) -and
-    (-join [char[]](Get-Content $mediaDll -Encoding Byte -TotalCount 2)) -ne 'MZ') {
+    (-join [char[]]([IO.File]::ReadAllBytes($mediaDll) | Select-Object -First 2)) -ne 'MZ') {
     Remove-Item $mediaDll
     Write-Host "Removed a broken MediaPlayer.dll."
 }
@@ -95,22 +104,32 @@ if (-not (Test-Path $mediaDll)) {
 # 2c. Ookla Speedtest CLI for the Wi-Fi skin's SPEED TEST link.
 if (-not (Get-Command speedtest.exe -ErrorAction SilentlyContinue) -and
     -not (Test-Path (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\speedtest.exe'))) {
-    if (Get-Command winget.exe -ErrorAction SilentlyContinue) {
+    if ($WithSpeedtest -and (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
         winget install --id Ookla.Speedtest.CLI -e --accept-source-agreements --accept-package-agreements
+        if ($LASTEXITCODE -ne 0) { Write-Host "winget could not install the Ookla Speedtest CLI (exit $LASTEXITCODE)." }
     } else {
-        Write-Host "speedtest.exe not found and winget is missing. Install the Ookla Speedtest CLI and set its path in Settings > WI-FI."
+        Write-Host "speedtest.exe not found. For the Wi-Fi SPEED TEST link run this installer with -WithSpeedtest, or install the Ookla Speedtest CLI and set its path in Settings > WI-FI."
     }
 }
 
 # 3. Back up the current desktop as a layout, then install the Control-Plaine layout.
-$stamp = Get-Date -Format 'yyyy-MM-dd'
-$backup = Join-Path $layouts "Before Control-Plaine $stamp"
-if (-not (Test-Path $backup)) {
+#    Every run backs up (the name has the time), and a Control-Plaine layout
+#    the user saved from Rainmeter is kept too, before it is overwritten.
+$stamp = Get-Date -Format 'yyyy-MM-dd HH-mm-ss'
+$currentIni = Join-Path $env:APPDATA 'Rainmeter\Rainmeter.ini'
+if (Test-Path $currentIni) {
+    $backup = Join-Path $layouts "Before Control-Plaine $stamp"
     New-Item -ItemType Directory -Path $backup | Out-Null
-    Copy-Item (Join-Path $env:APPDATA 'Rainmeter\Rainmeter.ini') $backup
+    Copy-Item $currentIni $backup
     Write-Host "Saved current desktop as layout '$(Split-Path -Leaf $backup)'"
 }
 $dest = Join-Path $layouts 'Control-Plaine'
+if (Test-Path (Join-Path $dest 'Rainmeter.ini')) {
+    $old = Join-Path $layouts "Control-Plaine before update $stamp"
+    New-Item -ItemType Directory -Path $old | Out-Null
+    Copy-Item (Join-Path $dest 'Rainmeter.ini') $old
+    Write-Host "Kept your Control-Plaine layout as '$(Split-Path -Leaf $old)'"
+}
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 Copy-Item (Join-Path $repo 'Layouts\Control-Plaine\Rainmeter.ini') $dest -Force
 
