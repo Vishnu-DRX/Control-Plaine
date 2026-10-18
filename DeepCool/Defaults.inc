@@ -3,6 +3,8 @@
 ; Owned by the DeepCool skin; add keys here with the DeepCool prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+DeepCoolTooltips=1
 ; DeepCool program that drives the case screen.
 DeepCoolPath=C:\DeepCool\DeepCool.exe
 ; Process name used to tell if the app is running.

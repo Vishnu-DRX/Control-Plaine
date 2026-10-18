@@ -108,9 +108,11 @@ local function setHold(v)
 	SKIN:Bang('!Redraw')
 end
 
--- Look for speedtest.exe again (it may have been installed since the last test).
+-- Look for speedtest.exe again (it may have been installed since the last test)
+-- and name the speed test button's click to match.
 local function findAgain()
 	exe = findExe()
+	SKIN:Bang('!SetOption', 'Gauge', 'ToolTipText', exe and 'Run speed test' or 'Install Speedtest')
 end
 
 -- ---------- lifecycle ----------
@@ -126,7 +128,9 @@ function Initialize()
 	if click == '' or click:lower() == 'settings' then click = 'ms-settings:network-wifi' end
 	SKIN:Bang('!SetVariable', 'OpenTarget', click)
 	if click == 'ms-settings:network-wifi' then
-		SKIN:Bang('!SetOption', 'Icon', 'ToolTipText', 'Wi-Fi settings')
+		for _, meter in ipairs({ 'Hit', 'Icon', 'Name' }) do
+			SKIN:Bang('!SetOption', meter, 'ToolTipText', 'Open Wi-Fi settings')
+		end
 	end
 
 	findAgain()

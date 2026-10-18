@@ -3,6 +3,8 @@
 ; Owned by the Media skin; add keys here with the Media prefix.
 
 [Variables]
+; 1 shows this skin's tooltips, 0 hides them all.
+MediaTooltips=1
 ; The skin disappears when no app is playing.
 MediaHideIdle=1
 ; Which players it follows: any (Windows media session) or wnp (WebNowPlaying Redux).
