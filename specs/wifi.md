@@ -89,7 +89,7 @@ WiFiNameRest=50
 | SPEEDTEST / Path to Ookla speedtest.exe | Path box | `EditPath('WiFiSpeedtestPath','WiFi')` |
 | NAME AT REST / How bright the network name is when you are not hovering | Value box 30-90, step 5, `%` | `Step('WiFiNameRest',5,30,90,'WiFi')` |
 
-Install: speedtest.exe is **not installed** on Vishnu's PC (probe 2026-10-10). `tools/install.ps1` (integration owns it) should run `winget install --id Ookla.Speedtest.CLI -e --accept-source-agreements --accept-package-agreements` when `speedtest.exe` isn't found, which puts a link at the default path above. If winget is missing it skips with a message; the skin then shows `INSTALL SPEEDTEST` (section 7). `--accept-license --accept-gdpr` covers the CLI's own first-run prompt.
+Install: speedtest.exe is **not installed** on the test PC (probe 2026-10-10). `tools/install.ps1` (integration owns it) should run `winget install --id Ookla.Speedtest.CLI -e --accept-source-agreements --accept-package-agreements` when `speedtest.exe` isn't found, which puts a link at the default path above. If winget is missing it skips with a message; the skin then shows `INSTALL SPEEDTEST` (section 7). `--accept-license --accept-gdpr` covers the CLI's own first-run prompt.
 
 ## 5. Layout
 
@@ -170,7 +170,7 @@ Airplane mode is checked after a live connection on purpose: with airplane on an
 
 Lua only sends `!SetOption` and `!Redraw` when the state or arc count changes.
 
-SSID blank while connected over Wi-Fi (Location off): name shows `WI-FI`, arcs from quality, or 3 arcs if quality is also 0. Optional fallback if Vishnu won't turn Location on: a RunCommand every 30 s running `powershell -NoProfile -Command "(Get-NetConnectionProfile -InterfaceAlias '<alias>').Name"`; the profile name is usually the SSID and doesn't need Location. Not built unless needed.
+SSID blank while connected over Wi-Fi (Location off): name shows `WI-FI`, arcs from quality, or 3 arcs if quality is also 0. Optional fallback if a user will not turn Location on: a RunCommand every 30 s running `powershell -NoProfile -Command "(Get-NetConnectionProfile -InterfaceAlias '<alias>').Name"`; the profile name is usually the SSID and doesn't need Location. Not built unless needed.
 
 ## 7. Speed test
 
@@ -222,7 +222,7 @@ local ping = s:match('"ping":{[^}]-"latency":([%d%.]+)')
 - `Link` has its own action, so clicking `SPEED TEST` doesn't open settings.
 - Right-click: the template's "Control-Plaine settings" opens `Settings\WiFi.ini`. Add `ContextTitle2=Run speed test` / `ContextAction2=[!CommandMeasure mWiFi "Start()"]`.
 
-## 9. Check on Vishnu's PC
+## 9. Checks on the test PC
 
 Probe results (2026-10-10, `Control-Plaine-probes.md`): Windows 11 25H2 build 26200, Rainmeter 4.5.26.
 
@@ -230,9 +230,9 @@ Probe results (2026-10-10, `Control-Plaine-probes.md`): Windows 11 25H2 build 26
 |---|---|---|
 | 1 | Location for desktop apps (needed by WiFiStatus on 24H2+) | Done: on |
 | 2 | `WiFiIntfID=0` | Done: one WLAN adapter (Realtek 8852CE), 0 is right. Confirm the skin shows `Airtel_Puzzles` once built. |
-| 3 | `SystemRadioState` (Default) | Half done: reads 0 with airplane off. **Vishnu:** turn airplane mode on once and confirm it reads 1. If not, fall back to a PowerShell radio check. |
-| 4 | Ethernet vs Wi-Fi | Done: Ethernet disconnected, no Hyper-V/VPN adapters, only a disconnected Bluetooth PAN, so `Best` picks Wi-Fi. Ethernet state can't be seen live until he plugs in. |
-| 5 | No-internet badge timing | **Vishnu:** with the router WAN down, the skin shows NO INTERNET when the taskbar does. |
+| 3 | `SystemRadioState` (Default) | Half done: reads 0 with airplane off. **Tester:** turn airplane mode on once and confirm it reads 1. If not, fall back to a PowerShell radio check. |
+| 4 | Ethernet vs Wi-Fi | Done: Ethernet disconnected, no Hyper-V/VPN adapters, only a disconnected Bluetooth PAN, so `Best` picks Wi-Fi. Ethernet state can't be seen live until a cable is plugged in. |
+| 5 | No-internet badge timing | **Tester:** with the router WAN down, the skin shows NO INTERNET when the taskbar does. |
 | 6 | speedtest.exe | Not installed. After install, run once by hand: `speedtest.exe --format=json --progress=yes --accept-license --accept-gdpr > t.jsonl` and confirm (a) download/upload lines with `bandwidth` appear during the run, (b) `bandwidth` x 8 / 1e6 matches the human-readable Mbps, (c) the `result` field names match section 7. The build thread can do this through Remote Control. |
 | 7 | No console flash when a test starts | After install |
 | 8 | Rainmeter specifics the build relies on | `#*Var*#` escapes in `!SetOption` (Lua keeps colour options live), `SKIN:Bang('["url"]')` opening the Ookla page when the exe is missing, and `call "..." > "..."` through RunCommand's default `cmd /U /C`. |
