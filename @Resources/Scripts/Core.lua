@@ -92,12 +92,15 @@ end
 local cache = {}
 
 -- Sets a variable only when its value changed, so the 5 second Update is cheap.
+-- True when it changed.
 local function set(name, value)
 	value = tostring(value)
 	if cache[name] ~= value then
 		cache[name] = value
 		SKIN:Bang('!SetVariable', name, value)
+		return true
 	end
+	return false
 end
 
 local inkDark, inkContrastDark, warnDark
@@ -149,8 +152,51 @@ local function resolveTheme()
 	set('HoverTint', norm(get('HoverAccent', '1')) == '0' and ink or accent)
 end
 
+-- ---------- Needs ----------
+-- Each skin checks its own needs (Setup\NeedsList.lua, Scripts\Needs.lua) and
+-- sets <Skin>Has<Feature>, <Skin>NeedState and <Skin>NeedBlocked on itself, so
+-- the gating in the skin works with the Settings window closed. This is the
+-- one place that does it: skin scripts and measures only read the flags.
+-- File-exists and registry reads only. Any failure (no list, no entry, an
+-- error) leaves the defaults, which mean "present".
+
+local NEED_EVERY = 60
+local needs, needList, needName
+local needAt = 0
+
+local function loadNeeds()
+	needs, needList, needName = nil, nil, nil
+	local config = tostring(SKIN:GetVariable('CURRENTCONFIG', ''))
+	local name = config:match('([^\\/]+)$')
+	if not name or name == '' then return end
+	local at = SKIN:ReplaceVariables('#@#')
+	local okLib, lib = pcall(dofile, at .. 'Scripts\\Needs.lua')
+	local okList, list = pcall(dofile, at .. 'Setup\\NeedsList.lua')
+	if okLib and okList and type(lib) == 'table' and type(list) == 'table'
+		and type(list[name]) == 'table' then
+		needs, needList, needName = lib, list, name
+	end
+end
+
+-- True when any needs variable changed.
+local function resolveNeeds()
+	needAt = os.time()
+	if not needs then return false end
+	local ok, changed = pcall(function()
+		local res = needs.evaluate(needName, needList[needName], needs.rainmeterEnv(SKIN))
+		local any = false
+		needs.apply(res, function(name, value)
+			if set(name, value) then any = true end
+		end)
+		return any
+	end)
+	return ok and changed
+end
+
 function Initialize()
 	cache = {}
+	loadNeeds()
+	resolveNeeds()
 	inkDark = get('Ink', '255,255,255')
 	inkContrastDark = get('InkContrast', '0,0,0')
 	warnDark = get('Warn', '255,170,60')
@@ -169,5 +215,10 @@ end
 
 function Update()
 	resolveTheme()
+	if needs and os.time() - needAt >= NEED_EVERY and resolveNeeds() then
+		-- A gate flipped (an item was installed or removed): redraw once.
+		SKIN:Bang('!UpdateMeter', '*')
+		SKIN:Bang('!Redraw')
+	end
 	return 0
 end

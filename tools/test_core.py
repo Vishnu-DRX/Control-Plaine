@@ -53,7 +53,7 @@ class FakeSkin:
         return self.vars.get(name, default)
 
     def ReplaceVariables(self, text):
-        return re.sub(r'#(\w+)#', lambda m: self.ReplaceVariables(self.vars.get(m.group(1), m.group(0))), text)
+        return re.sub(r'#(\w+|@)#', lambda m: self.ReplaceVariables(self.vars.get(m.group(1), m.group(0))), text)
 
     def Bang(self, bang, *args):
         # Rainmeter keeps variables as text.
@@ -272,9 +272,62 @@ def test_signalrgb():
     return rows
 
 
+def test_needs_wiring():
+    """Core.lua evaluates the skin's own needs and sets the flags on itself."""
+    import tempfile
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    # The scripts use Windows separators, so the files get those literal names.
+    (tmp / 'Scripts\\Needs.lua').write_text((ROOT / '@Resources' / 'Scripts' / 'Needs.lua').read_text())
+    opt, man = tmp / 'optional.txt', tmp / 'mandatory.txt'
+    (tmp / 'Setup\\NeedsList.lua').write_text(
+        "return { Demo = {\n"
+        " { id='o', label='O', level='optional', feature='Click', check={file=[[" + str(opt) + "]]}, why='x' },\n"
+        " { id='m', label='M', level='mandatory', check={file=[[" + str(man) + "]]}, why='y' } } }\n")
+    base = {'CURRENTCONFIG': 'Control-Plaine\\Demo', '@': str(tmp) + '/'}
+    run = lambda v=base: run_core(dict(v))
+
+    lua, skin = run()
+    check(skin.vars.get('DemoHasClick') == '0', 'optional missing: Has=0')
+    check(skin.vars.get('DemoNeedBlocked') == '1' and skin.vars.get('DemoNeedState') == 'BLOCKED',
+          'mandatory missing: NeedBlocked=1')
+    man.write_text('x')
+    lua, skin = run()
+    check(skin.vars.get('DemoNeedBlocked') == '0' and skin.vars.get('DemoNeedState') == 'DEGRADED',
+          'mandatory present, optional missing: DEGRADED, not blocked')
+    opt.write_text('x')
+    lua, skin = run()
+    check(skin.vars.get('DemoHasClick') == '1' and skin.vars.get('DemoNeedState') == 'OK',
+          'optional present: Has=1, OK')
+
+    # Flips live: item removed, then the minute poll sees it and bangs a redraw.
+    bangs = []
+    orig = skin.Bang
+    skin.Bang = lambda _s, b, *a: (bangs.append(b), orig(b, *a))[1]
+    opt.unlink()
+    lua.execute('local t = os.time() + 61; os.time = function() return t end')
+    lua.globals().Update()
+    check(skin.vars.get('DemoHasClick') == '0' and '!Redraw' in bangs, 'poll: flag flips and redraws')
+    bangs.clear()
+    lua.globals().Update()
+    check(skin.vars.get('DemoHasClick') == '0' and '!Redraw' not in bangs, 'no change: no redraw')
+
+    # No entry for this skin, no lists, unreadable lists: no error, no flags.
+    for cfg in ('Control-Plaine\\Other', ''):
+        lua, skin = run(dict(base, CURRENTCONFIG=cfg))
+        check(not any(k.startswith('Demo') for k in skin.vars), 'no entry: nothing set (' + cfg + ')')
+        lua.globals().Update()
+    lua, skin = run(dict(base, **{'@': str(tmp / 'missing') + '/'}))
+    lua.globals().Update()
+    check('DemoHasClick' not in skin.vars and skin.vars.get('Side') == 'left', 'lists fail to load: no error')
+    (tmp / 'Setup\\NeedsList.lua').write_text('this is not lua')
+    lua, skin = run()
+    check('DemoNeedBlocked' not in skin.vars and skin.vars.get('Side') == 'left', 'broken list: no error')
+
+
 def main():
     test_core()
     test_theme()
+    test_needs_wiring()
     rows = test_signalrgb()
     print('| scale | side | box W | hit W | icon X | text anchor X | arrow X |')
     print('| --- | --- | --- | --- | --- | --- | --- |')
