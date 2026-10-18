@@ -5,6 +5,9 @@ Run: python tools/lint.py
 v2 skins (they include Core.inc) must follow specs/foundation-settings.md:
 include order, group, right-click settings entry, no !Show/!Hide of their own.
 v1 skins (Fade.inc) are checked by the old rules until they are rebuilt.
+A skin that sets SkinSide (it arranges itself left or right) is also held to
+specs/alignment.md: the <Skin>Align and <Skin>Details keys with their
+defaults, the Settings page rows, and no hand-rolled mirroring.
 """
 import pathlib
 import re
@@ -41,6 +44,37 @@ for f in [ROOT / '@Resources' / 'Defaults.inc', ROOT / '@Resources' / 'Theme.inc
     if f.exists():
         defined |= set(re.findall(r'^(\w+)=', f.read_text('ascii', 'replace'), re.M))
 
+
+
+def check_aligned(rel, text):
+    """Rules A5, A6, A9 for a skin that sets SkinSide."""
+    skin = rel.parts[0]
+    align, details = f'{skin}Align', f'{skin}Details'
+    if not re.search(rf'^SkinSide=#{align}#\s*$', text, re.M):
+        problems.append(f'{rel}: SkinSide must be #{align}#')
+    if not re.search(rf'^SkinDetails=#{details}#\s*$', text, re.M):
+        problems.append(f'{rel}: SkinDetails must be #{details}#')
+    defaults = (ROOT / skin / 'Defaults.inc').read_text('ascii', 'replace')
+    if not re.search(rf'^{align}=left\s*$', defaults, re.M):
+        problems.append(f'{skin}/Defaults.inc: needs {align}=left (every skin defaults to left)')
+    if not re.search(rf'^{details}=hover\s*$', defaults, re.M):
+        problems.append(f'{skin}/Defaults.inc: needs {details}=hover')
+    page = ROOT / 'Settings' / f'{skin}.ini'
+    if page.exists():
+        ptext = page.read_text('ascii', 'replace')
+        if not (re.search(rf'^AlignKey={align}\s*$', ptext, re.M)
+                and re.search(rf'^DetailsKey={details}\s*$', ptext, re.M)
+                and '#@#Settings\\Align.inc' in includes(ptext)):
+            problems.append(f'Settings/{skin}.ini: needs AlignKey={align}, DetailsKey={details} '
+                            f'and @include of #@#Settings\\Align.inc')
+    for m in re.finditer(r'^StringAlign=(.+)$', text, re.M):
+        if not m.group(1).strip().startswith(('#TA#', '#TAT#')):
+            problems.append(f'{rel}: StringAlign must be #TA# or #TAT# (found {m.group(1).strip()}); '
+                            f'use the Core helpers, not a hand-rolled mirror')
+    for m in re.finditer(r'^(Anchor|Mirror|Lead|Trail|TA|TAT|Mir|Side)\w*=', text, re.M):
+        problems.append(f'{rel}: {m.group(0)[:-1]} redefines a Core alignment helper; use Side Mir TA TAT Lead Trail')
+
+
 for path in sorted(ROOT.rglob('*')):
     if path.suffix.lower() not in ('.ini', '.inc', '.lua') or '.git' in path.parts:
         continue
@@ -70,6 +104,9 @@ for path in sorted(ROOT.rglob('*')):
     if rel.parts[0] == 'Settings':
         if not in_order(found, SETTINGS_ORDER):
             problems.append(f'{rel}: Settings page must include {", ".join(SETTINGS_ORDER)} in that order')
+        for key in re.findall(r'^(?:Align|Details)Key=(\w+)\s*$', text, re.M):
+            if key not in defined:
+                problems.append(f'{rel}: setting {key} has no default in a Defaults.inc')
         for key in re.findall(KEY_CALLS, text):
             if key not in defined:
                 problems.append(f'{rel}: setting {key} has no default in a Defaults.inc')
@@ -85,6 +122,8 @@ for path in sorted(ROOT.rglob('*')):
             problems.append(f'{rel}: needs the Control-Plaine settings right-click entry')
         if re.search(r'\[!(Show|Hide)\]', text):
             problems.append(f'{rel}: use SelfHidden + mVisible instead of !Show/!Hide')
+        if re.search(r'^SkinSide=', text, re.M):
+            check_aligned(rel, text)
     else:
         for inc in V1_REQUIRED:
             if inc not in found:
