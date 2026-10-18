@@ -4,7 +4,7 @@
 ;   AlignKey=<Skin>Align
 ;   DetailsKey=<Skin>Details
 ; (Tab, set by every page, names the skin to refresh.) The page's own rows
-; start at Y=(128*#PS#): ALIGN is row 1 and DETAILS row 2.
+; start at Y=(180*#PS#): ALIGN (Y=52) and DETAILS (Y=116) are each 64 high.
 
 [AlignLabel]
 Meter=String

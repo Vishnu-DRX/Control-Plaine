@@ -11,10 +11,15 @@ Right-click any Control-Plaine skin and choose **Control-Plaine settings**. One 
 | `AccentColor` | `0,229,255` | Custom accent (R,G,B); also the start value before Windows is read. |
 | `RestBrightness` | `60` | How bright details and icons are when not hovered, 30 to 90 (%). Values sit 20 points above. |
 | `HoverBrightness` | `98` | How bright a hovered skin is, 30 to 100 (%). Never below the rest level. |
+| `Theme` | `dark` | SKINS FOR: `dark` = for dark wallpapers (white skins), `light` = for light wallpapers (black skins), `auto` = follow the Windows light or dark setting (`ThemeFollow` picks which one). A skin's own COLOURS row can override it. |
+| `LightBoost` | `10` | LIGHT MODE BOOST: points added to the rest brightness when a skin is in light mode, 0 to 40. 0 turns it off. |
+| `AccentLight` / `AccentLightK` | `1` / `0.7` | ACCENT DARKENING: on light wallpapers the accent is darkened to this share of its brightness (shown as a percent) so it stays readable. The toggle turns it on or off. |
 | `HideFullScreen` | `0` | Hide every skin while a full-screen app is in front. Follows the foreground window on any monitor, so it can also hide skins on a second screen. |
 | `LockPositions` | `0` | Stop skins from being dragged. |
 
-If `User.inc` holds a setting no skin uses any more, a line at the bottom of General says so and links to the Advanced tab.
+The last five rows of General (SKINS FOR, LIGHT MODE BOOST, ACCENT DARKENING, HIDE IN FULL SCREEN, LOCK POSITIONS) are one line each to fit the window: hover the label for what it does. The Settings window itself always keeps its dark look, whatever you choose.
+
+If `User.inc` holds a setting no skin uses any more, a line at the right of the SKINS heading on General says so and links to the Advanced tab.
 
 ## Advanced
 

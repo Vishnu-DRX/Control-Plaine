@@ -24,7 +24,7 @@ Only the arrangement inside the skin's box changes. The window never moves, resi
    SkinDetails=#<Skin>Details#
    ```
    After `Core.inc` and `Sz=...`, define the fixed box: `BoxW=(Round(<current Hit width>*#Sz#))`.
-3. **Settings page.** Before the page's own rows, set the keys and include the shared rows (they are rows 1 and 2, so the page's own rows start at Y=128):
+3. **Settings page.** Before the page's own rows, set the keys and include the shared rows (ALIGN sits at Y=52 and DETAILS at Y=116, each 64 high, so the page's own rows start at Y=180; a page that runs out of room uses a pitch of 52 or one-line rows, and `tools/lint.py` fails rows that overlap or leave the panel):
    ```
    AlignKey=<Skin>Align
    DetailsKey=<Skin>Details
