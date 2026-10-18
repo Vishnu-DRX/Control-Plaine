@@ -3,6 +3,12 @@
 ; Owned by the SignalRGB skin; add keys here with the SignalRGB prefix.
 
 [Variables]
+; Which screen edge the skin sits on: left puts the icon first, right mirrors
+; it (text first, icon last). AlignAll in Settings can override it.
+SignalRGBAlign=left
+; hover shows the text only while hovered, always keeps it visible.
+; DetailsAll in Settings can override it.
+SignalRGBDetails=hover
 ; 1 shows this skin's tooltips, 0 hides them all.
 SignalRGBTooltips=1
 ; What clicking the icon opens. auto = the SignalRGB launcher, found through
