@@ -35,7 +35,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 ## Requirements
 
-Fan Control by Rem0o (V277 was tested). Fan Control and its sensor feed need admin, so MAX, open and the sensor reader go through scheduled tasks made once by `tools\fan-tasks.ps1` (run it as admin; the reader needs PowerShell 7).
+Fan Control by Rem0o (V277 was tested). Fan Control and its sensor feed need admin, so MAX, open and the sensor reader go through scheduled tasks made once by `tools\fan-tasks.ps1` (run it as admin; the reader needs PowerShell 7). The script keeps the elevated reader in `%ProgramData%\ControlPlaine\FanControl`, a folder only administrators can write, and the reader's output `fans.txt` goes there too. Run it again after updating the repo if `FanControlSensors.ps1` changed. It refuses a Fan Control folder that normal users can write to (for example a portable copy in Downloads); move it to Program Files, or pass `-IgnoreFolderPermissions` to accept the risk.
 
 ## Known limits
 
