@@ -27,6 +27,7 @@ function Format(seconds)
 	return minutes .. ' M'
 end
 
+-- #Ink# and #Warn# are read on every run: they change with the light/dark mode.
 function Update()
 	local seconds = uptime:GetValue()
 	local due = seconds >= num('UptimeWarnDays') * 86400

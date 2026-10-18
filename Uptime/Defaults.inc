@@ -3,6 +3,9 @@
 ; Owned by the Uptime skin; add keys here with the Uptime prefix.
 
 [Variables]
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+UptimeTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 UptimeTooltips=1
 ; Uptime shows itself in orange past this many days.
