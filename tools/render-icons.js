@@ -22,7 +22,25 @@ const BOOST = 1.25;
 const APP = new Set(['airplane', 'arrow-down', 'arrow-up', 'deepcool', 'ethernet', 'fan', 'gauge',
   'globe-disconnected', 'lightbulb', 'move-horizontal', 'rgb', 'snowflake', 'wifi', 'wifi-1', 'wifi-2',
   'wifi-no-internet-badge']);
-const appScale = scale * BOOST;   // the Controllers canvas below is boosted too
+const appScale = scale * BOOST;
+
+// Icons with colour (the Warn orange badge) also get a <name>-light.png for
+// light mode: a tint multiplies, so black ink would turn the badge black. The
+// twin has a black body and the light-mode orange (WarnLight in Theme.inc). The
+// skin draws both untinted. Keep in step with COLOURED in tools/check_icons.py.
+const LIGHT = new Set(['globe-disconnected', 'wifi-no-internet-badge']);
+function lightSvg(svg) {
+  let s = svg.replace(/#fff\b/g, '#000').replace(/#ffaa3c/g, '#d66e00');
+  // The dark disc that hides the globe behind the badge becomes a cut-out.
+  if (s.includes(' fill="#1a1d22"')) {
+    const cut = '<defs><mask id="cut" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">' +
+      '<rect width="24" height="24" fill="#fff" stroke="none"/>' +
+      '<circle cx="19" cy="18" r="5" fill="#000" stroke="none"/></mask></defs><g mask="url(#cut)">';
+    s = s.replace(' fill="#1a1d22"', '').replace('<circle cx="19"', '</g><circle cx="19"')
+      .replace('<circle cx="11"', cut + '<circle cx="11"');
+  }
+  return s;
+}   // the Controllers canvas below is boosted too
 
 // Box size (px at scale 1) per icon; everything else uses IconBox (32).
 const BOX = {
@@ -83,7 +101,12 @@ for (const name of FIT) {
   console.log(name + '.png', fitW + 'x' + fitH);
 }
 
+const jobs = [];
 for (const file of readdirSync(src).filter(f => f.endsWith('.svg')).sort()) {
+  jobs.push({ file, light: false });
+  if (LIGHT.has(basename(file, '.svg'))) jobs.push({ file, light: true });
+}
+for (const { file, light } of jobs) {
   const name = basename(file, '.svg');
   if (FIT.includes(name)) continue;
   // signalrgb.png is the app's own bitmap logo, not rendered from an SVG.
@@ -92,7 +115,7 @@ for (const file of readdirSync(src).filter(f => f.endsWith('.svg')).sort()) {
   // The DeepCool logo sits on a 3-unit grid: 4 px cells keep every block the same size.
   const icon = name === 'deepcool' ? Math.round(box * 0.8) : box * 3 / 4;
   const page = await browser.newPage({ viewport: { width: box, height: box } });
-  const svg = readFileSync(join(src, file), 'utf8')
+  const svg = (light ? lightSvg : (x) => x)(readFileSync(join(src, file), 'utf8'))
     .replace(/<metadata>[\s\S]*?<\/metadata>/, '')
     // Block logos on a pixel grid (deepcool) snap to whole pixels instead of blurring.
     .replace('fill="#fff" stroke="none"', 'fill="#fff" stroke="none" shape-rendering="crispEdges"')
@@ -105,9 +128,9 @@ for (const file of readdirSync(src).filter(f => f.endsWith('.svg')).sort()) {
   await page.setContent(`<html><body style="margin:0;background:transparent">
     <div style="width:${box}px;height:${box}px;display:flex;align-items:center;justify-content:center">
     ${svg}</div></body></html>`);
-  await page.locator('div').screenshot({ path: join(out, name + '.png'), omitBackground: true });
+  await page.locator('div').screenshot({ path: join(out, name + (light ? '-light' : '') + '.png'), omitBackground: true });
   await page.close();
-  console.log(name + '.png', box);
+  console.log(name + (light ? '-light' : '') + '.png', box);
 }
 await browser.close();
 })();

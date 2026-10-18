@@ -186,6 +186,12 @@ for w in warnings:
     else:
         print('warning: ' + w)
 
+# L7: every icon is white with alpha (so ImageTint=#Ink# follows light mode) or
+# is on the allow-list in tools/check_icons.py with a reason and a -light twin.
+sys.path.insert(0, str(ROOT / 'tools'))
+import check_icons
+problems += check_icons.problems()
+
 for p in problems:
     print(p)
 print(f'{len(problems)} problem(s)')
