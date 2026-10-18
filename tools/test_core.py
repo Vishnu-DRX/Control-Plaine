@@ -311,6 +311,28 @@ def test_needs_wiring():
     lua.globals().Update()
     check(skin.vars.get('DemoHasClick') == '0' and '!Redraw' not in bangs, 'no change: no redraw')
 
+    # A Registry measure answers '' until it has updated: the skin must not
+    # start BLOCKED on that, and the real answer arrives within the warm-up.
+    (tmp / 'Setup\\NeedsList.lua').write_text(
+        "return { Demo = { { id='r', label='R', level='mandatory', check={reg='mReg'}, why='z' } } }\n")
+
+    class Reg:
+        value = ''
+        def GetStringValue(self):
+            return self.value
+
+    reg = Reg()
+    lua, skin = run_core(dict(base), {'mReg': reg})
+    check(skin.vars.get('DemoNeedBlocked', '0') == '0', 'registry not ready at load: not blocked yet')
+    lua.globals().Update()
+    lua.globals().Update()
+    lua.globals().Update()
+    check(skin.vars.get('DemoNeedBlocked') == '1', 'registry still empty after warm-up: BLOCKED')
+    reg.value = '"C:\\x\\a.exe" "%1"'
+    lua.execute('local t = os.time() + 130; os.time = function() return t end')
+    lua.globals().Update()
+    check(skin.vars.get('DemoNeedBlocked') == '0', 'registry answers: not blocked')
+
     # No entry for this skin, no lists, unreadable lists: no error, no flags.
     for cfg in ('Control-Plaine\\Other', ''):
         lua, skin = run(dict(base, CURRENTCONFIG=cfg))

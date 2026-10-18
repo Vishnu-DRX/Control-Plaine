@@ -49,7 +49,7 @@ function M.onPath(name, env)
 	local path = env.getenv('PATH') or ''
 	for entry in path:gmatch('[^;]+') do
 		local dir = trim(entry):gsub('^"(.*)"$', '%1')
-		if dir ~= '' then
+		if dir ~= '' and not M.isUnc(dir) then
 			local sep = dir:sub(-1) == '\\' and '' or '\\'
 			if env.exists(dir .. sep .. name) then return true end
 		end
@@ -57,8 +57,17 @@ function M.onPath(name, env)
 	return false
 end
 
+-- A network path (\\server\share) is not probed: io.open on a server that is
+-- off or slow blocks Rainmeter's main thread for many seconds on every check.
+-- Such a path counts as present.
+function M.isUnc(path)
+	return path:sub(1, 2) == '\\\\'
+end
+
 local function exists(path, env)
-	return env.exists(M.expand(path, env))
+	local p = M.expand(path, env)
+	if M.isUnc(p) then return true end
+	return env.exists(p)
 end
 
 local checks = {}
@@ -134,7 +143,9 @@ function checks.beside(c, env)
 	local dir = base:match('^(.*)[\\/][^\\/]*$')
 	local name = trim(env.var(c.var))
 	if not dir or name == '' then return false end
-	return env.exists(dir .. '\\' .. (c.rel or '') .. name)
+	local full = dir .. '\\' .. (c.rel or '') .. name
+	if M.isUnc(full) then return true end
+	return env.exists(full)
 end
 
 function M.check(c, env)
@@ -224,7 +235,7 @@ function M.parseHelpers(text)
 				out.list[#out.list + 1] = cur
 				out.byId[id] = cur
 			elseif cur then
-				local k, v = line:match('^(%w+)=(.*)$')
+				local k, v = line:match('^([%w_]+)=(.*)$')
 				if k == 'verify' then
 					cur.verify[#cur.verify + 1] = v
 				elseif k then

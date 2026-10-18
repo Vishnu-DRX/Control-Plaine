@@ -13,7 +13,10 @@
 ;   optional_for skins that lose a function without it
 ;   program      the program to start
 ;   args         its arguments. {ROOT} is the Control-Plaine folder with a
-;                trailing backslash; nothing else is substituted.
+;                trailing backslash; nothing else is substituted. The path
+;                may hold spaces and apostrophes: put it in double quotes
+;                (a PowerShell single-quoted string would break on an
+;                apostrophe).
 ;   elevated     1 = Windows shows its UAC prompt (the skin does not hide it)
 ;   verify       file:<path> or path:<name>; any one found = installed.
 ;                %ENV% variables are expanded.
@@ -72,7 +75,7 @@ reason=Scheduled tasks so Fan Control starts without a UAC prompt, plus the sens
 required_for=
 optional_for=FanControl
 program=powershell.exe
-args=-NoProfile -Command "Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File','{ROOT}tools\fan-tasks.ps1'"
+args=-NoProfile -Command "Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList \"-NoProfile -ExecutionPolicy Bypass -File `\"{ROOT}tools\fan-tasks.ps1`\"\""
 elevated=1
 verify=file:%SystemRoot%\System32\Tasks\ControlPlaine\FanOpen
 source=tools\fan-tasks.ps1 in this repo (default Fan Control location; for another folder run it by hand with -FanControlPath)

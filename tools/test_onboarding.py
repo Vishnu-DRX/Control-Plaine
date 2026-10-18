@@ -35,6 +35,7 @@ ENV = {
     'APPDATA': 'C:\\AppData\\Roaming',
     'LOCALAPPDATA': 'C:\\AppData\\Local',
     'ProgramFiles': 'C:\\Program Files',
+    'ProgramData': 'C:\\ProgramData',
     'SystemRoot': 'C:\\Windows',
     'PATH': 'C:\\Windows\\System32;"C:\\Tools\\bin";C:\\Windows',
 }
@@ -246,6 +247,34 @@ check(used == set(ids), f'needs and helpers match: {used} vs {set(ids)}')
 install = (ROOT / 'tools' / 'install.ps1').read_text('ascii')
 check('Setup\\Helpers.txt' in install and "installer -ne '1'" in install,
       'install.ps1 reads Helpers.txt and only runs installer=1 entries')
+
+# ---------- review round 5 ----------
+
+# A network path is never probed (a dead server would freeze Rainmeter).
+probed = []
+unc = lua.table_from({
+    'getenv': lambda name: ENV.get(name),
+    'exists': lambda path: probed.append(path) or False,
+    'var': lambda key: {'PlaynitePath': '\\\\nas\\share\\Playnite.exe'}.get(key, DEFAULTS.get(key, '')),
+    'replace': lambda text: text.replace('#@#', AT),
+    'reg': lambda measure: '',
+})
+check(Needs.evaluate('Playnite', LIST['Playnite'], unc).state == 'OK' and not any(p.startswith('\\\\') for p in probed),
+      'a UNC program path counts as present and is not opened')
+
+# Fan Control: the readable copy in ProgramData stands in for unreadable task files.
+copy = 'C:\\ProgramData\\ControlPlaine\\FanControl\\FanControlSensors.ps1'
+r = evaluate('FanControl', files=['C:\\Program Files (x86)\\FanControl\\FanControl.exe', copy])
+check(feature(r, 'Tasks') == 1 and feature(r, 'Sensors') == 1, 'FanControl tasks seen through the ProgramData copy')
+
+# Helpers.txt keys with an underscore are parsed.
+check(H.byId['fan-tasks'].optional_for == 'FanControl' and H.byId['mediaplayer'].required_for == 'Media',
+      'required_for and optional_for are parsed')
+
+# The elevated command quotes the folder for a path with spaces and an apostrophe.
+_, fargs, _ = Needs.helperCommand(H.byId['fan-tasks'], "C:\\Rain meter\\O'Neil Jr\\Skins\\Control-Plaine")
+check("-ArgumentList \\\"" in fargs and "`\\\"C:\\Rain meter\\O'Neil Jr\\Skins\\Control-Plaine\\tools\\fan-tasks.ps1`\\\"" in fargs
+      and "'-" not in fargs, 'fan-tasks path is double-quoted, no single-quoted string')
 
 print('FAILED' if failed else 'ok', failed)
 sys.exit(1 if failed else 0)
