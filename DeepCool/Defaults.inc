@@ -9,6 +9,9 @@ DeepCoolAlign=left
 ; hover shows the label and bulb only while hovered, always keeps them visible.
 ; DetailsAll in Settings can override it.
 DeepCoolDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+DeepCoolTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 DeepCoolTooltips=1
 ; DeepCool program that drives the case screen.
