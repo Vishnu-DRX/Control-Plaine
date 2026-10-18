@@ -1,0 +1,34 @@
+# Playnite
+
+A controller icon that opens Playnite.
+
+*Draft.* Behaviour was read from `Playnite/Playnite.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
+
+## At rest and on hover
+
+- **At rest:** The controller icon.
+- **On hover:** Brightens and shows PLAYNITE.
+
+## Actions
+
+- Click: starts `PlaynitePath` (skipping the splash screen when `PlayniteSkipSplash` is on).
+- Right-click: **Control-Plaine settings** opens this skin's Settings tab.
+
+## Settings
+
+Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Besides the options below, every skin has `PlayniteTooltips` (1 = show its tooltips, 0 = hide them all; default 1). Global options (size, accent, brightness, alignment where available) are on [Settings](settings.md).
+
+> Defaults below were read from `Playnite/Defaults.inc` when this page was written. The file is the source of truth; if they differ, trust the file and fix this page.
+
+| Key | Default | What it does |
+| --- | --- | --- |
+| `PlaynitePath` | `%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe` | The program to start. Any other `.exe` launches that instead. |
+| `PlayniteSkipSplash` | `1` | Start without Playnite's splash screen. |
+
+## Requirements
+
+Playnite (playnite.link), desktop mode.
+
+## Known limits
+
+-
