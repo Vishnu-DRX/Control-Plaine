@@ -2,7 +2,7 @@
 
 Investigation output for the V1 build. Source of truth for behaviour and look: `docs/DESIGN-V1.md` and the V1 canvas. This file says **how** to build it in Rainmeter, what changes from the design, and what must be checked on Vishnu's PC.
 
-Shared conventions come from `specs/foundation-settings.md` and this spec follows them: the skin template (section 2), `Defaults.inc` per skin, `User.inc` for settings, `State.inc` for runtime state, Core.inc for fade/accent/full-screen, the shared styles, and the agreed keys `PowerFirst`, `PowerConfirm`, `PowerPickerStart`, `UptimeWarnDays`, `UptimeAlways`, `PowerScheduledAt`. No FOUNDATION file is edited by this work.
+Shared conventions come from `specs/foundation-settings.md` and this spec follows them: the skin template (section 2), `Defaults.inc` per skin, `User.inc` for settings, `State.inc` for runtime state, Core.inc for fade/accent/full-screen, the shared styles, and the agreed keys `PowerFirst`, `PowerConfirm`, `PowerPickerStart`, `UptimeWarnDays`, `UptimeDetails` (this spec first called it `UptimeAlways`), `PowerScheduledAt`. No FOUNDATION file is edited by this work.
 
 ## Verdict
 
@@ -110,8 +110,8 @@ Keys as agreed in the foundation spec: `PowerFirst` (hibernate | sleep), `PowerC
 ## Uptime skin
 
 ### Files (skin thread owns)
-- `Uptime/Uptime.ini` on the foundation template, `Uptime/Defaults.inc` (`UptimeWarnDays=5`, `UptimeAlways=0`), `@Resources/Scripts/Uptime.lua`.
-- `Settings/Uptime.ini`: RESTART REMINDER AFTER value box 1-30 days (`Step('UptimeWarnDays',1,1,30,'Uptime')`), ALWAYS VISIBLE toggle (`Toggle('UptimeAlways','Uptime')`).
+- `Uptime/Uptime.ini` on the foundation template, `Uptime/Defaults.inc` (`UptimeWarnDays=5`, `UptimeDetails=hover`), `@Resources/Scripts/Uptime.lua`.
+- `Settings/Uptime.ini`: RESTART REMINDER AFTER value box 1-30 days (`Step('UptimeWarnDays',1,1,30,'Uptime')`), the shared DETAILS row (`UptimeDetails`, hover or always).
 - Styles: `sHit`, `sDetail`/`sReveal` (UPTIME label), `sValue` (time), `sWarn` modifier.
 
 ### Why the old one went stale, and the fix
@@ -125,14 +125,14 @@ The Phenix skin set its text from `IfTrueAction`, which only fires when the cond
 - "Invisible at rest" is done with text alpha, **not** with `SelfHidden`: a hidden skin cannot be hovered. Uptime never touches `SelfHidden`, so it still hides in full screen through Core.
 - Normal: `UPTIME` (Detail) over `14 H 32 M` (Value), alpha `#AlphaHover#*#Reveal#` (group Reveal, Core.inc fade). At rest alpha 0.
 - Past threshold (`days >= UptimeWarnDays`): `RESTART RECOMMENDED` over `6 DAYS 3 H` with `sWarn`, visible at rest. Lua sets skin-local `Shown=1` and the meters use alpha `(#Shown#*#AlphaValue#+(#AlphaHover#-#Shown#*#AlphaValue#)*#Reveal#)`, so they sit at rest level and brighten on hover.
-- `UptimeAlways=1`: normal state also sets `Shown=1`.
+- `UptimeDetails=always`: normal state also sets `Shown=1`.
 - Format: `< 1 H` gives `45 M`; under a day `14 H 32 M`; from a day `1 DAY 3 H` / `6 DAYS 3 H`.
 
 ### Header comment must say
 With Fast Startup on, Shut down is a hibernate of the kernel and does **not** reset uptime; only Restart does. To make Shut down reset it, turn off Fast Startup (Control Panel > Power Options > Choose what the power buttons do). Uptime also counts time spent asleep or hibernated, as Task Manager does.
 
 ### Settings
-`UptimeWarnDays` (keeps its v1 name, so the existing User.inc value carries over) and `UptimeAlways`.
+`UptimeWarnDays` (keeps its v1 name, so the existing User.inc value carries over) and `UptimeDetails` (hover or always; see `specs/alignment.md`).
 
 ## Limits
 1. **A shutdown cancelled outside the skin** (someone runs `shutdown /a`) keeps showing a countdown until it expires. Windows has no clean way to ask "is a shutdown pending?". Restarts are detected (boot time check) and hibernate is verified (task query), so this only affects shut down / restart cancelled by hand.

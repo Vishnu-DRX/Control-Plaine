@@ -31,6 +31,8 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | [pc-gates.md](pc-gates.md) | You want what still needs Rainmeter or the PC to verify. |
 | [reviews/](reviews/) | You want the independent code review reports (safety, efficiency, maintainability) and finding ids. |
 | [sop/README.md](sop/README.md) | You are doing a repeatable job: add a skin (`tools/new-skin.py`), a setting or an icon, change a shared file, fix a bug, review, or test on the PC. |
+| [sop/add-a-skin.md](sop/add-a-skin.md), [add-a-setting](sop/add-a-setting.md), [add-an-icon](sop/add-an-icon.md), [change-a-shared-file](sop/change-a-shared-file.md), [fix-a-bug](sop/fix-a-bug.md), [code-review-checklist](sop/code-review-checklist.md), [pc-test-protocol](sop/pc-test-protocol.md) | The one procedure for that job. |
+| [pc-test-pass.md](pc-test-pass.md) | Vishnu's single full pass on the PC (left and right, light and dark, tooltips, setup), grouped by gate. |
 
 ## Design and specs
 
@@ -38,6 +40,8 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | --- | --- |
 | [DESIGN-V1.md](DESIGN-V1.md) | You need the original design intent and per-skin behaviour. |
 | [../specs/foundation-settings.md](../specs/foundation-settings.md) | You are touching shared files, the skin template or the Settings window. |
+| [../specs/alignment.md](../specs/alignment.md) | You are changing left or right alignment, the Details option, or the Core helpers (`Side`, `Mir`, `TA`, `Lead`, `Trail`). |
+| [../specs/theme.md](../specs/theme.md) | You are changing colours, light and dark, brightness, or an ink token. |
 | [../specs/tooltips.md](../specs/tooltips.md) | You are changing tooltips, `TooltipsAll`, or a skin's `ToolTipHidden` line. |
 | [../specs/power-uptime.md](../specs/power-uptime.md), [volume-media](../specs/volume-media.md), [wifi](../specs/wifi.md), [app-skins](../specs/app-skins.md) (Fan Control, SignalRGB, DeepCool), [controllers](../specs/controllers.md), [daydate-bin-playnite](../specs/daydate-bin-playnite.md) | You are changing that skin and want the reasoning and what was checked on a real PC. |
 | [icons/](icons/) | You are adding or changing an icon (SVG sources). |

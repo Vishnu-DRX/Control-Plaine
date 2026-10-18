@@ -16,10 +16,10 @@ KeepOnScreen=1
 AlwaysOnTop=0
 AlphaValue=255
 
-[Control-Plaine\Power]
+[Control-Plaine\Uptime]
 Active=1
 WindowX=24
-WindowY=190
+WindowY=130
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -27,10 +27,10 @@ KeepOnScreen=1
 AlwaysOnTop=0
 AlphaValue=255
 
-[Control-Plaine\RecycleBin]
+[Control-Plaine\Power]
 Active=1
 WindowX=24
-WindowY=414
+WindowY=190
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -49,17 +49,6 @@ KeepOnScreen=1
 AlwaysOnTop=0
 AlphaValue=255
 
-[Control-Plaine\Playnite]
-Active=1
-WindowX=24
-WindowY=710
-ClickThrough=0
-Draggable=1
-SnapEdges=1
-KeepOnScreen=1
-AlwaysOnTop=0
-AlphaValue=255
-
 [Control-Plaine\Media]
 Active=1
 WindowX=24
@@ -71,10 +60,10 @@ KeepOnScreen=1
 AlwaysOnTop=0
 AlphaValue=255
 
-[Control-Plaine\Uptime]
+[Control-Plaine\RecycleBin]
 Active=1
 WindowX=24
-WindowY=130
+WindowY=414
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -104,17 +93,6 @@ KeepOnScreen=1
 AlwaysOnTop=0
 AlphaValue=255
 
-[Control-Plaine\SignalRGB]
-Active=1
-WindowX=24
-WindowY=654
-ClickThrough=0
-Draggable=1
-SnapEdges=1
-KeepOnScreen=1
-AlwaysOnTop=0
-AlphaValue=255
-
 [Control-Plaine\DeepCool]
 Active=1
 WindowX=24
@@ -126,10 +104,43 @@ KeepOnScreen=1
 AlwaysOnTop=0
 AlphaValue=255
 
-[Control-Plaine\Controllers]
+[Control-Plaine\SignalRGB]
+Active=1
+WindowX=24
+WindowY=654
+ClickThrough=0
+Draggable=1
+SnapEdges=1
+KeepOnScreen=1
+AlwaysOnTop=0
+AlphaValue=255
+
+[Control-Plaine\Playnite]
+Active=1
+WindowX=24
+WindowY=710
+ClickThrough=0
+Draggable=1
+SnapEdges=1
+KeepOnScreen=1
+AlwaysOnTop=0
+AlphaValue=255
+
+[Control-Plaine\SettingsButton]
 Active=1
 WindowX=24
 WindowY=759
+ClickThrough=0
+Draggable=1
+SnapEdges=1
+KeepOnScreen=1
+AlwaysOnTop=0
+AlphaValue=255
+
+[Control-Plaine\Controllers]
+Active=1
+WindowX=24
+WindowY=815
 ClickThrough=0
 Draggable=1
 SnapEdges=1
