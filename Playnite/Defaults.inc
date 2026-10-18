@@ -9,6 +9,9 @@ PlayniteAlign=left
 ; hover shows PLAYNITE only while hovered, always keeps it visible.
 ; DetailsAll in Settings can override it.
 PlayniteDetails=hover
+; Colours for this skin: auto follows the global Theme, dark = white,
+; light = black.
+PlayniteTheme=auto
 ; 1 shows this skin's tooltips, 0 hides them all.
 PlayniteTooltips=1
 ; Playnite program.
