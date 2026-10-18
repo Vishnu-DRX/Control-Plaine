@@ -43,7 +43,11 @@ foreach ($name in 'User.inc', 'State.inc') {
 #     mark setup done so it does not nag (General > RUN SETUP AGAIN restarts it).
 $stateFile = Join-Path $repo '@Resources\State.inc'
 if ($stateExisted -and -not (Select-String -Path $stateFile -Pattern '^SetupDone=' -Quiet)) {
-    Add-Content -Encoding ascii $stateFile 'SetupDone=1'
+    # Rainmeter may have saved State.inc as UTF-16: append in the file's own
+    # encoding, after a line break in case the last line has none.
+    $head = [IO.File]::ReadAllBytes($stateFile) | Select-Object -First 2
+    $enc = if ($head.Count -eq 2 -and $head[0] -eq 0xFF -and $head[1] -eq 0xFE) { 'Unicode' } else { 'ascii' }
+    Add-Content -Encoding $enc $stateFile "`r`nSetupDone=1"
     Write-Host "Existing profile: first-run setup marked done."
 }
 

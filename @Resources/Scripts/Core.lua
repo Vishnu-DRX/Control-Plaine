@@ -161,8 +161,16 @@ end
 -- error) leaves the defaults, which mean "present".
 
 local NEED_EVERY = 60
+-- The first checks (at load, then at the first two updates) always run. A
+-- Registry measure answers '' until it has updated, and one defined below
+-- Core.inc does not exist yet while this script initialises. In the first two
+-- checks, a read that came back empty leaves NeedState and NeedBlocked at their
+-- defaults (not blocked), so a skin is not hidden by a reading that was not ready.
+local WARM_UP = 2
+local EARLY = 3
 local needs, needList, needName
 local needAt = 0
+local needRuns = 0
 
 local function loadNeeds()
 	needs, needList, needName = nil, nil, nil
@@ -181,11 +189,23 @@ end
 -- True when any needs variable changed.
 local function resolveNeeds()
 	needAt = os.time()
+	needRuns = needRuns + 1
 	if not needs then return false end
 	local ok, changed = pcall(function()
-		local res = needs.evaluate(needName, needList[needName], needs.rainmeterEnv(SKIN))
+		local env = needs.rainmeterEnv(SKIN)
+		local unsure = false
+		if needRuns <= WARM_UP then
+			local reg = env.reg
+			env.reg = function(measure)
+				local v = reg(measure)
+				if v == '' then unsure = true end
+				return v
+			end
+		end
+		local res = needs.evaluate(needName, needList[needName], env)
 		local any = false
 		needs.apply(res, function(name, value)
+			if unsure and name:find('Need', 1, true) then return end
 			if set(name, value) then any = true end
 		end)
 		return any
@@ -195,6 +215,7 @@ end
 
 function Initialize()
 	cache = {}
+	needRuns = 0
 	loadNeeds()
 	resolveNeeds()
 	inkDark = get('Ink', '255,255,255')
@@ -215,7 +236,7 @@ end
 
 function Update()
 	resolveTheme()
-	if needs and os.time() - needAt >= NEED_EVERY and resolveNeeds() then
+	if needs and (needRuns < EARLY or os.time() - needAt >= NEED_EVERY) and resolveNeeds() then
 		-- A gate flipped (an item was installed or removed): redraw once.
 		SKIN:Bang('!UpdateMeter', '*')
 		SKIN:Bang('!Redraw')

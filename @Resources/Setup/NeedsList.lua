@@ -21,6 +21,10 @@
 -- things that need a process or the network to check are 'assume'.
 
 local PLUGINS = '%APPDATA%\\Rainmeter\\Plugins\\'
+-- A standard user may not be able to read the task files in System32\Tasks, which
+-- would read as "missing". tools\fan-tasks.ps1 also leaves this copy of the
+-- sensor script in an admin-only folder that every user can read.
+local FANDATA = '%ProgramData%\\ControlPlaine\\FanControl\\FanControlSensors.ps1'
 
 return {
 	DayDate = {
@@ -88,12 +92,12 @@ return {
 		  why = 'Fan Control was not found at this path; the skin has nothing to control.' },
 		{ id = 'tasks', label = 'NO-UAC TASKS', level = 'optional', feature = 'Tasks',
 		  when = { var = 'FanControlUseTasks', eq = '1' },
-		  check = { file = '%SystemRoot%\\System32\\Tasks\\ControlPlaine\\FanOpen' },
+		  check = { any = { { file = '%SystemRoot%\\System32\\Tasks\\ControlPlaine\\FanOpen' }, { file = FANDATA } } },
 		  helper = 'fan-tasks', onboard = true,
 		  why = 'Without the scheduled tasks the MAX switch asks for admin (UAC) every time.' },
 		{ id = 'sensors', label = 'SENSOR FEED', level = 'optional', feature = 'Sensors',
 		  when = { var = 'FanControlUseTasks', eq = '1' },
-		  check = { file = '%SystemRoot%\\System32\\Tasks\\ControlPlaine\\FanSensors' },
+		  check = { any = { { file = '%SystemRoot%\\System32\\Tasks\\ControlPlaine\\FanSensors' }, { file = FANDATA } } },
 		  helper = 'fan-tasks',
 		  why = 'The live fan value is hidden; the icon and MAX switch stay.' },
 		{ id = 'maxprofile', label = 'MAX PROFILE', level = 'optional', feature = 'Max',
