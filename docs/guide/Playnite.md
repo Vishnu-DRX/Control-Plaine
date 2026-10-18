@@ -2,8 +2,6 @@
 
 A controller icon that opens Playnite.
 
-*Draft.* Behaviour was read from `Playnite/Playnite.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** The controller icon.
@@ -39,4 +37,4 @@ Playnite checks `PlaynitePath` at load and about once a minute (a file check; no
 
 ## Known limits
 
--
+None known.

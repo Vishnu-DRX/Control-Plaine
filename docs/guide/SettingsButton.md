@@ -2,8 +2,6 @@
 
 A gear that opens the Settings window.
 
-*Draft.* Behaviour was read from `SettingsButton/SettingsButton.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** A dim gear.
@@ -37,4 +35,4 @@ None.
 
 ## Known limits
 
-- It is not placed by the default layout yet; turn it on under General > Skins.
+- The shipped layout loads it under the last skin of the column; if you switched it off, turn it back on under General > SKINS.

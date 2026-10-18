@@ -2,8 +2,6 @@
 
 A switch for the DeepCool app that drives the case screen.
 
-*Draft.* Behaviour was read from `DeepCool/DeepCool.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** The DeepCool logo: accent while the app runs, otherwise the ink colour (white or black, per COLOURS).

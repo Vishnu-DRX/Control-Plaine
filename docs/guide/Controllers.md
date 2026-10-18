@@ -2,8 +2,6 @@
 
 Connected game controllers and their batteries.
 
-*Draft.* Behaviour was read from `Controllers/Controllers.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** One row per connected controller: icon, and a battery only when it is under `ControllersBatteryShow`. Hidden while nothing is connected.

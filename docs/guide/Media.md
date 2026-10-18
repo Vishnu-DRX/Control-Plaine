@@ -2,8 +2,6 @@
 
 The song playing in any app, with progress ring and controls.
 
-*Draft.* Behaviour was read from `Media/Media.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** A progress ring with play/pause, and the title and artist next to it (ring first by default; `MediaAlign=right` puts the ring last). Hidden while nothing is playing (`MediaHideIdle`).

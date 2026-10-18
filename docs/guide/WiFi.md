@@ -2,8 +2,6 @@
 
 Wi-Fi signal and network name, with a manual speed test.
 
-*Draft.* Behaviour was read from `WiFi/WiFi.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** Wi-Fi icon (lit arcs = signal strength). Warnings show at rest: NO INTERNET, NOT CONNECTED, AIRPLANE MODE; a wired link shows ETHERNET.

@@ -1,6 +1,6 @@
 # Control-Plaine
 
-A quiet Rainmeter suite for Windows. Quiet at rest, detail on hover, one shared design system.
+A quiet Rainmeter suite for Windows: thirteen skins and one Settings window that share a single design system. Quiet at rest, detail on hover, key information always visible, the Windows accent colour, and a layout that works on the left or the right edge of the screen.
 
 ## Skins
 
@@ -20,13 +20,13 @@ A quiet Rainmeter suite for Windows. Quiet at rest, detail on hover, one shared 
 | Controllers | Connected game controllers and their batteries. | [guide](docs/guide/Controllers.md) |
 | Settings Button | A gear that opens the Settings window. | [guide](docs/guide/SettingsButton.md) |
 
-Every skin has a **Control-Plaine settings** entry in its right-click menu, which opens one Settings window with a tab per skin. See [Settings](docs/guide/settings.md).
+Each guide says what the skin shows at rest and on hover, what clicking and scrolling do, every option with its default, and what it needs. You only need the apps for the skins you use.
 
 ## Requirements
 
 - Windows 10 or 11 and [Rainmeter](https://www.rainmeter.net) 4.5 or newer.
-- Segoe UI Variable (Windows 11). On Windows 10 set `FontFace=Segoe UI` in `@Resources\User.inc`.
-- Some skins need an app or plugin (Media, Wi-Fi speed test, Fan Control, SignalRGB, DeepCool, Playnite, Controllers). Each guide page lists its own.
+- Segoe UI Variable (Windows 11). On Windows 10 choose FONT > SEGOE UI on the Advanced page of Settings.
+- Some skins need an app or a plugin (Media, the Wi-Fi speed test, Fan Control, SignalRGB, DeepCool, Playnite, Controllers). The installer and the first-time setup handle the plugins; each guide lists what its skin needs. A skin whose app is missing says so instead of sitting broken on the desktop.
 
 ## Install
 
@@ -36,17 +36,37 @@ From the repo folder in PowerShell:
 powershell -ExecutionPolicy Bypass -File tools\install.ps1
 ```
 
-Details, the manual route and what the installer changes are in [docs/guide/install.md](docs/guide/install.md). Problems: [docs/guide/troubleshooting.md](docs/guide/troubleshooting.md).
+The installer links the folder into your Rainmeter Skins folder, creates your settings files, installs the plugins the skins use, saves your current desktop as a backup layout, loads the Control-Plaine layout and opens Settings. After a plugin is installed, exit and restart Rainmeter once. The manual route and updating are in [docs/guide/install.md](docs/guide/install.md).
+
+## First-time setup
+
+On a new install, Settings opens a short guided setup: which skins you want, what each needs (with the exact install command, run only when you click), the look (size, light or dark, left or right, details, tooltips, accent) and where the skins sit on your screen. You can skip it or run it again from General (RUN SETUP AGAIN). See [docs/guide/first-time-setup.md](docs/guide/first-time-setup.md).
+
+## What you can set
+
+Right-click any Control-Plaine skin and choose **Control-Plaine settings**. One window opens with a tab per skin plus General and Advanced. Changes apply at once and are stored in `@Resources\User.inc`, which git does not touch.
+
+- **Left or right.** Every skin except Power can sit on the left or the right edge and keeps the same footprint either way. Set it per skin or for all of them (ALIGN ALL SKINS).
+- **Light and dark.** SKINS FOR picks colours for dark wallpapers, light wallpapers, or follows Windows. A skin can override it with its COLOURS row.
+- **Details.** Show detail text only on hover, or always.
+- **Tooltips.** One switch per skin, or all on or all off.
+- **Size, accent and brightness.** Scale, the Windows or a custom accent, and the brightness at rest and on hover.
+- **Full screen and lock.** Hide every skin while a full-screen app is in front; lock positions against accidental drags.
+
+All options and their defaults are in [docs/guide/settings.md](docs/guide/settings.md) and on each skin's page.
+
+## Troubleshooting
+
+A skin missing, blank or not responding, a plugin that will not load, a blank Wi-Fi name: see [docs/guide/troubleshooting.md](docs/guide/troubleshooting.md).
 
 ## Documentation
 
 - Using the skins: [docs/guide/](docs/guide/)
-- Working on the repo (or adding a skin): [docs/INDEX.md](docs/INDEX.md), [CLAUDE.md](CLAUDE.md)
+- Working on the repo or adding a skin: [docs/INDEX.md](docs/INDEX.md), [CLAUDE.md](CLAUDE.md)
 - Design and per-skin specs: [docs/DESIGN-V1.md](docs/DESIGN-V1.md), [specs/](specs/)
+- Version history: [CHANGELOG.md](CHANGELOG.md)
 
-## Checks
-
-`python tools/lint.py` checks the suite's rules. It runs on every push and pull request.
+`python tools/lint.py` checks the suite's rules and runs on every push and pull request.
 
 ## Licence and credits
 

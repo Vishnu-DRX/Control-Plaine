@@ -1,7 +1,5 @@
 # Troubleshooting
 
-*Draft, from behaviour documented in the skins and installer. Re-check each item against the live skins in the final docs pass.*
-
 **A skin does not appear.** Check Manage > Skins that it is loaded and that `Skins\Control-Plaine` exists (the installer makes it). Refresh all from the tray menu. If the Rainmeter log shows an error it names the file and line.
 
 **Plugin errors after install ("Unable to load", error 193).** A plugin file is missing or not a real DLL. Re-run `tools\install.ps1`, then exit and restart Rainmeter. Plugins load only at start.
@@ -23,3 +21,11 @@
 **Fonts look different.** The suite uses Segoe UI Variable. On Windows 10 set `FontFace=Segoe UI` in `@Resources\User.inc`.
 
 **Reset a setting.** Remove its line from `@Resources\User.inc` and refresh.
+
+**An amber ! shows in Settings.** A skin is missing something it needs: hover the mark for the reason, click it to open the setup for that skin. See [first-time setup](first-time-setup.md).
+
+**Start the guided setup again.** General > RUN SETUP AGAIN, or delete the `SetupDone` line from `@Resources\State.inc`.
+
+**Skins are off screen or on the wrong monitor.** Run the setup again and use the PLACEMENT step, or load a layout from Rainmeter's Manage > Layouts.
+
+**Still stuck.** Open Rainmeter's log (Manage > Log): an error names the skin file and line.

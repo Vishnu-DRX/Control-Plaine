@@ -2,8 +2,6 @@
 
 Average fan speed and a one-click MAX switch, through Fan Control.
 
-*Draft.* Behaviour was read from `FanControl/FanControl.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** A fan icon.

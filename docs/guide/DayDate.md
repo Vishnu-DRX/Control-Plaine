@@ -2,8 +2,6 @@
 
 The day name over the date. Click to open the calendar.
 
-*Draft.* Behaviour was read from `DayDate/DayDate.ini` and its `Defaults.inc` in the repo. It is finalised against the live skin in the final docs pass.
-
 ## At rest and on hover
 
 - **At rest:** The day name (large) over the date line.
