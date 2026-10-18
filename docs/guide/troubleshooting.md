@@ -12,7 +12,7 @@
 
 **Wi-Fi speed test does nothing.** Install the Ookla Speedtest CLI (`winget install Ookla.Speedtest.CLI`) and set `WiFiSpeedtestPath` on the Wi-Fi tab if it is not found.
 
-**Fan Control shows no speed, or MAX does nothing.** Fan Control and its sensor feed need admin, so the skin uses scheduled tasks. Run `tools\fan-tasks.ps1` once as administrator (the sensor reader needs PowerShell 7), then check `FanControlPath`, `FanControlNormal` and `FanControlMax` match your install and profile names.
+**Fan Control shows no speed, or MAX does nothing.** Fan Control and its sensor feed need admin, so the skin uses scheduled tasks. Run `tools\fan-tasks.ps1` once as administrator (the sensor reader needs PowerShell 7), then (after an update) run it again, and check `FanControlPath`, `FanControlNormal` and `FanControlMax` match your install and profile names.
 
 **SignalRGB brightness changes nothing.** On the free tier the skin applies an effect with a `color` property (`SignalRGBEffect`, default Solid Color) in the colour `SignalRGBColor`; set both to match what you use in SignalRGB. Pro uses the local API (`SignalRGBPort`).
 
