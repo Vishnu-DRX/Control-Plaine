@@ -140,7 +140,7 @@ PlaynitePath=%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe
 ; 1 starts Playnite without its splash screen
 PlayniteSkipSplash=1
 ```
-Default `PlayniteSkipSplash=1` (foundation table says 0) to keep what Vishnu's current skin does. Vishnu's `User.inc` already holds his full `PlaynitePath`.
+Default `PlayniteSkipSplash=1` (foundation table says 0) to keep what the previous skin does. a user's own `User.inc` may hold a full `PlaynitePath`.
 
 ### Settings page
 PLAYNITE PATH path box; SKIP SPLASH SCREEN toggle.
@@ -160,16 +160,16 @@ Original controller art instead of the Lucide gamepad, `PLAYNITE` label, skip-sp
 
 ## PC probe results (2026-10-11, `/mnt/project-files/Control-Plaine-probes.md`)
 - Rainmeter 4.5.26, Segoe UI Variable installed: nested variables, FontWeight and the foundation styles are all available.
-- Playnite exe confirmed at `%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe` (the `%LOCALAPPDATA%` default resolves to it; Vishnu's User.inc already holds it).
+- Playnite exe confirmed at `%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe` (the `%LOCALAPPDATA%` default resolves to it; a path set in User.inc works the same).
 - Original icon confirmed: `Skins\Playnite launcher\white-controller-icon.png`, 764x511.
 - Still open (visual): checks 1 to 7 below.
 
-## Check on Vishnu's PC before calling these done
+## Checks on the test PC before calling these done
 1. `%V` shows `41` on 10 Oct 2026 (v1.0.0 already uses it).
 2. Day-Date right edge stays put across a day change and in left alignment; nested `[#Anchor[#DayDateAlign]]` resolves (Rainmeter 4.5).
 3. RecycleManager `Drives=ALL` updates within about 3 s after deleting on C: and T:, and does not stall Rainmeter with a USB or network drive attached.
 4. `EmptyBin` shows the Windows confirm, `EmptyBinSilent` does not, and the line flips to `EMPTY` right after.
-5. `%LOCALAPPDATA%` in `PlaynitePath` expands when run from an action (fresh install default). Vishnu's own full path works either way.
+5. `%LOCALAPPDATA%` in `PlaynitePath` expands when run from an action (fresh install default). a full path set by the user works either way.
 6. Playnite starts without the splash, and clicking again while it runs focuses the open window.
 7. All three look right at Scale 2.5.
 
@@ -178,6 +178,6 @@ Original controller art instead of the Lucide gamepad, `PLAYNITE` label, skip-sp
 - Tracking: DirectWrite adds CharacterSpacing leading **and** trailing to every letter, so leading = trailing = tracking would double the gap. These skins put the tracking on one side only: before each letter for right-aligned text (`| t | 0`), after each letter for left-aligned text (`| 0 | t`). Day-Date switches with `[#Lead[#DayDateAlign]]` / `[#Trail[#DayDateAlign]]`.
 - Week on/off uses two detail meters with `Hidden=(1-#DayDateWeek#)` / `Hidden=#DayDateWeek#`.
 - The reference meters (`RefDay`, `RefText`) are transparent, not `Hidden=1`, so their width is always measured.
-- `PlayniteSkipSplash` defaults to 1 (Vishnu's old skin always skipped the splash).
+- `PlayniteSkipSplash` defaults to 1 (the previous skin always skipped the splash).
 - Icons added: `trash-empty.png` (from `docs/icons/trash-empty.svg`, rendered by `tools/render-icons.py`), `playnite-controller.png` (original art, unchanged).
-- Feedback 2026-10-11 (Vishnu): the bin shows only the size (no file count), in Warn orange above `RecycleBinWarnGB` (default 10); EMPTY sits on the size line, left of the size, on hover. `RecycleBinShowSize` and its Settings row are gone (the size is now the whole line).
+- Feedback 2026-10-11 (maintainer): the bin shows only the size (no file count), in Warn orange above `RecycleBinWarnGB` (default 10); EMPTY sits on the size line, left of the size, on hover. `RecycleBinShowSize` and its Settings row are gone (the size is now the whole line).

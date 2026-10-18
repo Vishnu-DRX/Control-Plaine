@@ -1,0 +1,36 @@
+Control-Plaine
+Copyright (c) 2026 Vishnu A
+
+DRAFT, WAITING FOR THE OWNER TO CONFIRM THE LICENCE CHOICE. Before the
+repository goes public, replace the "Licence text" section below with the
+verbatim legal code of the licence the owner picks. Nothing else in this
+file needs to change if the choice stays CC BY-NC-SA 4.0.
+
+What is licensed
+----------------
+Unless a file or the notices in THIRD-PARTY-NOTICES.md say otherwise, the
+Control-Plaine skins and everything in this repository that is the project's
+own work (skin files, Settings window, scripts, documentation, the site and
+the icon artwork drawn for the suite) are licensed under:
+
+    Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    (CC BY-NC-SA 4.0)
+    https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+This is the value of the "License" line in the [Metadata] section of every
+skin. You may share and adapt the work for non-commercial purposes if you
+give credit, say what you changed, and distribute your changes under the
+same licence.
+
+What is not covered
+-------------------
+Third-party material keeps its own licence and owner. See
+THIRD-PARTY-NOTICES.md for the list: icon sources (Lucide, ISC), the plugins
+and programs the installer downloads (never committed here), and app logos
+that belong to their owners.
+
+Licence text
+------------
+The full legal code is published at
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+(REPLACE THIS SECTION WITH THE VERBATIM TEXT BEFORE GOING PUBLIC.)

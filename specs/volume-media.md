@@ -1,6 +1,6 @@
 # Spec: Volume and Media skins
 
-Investigation output for the V1 build. Look and behaviour come from `docs/DESIGN-V1.md` and the V1 canvas. This file says **how** to build both skins in Rainmeter, which plugin Media uses, and what must be checked on Vishnu's PC.
+Investigation output for the V1 build. Look and behaviour come from `docs/DESIGN-V1.md` and the V1 canvas. This file says **how** to build both skins in Rainmeter, which plugin Media uses, and what must be checked on the test PC.
 
 Aligned with `specs/foundation-settings.md` (template, file ownership, tokens, styles, `SelfHidden`, Settings keys). Where this file and the foundation spec disagree, the foundation spec wins.
 
@@ -57,7 +57,7 @@ Checked in Rainmeter's source (`MeasureAudio.cpp`, the same code as the plugin):
 - **`SetVolume` and `ChangeVolume` always unmute.**
 - `ToggleNext` cycles active output devices only, and wraps.
 
-Rainmeter's development branch also has a built-in `Measure=Audio` with the same values and bangs. Vishnu runs 4.5.26, so V1 uses `Plugin=Win7AudioPlugin`. Switching later is a one-line change.
+Rainmeter's development branch also has a built-in `Measure=Audio` with the same values and bangs. the test PC runs 4.5.26, so V1 uses `Plugin=Win7AudioPlugin`. Switching later is a one-line change.
 
 ```ini
 [mMuted]
@@ -166,7 +166,7 @@ mDuration  PlayerType=Duration   seconds, 0 when the source gives none
 ```
 
 ### Installing MediaPlayer.dll
-- Foundation found no `%APPDATA%\Rainmeter\Plugins` folder on Vishnu's PC. Rainmeter 4.5 loads `%APPDATA%\Rainmeter\Plugins` and `Skins\@Vault\Plugins`. Don't commit the DLL: it is a GPL binary, and a git pull could not place it anyway.
+- Foundation found no `%APPDATA%\Rainmeter\Plugins` folder on the test PC. Rainmeter 4.5 loads `%APPDATA%\Rainmeter\Plugins` and `Skins\@Vault\Plugins`. Don't commit the DLL: it is a GPL binary, and a git pull could not place it anyway.
 - **Request to integration (install.ps1 and README):**
   - If missing, download the 64-bit **static** build (no MSVC runtime needed) from the i2002/RainmeterMediaPlayer v1.4 GitHub release into `%APPDATA%\Rainmeter\Plugins\MediaPlayer.dll`, creating the folder if needed.
   - Then tell the user to restart Rainmeter, because a refresh does not load new plugins.
@@ -260,19 +260,19 @@ Targets: `Media`. Changing `MediaSource` takes effect on the refresh. The WebNow
   - Windows decides which player is shown when several play.
   - How to switch to WebNowPlaying Redux.
 
-## Check on Vishnu's PC before calling these done
+## Checks on the test PC before calling these done
 
 Volume
 1. Muting shows `MUTED` with a grey ring and the crossed speaker. `Mute` and `Unmute` work on 4.5.26.
 2. Device names appear as expected. Rename them in Sound settings if wanted (e.g. `SOUND BAR - LG`).
-3. Clicking the device name cycles only the outputs he wants. If not, disable the unused ones in Windows.
-4. `ms-settings:apps-volume` opens the volume mixer on his Windows build.
+3. Clicking the device name cycles only the outputs the user wants. If not, disable the unused ones in Windows.
+4. `ms-settings:apps-volume` opens the volume mixer on the test Windows build.
 5. A ring click lands on the right level at Scale 100% and 250%.
 
 Media
 6. MediaPlayer.dll loads after install and a Rainmeter restart, with no plugin error in the log.
 7. Spotify desktop: title, artist, progress, play/pause, next and previous all work.
-8. Browser (YouTube in his browser): title, artist and play/pause work. Note whether progress shows; some sites may not give it.
+8. Browser (YouTube in a browser): title, artist and play/pause work. Note whether progress shows; some sites may not give it.
 9. The skin hides about 2 s after the player closes, reappears when playback starts, and doesn't flicker between tracks.
 10. With two players open, check which one Windows shows, and that switching works from the Windows media flyout.
 

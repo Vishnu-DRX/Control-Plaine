@@ -3,7 +3,7 @@
 ; (Rainmeter styles cannot inherit from each other, so each is complete.)
 ;
 ; Text: upper case, Segoe UI, no shadow (a Rainmeter shadow is a hard 1px
-; copy that makes small text look soft; Vishnu wants it crisp). Tracking goes on the meter, because it depends on alignment:
+; copy that makes small text look soft; the design wants it crisp). Tracking goes on the meter, because it depends on alignment:
 ;   left/centred:  InlineSetting=CharacterSpacing | 0 | (#TrackDetail#*#Scale#)
 ;   right-aligned: InlineSetting=CharacterSpacing | (#TrackDetail#*#Scale#) | 0
 ; One side only: setting both doubles the gap between letters.

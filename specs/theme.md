@@ -22,7 +22,7 @@ The mode is named after the wallpaper:
 
 Settings rows: brightness on General (WP-G); SKINS FOR (`Theme`), LIGHT MODE BOOST and ACCENT DARKENING (`AccentLight`, `AccentLightK`) as one-line rows at the bottom of General (WP-L3). Each skin's COLOURS row (`<Skin>Theme`: AUTO / WHITE / BLACK) comes from `@Resources\Settings\Theme.inc`, included by the skin's page with `ThemeKey` and `ThemeY` set; WP-L2 adds it per skin, and lint fails a skin that sets `SkinTheme` without it. `ThemeFollow` has no row (edit `User.inc`).
 
-**Default is `dark`, not `auto`.** The plan decided `auto`, but also needs "defaults leave everything as today" (L8) and says which Windows setting `auto` follows is to be settled on the PC. Shipping `auto` first would turn his skins black if Windows is on its light theme while his wallpaper is dark. Flip `Theme=dark` to `auto` in `Defaults.inc` once the registry choice is confirmed at gate G1.
+**Default is `dark`, not `auto`.** The plan decided `auto`, but also needs "defaults leave everything as today" (L8) and says which Windows setting `auto` follows is to be settled on the PC. Shipping `auto` first would turn existing skins black if Windows is on its light theme while his wallpaper is dark. Flip `Theme=dark` to `auto` in `Defaults.inc` once the registry choice is confirmed at gate G1.
 
 ## 3. What a skin gets
 
@@ -62,6 +62,6 @@ A skin that has not opted in still follows `Theme` (it includes `Core.inc`), but
 ## 6. What only the PC can show [PC]
 
 1. SignalRGB in both modes on a real light wallpaper: legible black ink at the boosted level, sharp and without haloing (L1, L2, L12), accent readable (L3), layout and hit areas unchanged (L9).
-2. `Theme=auto` follows Windows within a few seconds in both directions, and a skin with its own `dark` / `light` does not change (L10). Which of `SystemUsesLightTheme` and `AppsUseLightTheme` fits his setup.
+2. `Theme=auto` follows Windows within a few seconds in both directions, and a skin with its own `dark` / `light` does not change (L10). Which of `SystemUsesLightTheme` and `AppsUseLightTheme` fits the test setup.
 3. The Settings window looks the same in every mode (L5).
 4. Test by adding `Theme=light` (or `SignalRGBTheme=light`) to `@Resources\User.inc`: use the COLOURS row on SignalRGB's page and SKINS FOR on General.

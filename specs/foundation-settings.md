@@ -2,7 +2,7 @@
 
 Status: built 2026-10-10 (foundation PR). Where the build differs, the code comments win. Source of truth for look and behaviour: `docs/DESIGN-V1.md` and the V1 canvas (Settings board). This file settles **how** it is built in Rainmeter and the conventions every skin thread must follow.
 
-Checked on Vishnu's PC (folder access, 2026-10-10):
+Checked on the test PC (folder access, 2026-10-10):
 - Rainmeter **4.5.26** (`Rainmeter.data` LastCheck). 4.5 gives us Shape meters, `FontWeight`, `InlineSetting=CharacterSpacing`, `Container`, Lua, built-in Game Mode.
 - `Skins\@Vault\Plugins` already has **IsFullScreen 3.0.0.0**, FrostedGlass 1.1.1.0, HotKey 1.0.0.12, XInput 1.0.0.0, Drag&Drop 3.1.0.3 (64-bit builds present). Rainmeter 4.5 loads Vault plugins.
 - No `Plugins` folder in `%APPDATA%\Rainmeter`, so only bundled + Vault plugins are available. Bundled ones we rely on: ActionTimer, InputText, RunCommand, RecycleManager, Win7AudioPlugin, WiFiStatus, SysInfo, Registry/Calc/Time/Uptime/Script measures.
@@ -258,7 +258,7 @@ As built, Theme.inc provides `#RingTrack#` and `#RingFill#` modifier strings, co
 
 ### 5.1 Tooltips
 Every skin follows the same rules, so the wording reads as one suite:
-- Every clickable or scrollable element has a tooltip, except where the skin already names it on screen (Power's icon labels, Controllers' app rows, which Vishnu asked to keep without one).
+- Every clickable or scrollable element has a tooltip, except where the skin already names it on screen (Power's icon labels, Controllers' app rows, which the maintainer asked to keep without one).
 - Verb first, sentence case, no article, no "Click to" and no full stop: "Open Task Manager", "Mute or unmute", "Scroll to change brightness". Scroll-only controls start with "Scroll to".
 - Elements that do the same click share one text. A toggle names what the click does next ("Set all fans to 100%" then "Restore normal fan speeds").
 - Rainmeter's own tooltip style and delay are left alone; there is no delay option to match.
@@ -377,15 +377,15 @@ Every skin `.ini` (not Settings pages): has `Group=ControlPlaine`, the ContextTi
 
 Nothing in the foundation or the Settings skin is blocked.
 
-## 10. Check on Vishnu's PC before calling the foundation done
+## 10. Checks on the test PC before calling the foundation done
 
 1. Done (PC probe): Rainmeter 4.5.26, ActionTimer/InputText/RunCommand bundled. Segoe UI Variable installed. Accent `0xFF9B9E00` gives 0,158,155 (`#009E9B`).
 2. PC probe: IsFullScreen is only in @Vault, not in `%APPDATA%\Rainmeter\Plugins`; `install.ps1` copies the 64-bit DLL there. Then check it loads (no log error), returns 1 in a full-screen game and borderless-full-screen video, 0 on the desktop.
-3. `HKCU\Software\Microsoft\Windows\DWM\AccentColor` exists and the computed R,G,B matches his cyan.
+3. `HKCU\Software\Microsoft\Windows\DWM\AccentColor` exists and the computed R,G,B matches the cyan accent.
 4. Windows 11 with **Segoe UI Variable** installed (else set `FontFace=Segoe UI`), and FontWeight 300/600 render distinctly.
 5. Display scaling per monitor (which monitor the skins sit on, at what %), to pick the default `Scale`.
 6. Colour options accept formulas in the alpha slot (`#Ink#,(60*2.55)`). If not, Core computes alphas into variables at refresh.
-7. `!WriteKeyValue` into `#@#User.inc` works through the Skins junction to `T:\Development Space\Control-Plaine` and creates the file if missing; `@include` of a missing file is harmless.
+7. `!WriteKeyValue` into `#@#User.inc` works through the Skins junction to the repo working copy and creates the file if missing; `@include` of a missing file is harmless.
 8. `!ActivateConfig` between Settings variants keeps position; activating the already-open variant does not toggle it off.
 9. Where "Control-Plaine settings" appears in the right-click menu (top level vs "Custom skin actions").
 10. Lua can open and parse the UTF-16 `Rainmeter.ini` for skin on/off state.
