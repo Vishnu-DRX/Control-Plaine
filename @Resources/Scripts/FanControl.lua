@@ -42,10 +42,12 @@ local function setVar(name, value)
 end
 
 local snowHovered = false  -- mouse is over the snowflake
+local shownTint         -- the tint showMax last set
 
 local function showMax()
 	setVar('MaxOn', maxOn)
 	local tint = maxOn == 1 and var('Accent') or var('Ink')
+	shownTint = tint
 	setVar('IconTint', tint)
 	-- The snowflake also takes the hover colour while hovered.
 	setVar('SnowTint', snowHovered and var('HoverTint', var('Accent')) or tint)
@@ -181,6 +183,8 @@ function Update()
 		setVar('FanText', '--')
 		setVar('FanTip', why or 'No fan data')
 	end
+	-- Ink and Accent change with the light/dark mode: re-read the tint.
+	if (maxOn == 1 and var('Accent') or var('Ink')) ~= shownTint then showMax() end
 	-- Every 10 s, follow config changes made in the Fan Control window.
 	ticks = ticks + 1
 	if ticks % 5 == 0 and not busy then syncMax() end
