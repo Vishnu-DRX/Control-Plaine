@@ -15,8 +15,15 @@ Version=2.0.0
 RepoURL=https://github.com/Vishnu-DRX/Control-Plaine
 
 ; ---- Colour (R,G,B) ----
+; Ink, InkContrast and Warn are the dark-mode values (for dark wallpapers).
+; Core.lua replaces them with the Light values below when the mode is light.
 Ink=255,255,255
 Warn=255,170,60
+; Glyphs drawn on an ink-coloured fill (the charging bolt).
+InkContrast=0,0,0
+InkLight=0,0,0
+InkContrastLight=255,255,255
+WarnLight=214,110,0
 Dark=18,20,24
 Shadow=0,0,0,115
 ; Text shadows follow their text: shadow alpha = text alpha x ShadowK, so a
