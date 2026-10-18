@@ -35,10 +35,23 @@
 ; Size of this skin. A skin that opts in to SizeBoost redefines it after
 ; including this file: Sz=(#Scale#*#SizeBoost#)
 Sz=#Scale#
-; ToolTipHidden for a skin whose <Skin>Tooltips setting is 1 or 0:
-; the [Rainmeter] section reads #TipHidden[#<Skin>Tooltips]#.
-TipHidden1=0
-TipHidden0=1
+; Tooltips. A skin's [Rainmeter] section sets
+;   ToolTipHidden=#TipHidden[#<Skin>Tooltips]#
+; <Skin>Tooltips is 1 or 0, so that reads TipHidden1 or TipHidden0. Those two
+; pick their value from the global TooltipsAll (skin, on, off):
+;   skin  the skin's own setting rules (1 shows, 0 hides)
+;   on    every tooltip shows
+;   off   every tooltip is hidden
+; The TipHide tables come first because a variable is replaced as it is
+; defined. Settings only writes skin, on or off. See specs/tooltips.md.
+TipHide1_skin=0
+TipHide1_on=0
+TipHide1_off=1
+TipHide0_skin=1
+TipHide0_on=0
+TipHide0_off=1
+TipHidden1=#TipHide1_[#TooltipsAll]#
+TipHidden0=#TipHide0_[#TooltipsAll]#
 Accent=#AccentColor#
 ; Placeholders for the light/dark and brightness values Scripts\Core.lua
 ; resolves (dark, today's brightness).
