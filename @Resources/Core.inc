@@ -12,6 +12,16 @@
 ;   mFade / #Reveal# the hover fade. The skin's [Rainmeter] section needs:
 ;     MouseOverAction=[!CommandMeasure mFade "Stop 2"][!CommandMeasure mFade "Execute 1"]
 ;     MouseLeaveAction=[!CommandMeasure mFade "Stop 1"][!CommandMeasure mFade "Execute 2"]
+;   #RevealMin#      the level #Reveal# rests at: 0 (details on hover) or 1
+;                    (details always shown), from SkinDetails / DetailsAll
+;   Side Mir TA TAT Lead Trail HoverTint
+;                    the left/right arrangement helpers, resolved by
+;                    Scripts\Core.lua (mCore). See specs/alignment.md.
+;
+; A skin that arranges itself left or right sets, in its own [Variables]
+; before including this file:
+;   SkinSide=#<Skin>Align#       (left or right)
+;   SkinDetails=#<Skin>Details#  (hover or always)
 
 [Variables]
 ; Defined here, after User.inc, so they see the user's settings.
@@ -23,6 +33,16 @@ Sz=#Scale#
 TipHidden1=0
 TipHidden0=1
 Accent=#AccentColor#
+; Placeholders for what Scripts\Core.lua resolves when the skin loads (left
+; arrangement, details on hover). Meters that use them need DynamicVariables=1.
+Side=left
+Mir=0
+TA=LeftCenter
+TAT=Left
+Lead=0
+Trail=1
+RevealMin=0
+HoverTint=#Accent#
 AlphaDetail=(#RestBrightness#*2.55)
 AlphaValue=(Min(255,(#RestBrightness#+20)*2.55))
 AlphaRest=(#RestBrightness#*2.55)
@@ -70,6 +90,13 @@ IfMatch=^0,0,0$
 IfNotMatchAction=[!SetVariable Accent "[mAccent]"]
 IfMatchMode=1
 
+; ---------- Layout helpers ----------
+
+[mCore]
+Measure=Script
+ScriptFile=#@#Scripts\Core.lua
+UpdateDivider=5
+
 ; ---------- Visibility ----------
 
 [mFullScreen]
@@ -96,6 +123,6 @@ Plugin=ActionTimer
 ActionList1=Repeat FadeIn,#FadeStep#,#FadeSteps#
 ActionList2=Wait #HideDelay# | Repeat FadeOut,#FadeStep#,#FadeSteps#
 FadeIn=[!SetVariable Reveal "(Clamp([#Reveal]+1/#FadeSteps#,0,1))"][!UpdateMeterGroup Reveal][!Redraw]
-FadeOut=[!SetVariable Reveal "(Clamp([#Reveal]-1/#FadeSteps#,0,1))"][!UpdateMeterGroup Reveal][!Redraw]
+FadeOut=[!SetVariable Reveal "(Clamp([#Reveal]-1/#FadeSteps#,#RevealMin#,1))"][!UpdateMeterGroup Reveal][!Redraw]
 DynamicVariables=1
 IgnoreWarnings=1
