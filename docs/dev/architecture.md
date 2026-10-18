@@ -19,10 +19,10 @@ Control-Plaine\                 config root; always #ROOTCONFIG#, never the lite
   <Skin>\<Skin>.ini             one skin per folder
   <Skin>\Defaults.inc           that skin's setting defaults
   Settings\General.ini, <Skin>.ini    one Settings page per tab
-  Layouts\                      shipped layout
   specs\                        per-skin and foundation specs (design history plus rules)
   docs\                         guides (users), dev (this folder), icons, DESIGN-V1.md
   tools\                        lint.py, install.ps1, render-icons, fan-tasks.ps1
+  tools\layout\                 shipped layout source (not an .ini, so Rainmeter does not list it as a skin)
 ```
 
 Skin folders are listed in `SKIN_FOLDERS` in `tools/lint.py`. The Settings tab list is `TABS` at the top of `@Resources/Scripts/Settings.lua`. `specs/foundation-settings.md` section 1 has the ownership table.

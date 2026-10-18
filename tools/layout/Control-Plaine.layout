@@ -1,9 +1,14 @@
+; Control-Plaine layout, copied by tools\install.ps1 to %APPDATA%\Rainmeter\Layouts\Control-Plaine\Rainmeter.ini.
+; Kept out of the skins tree and without an .ini name so Rainmeter does not list it as a skin.
+; WindowX/Y are only a first column on the left of the primary screen at 100% (the order and
+; sizes of Scripts\Placement.lua); the first-run setup's PLACEMENT step moves the skins to the
+; screen and edge the user picks.
 [Rainmeter]
 
 [Control-Plaine\DayDate]
 Active=1
-WindowX=-947
-WindowY=340
+WindowX=24
+WindowY=24
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -13,8 +18,8 @@ AlphaValue=255
 
 [Control-Plaine\Power]
 Active=1
-WindowX=-290
-WindowY=474
+WindowX=24
+WindowY=190
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -24,9 +29,8 @@ AlphaValue=255
 
 [Control-Plaine\RecycleBin]
 Active=1
-WindowX=-254
-WindowY=1650
-AnchorX=100%
+WindowX=24
+WindowY=414
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -36,8 +40,8 @@ AlphaValue=255
 
 [Control-Plaine\Volume]
 Active=1
-WindowX=-230
-WindowY=1645
+WindowX=24
+WindowY=278
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -47,8 +51,8 @@ AlphaValue=255
 
 [Control-Plaine\Playnite]
 Active=1
-WindowX=-1068
-WindowY=1692
+WindowX=24
+WindowY=710
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -58,9 +62,8 @@ AlphaValue=255
 
 [Control-Plaine\Media]
 Active=1
-WindowX=-27
-WindowY=1560
-AnchorX=100%
+WindowX=24
+WindowY=346
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -70,8 +73,8 @@ AlphaValue=255
 
 [Control-Plaine\Uptime]
 Active=1
-WindowX=-290
-WindowY=560
+WindowX=24
+WindowY=130
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -81,9 +84,8 @@ AlphaValue=255
 
 [Control-Plaine\WiFi]
 Active=1
-WindowX=-40
-WindowY=64
-AnchorX=100%
+WindowX=24
+WindowY=486
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -93,8 +95,8 @@ AlphaValue=255
 
 [Control-Plaine\FanControl]
 Active=1
-WindowX=-475
-WindowY=150
+WindowX=24
+WindowY=542
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -104,8 +106,8 @@ AlphaValue=255
 
 [Control-Plaine\SignalRGB]
 Active=1
-WindowX=-329
-WindowY=145
+WindowX=24
+WindowY=654
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -115,8 +117,8 @@ AlphaValue=255
 
 [Control-Plaine\DeepCool]
 Active=1
-WindowX=-190
-WindowY=150
+WindowX=24
+WindowY=598
 ClickThrough=0
 Draggable=1
 SnapEdges=1
@@ -126,8 +128,8 @@ AlphaValue=255
 
 [Control-Plaine\Controllers]
 Active=1
-WindowX=-190
-WindowY=300
+WindowX=24
+WindowY=759
 ClickThrough=0
 Draggable=1
 SnapEdges=1
