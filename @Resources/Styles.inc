@@ -147,12 +147,3 @@ DynamicVariables=1
 [sRing]
 AntiAlias=1
 DynamicVariables=1
-
-; ---- Legacy v1 style, used by the v1 skins until they are rebuilt ----
-[sText]
-FontFace=#FontUI#
-FontSize=(#SizeM#*#Sz#)
-FontColor=#Ink#,#AlphaHover#
-FontEffectColor=#ShadowRGB#,(#AlphaHover#*#ShadowK#)
-AntiAlias=1
-DynamicVariables=1

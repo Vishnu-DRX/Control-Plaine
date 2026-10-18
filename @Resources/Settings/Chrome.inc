@@ -62,87 +62,94 @@ Y=((#TabY0#+0*#TabStep#)*#PS#)
 Text=GENERAL
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "General.ini"]
 
-[TabDayDate]
+[TabAdvanced]
 Meter=String
 MeterStyle=sTab
 Y=((#TabY0#+1*#TabStep#)*#PS#)
+Text=ADVANCED
+LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Advanced.ini"]
+
+[TabDayDate]
+Meter=String
+MeterStyle=sTab
+Y=((#TabY0#+2*#TabStep#)*#PS#)
 Text=DAY-DATE
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "DayDate.ini"]
 
 [TabPower]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+2*#TabStep#)*#PS#)
+Y=((#TabY0#+3*#TabStep#)*#PS#)
 Text=POWER
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Power.ini"]
 
 [TabUptime]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+3*#TabStep#)*#PS#)
+Y=((#TabY0#+4*#TabStep#)*#PS#)
 Text=UPTIME
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Uptime.ini"]
 
 [TabVolume]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+4*#TabStep#)*#PS#)
+Y=((#TabY0#+5*#TabStep#)*#PS#)
 Text=VOLUME
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Volume.ini"]
 
 [TabRecycleBin]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+5*#TabStep#)*#PS#)
+Y=((#TabY0#+6*#TabStep#)*#PS#)
 Text=RECYCLE BIN
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "RecycleBin.ini"]
 
 [TabPlaynite]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+6*#TabStep#)*#PS#)
+Y=((#TabY0#+7*#TabStep#)*#PS#)
 Text=PLAYNITE
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Playnite.ini"]
 
 [TabMedia]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+7*#TabStep#)*#PS#)
+Y=((#TabY0#+8*#TabStep#)*#PS#)
 Text=MEDIA
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Media.ini"]
 
 [TabWiFi]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+8*#TabStep#)*#PS#)
+Y=((#TabY0#+9*#TabStep#)*#PS#)
 Text=WI-FI
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "WiFi.ini"]
 
 [TabFanControl]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+9*#TabStep#)*#PS#)
+Y=((#TabY0#+10*#TabStep#)*#PS#)
 Text=FAN CONTROL
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "FanControl.ini"]
 
 [TabSignalRGB]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+10*#TabStep#)*#PS#)
+Y=((#TabY0#+11*#TabStep#)*#PS#)
 Text=SIGNALRGB
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "SignalRGB.ini"]
 
 [TabDeepCool]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+11*#TabStep#)*#PS#)
+Y=((#TabY0#+12*#TabStep#)*#PS#)
 Text=DEEPCOOL
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "DeepCool.ini"]
 
 [TabControllers]
 Meter=String
 MeterStyle=sTab
-Y=((#TabY0#+12*#TabStep#)*#PS#)
+Y=((#TabY0#+13*#TabStep#)*#PS#)
 Text=CONTROLLERS
 LeftMouseUpAction=[!ActivateConfig "#ROOTCONFIG#\Settings" "Controllers.ini"]
 
@@ -181,6 +188,33 @@ W=([GitHub:W]-12*#PS#)
 H=(1*#PS#)
 SolidColor=#Accent#,255
 DynamicVariables=1
+
+[LinkRefresh]
+Meter=String
+MeterStyle=sTab
+X=(#ColL#*#PS#)
+Y=(596*#PS#)
+FontColor=#Ink#,153
+Text=REFRESH ALL
+LeftMouseUpAction=[!RefreshGroup ControlPlaine][!Refresh]
+
+[LinkFolder]
+Meter=String
+MeterStyle=sTab
+X=(24*#PS#)R
+Y=r
+FontColor=#Ink#,153
+Text=OPEN SKINS FOLDER
+LeftMouseUpAction=["#ROOTCONFIGPATH#"]
+
+[LinkUser]
+Meter=String
+MeterStyle=sTab
+X=(24*#PS#)R
+Y=r
+FontColor=#Ink#,153
+Text=OPEN USER.INC
+LeftMouseUpAction=["#@#User.inc"]
 
 ; ---------- Close ----------
 

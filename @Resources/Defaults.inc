@@ -9,6 +9,9 @@ Scale=1
 ; Extra size for Controllers, Fan Control, DeepCool, Wi-Fi and SignalRGB only,
 ; on top of Scale (1 = none). Those skins define Sz=(#Scale#*#SizeBoost#).
 SizeBoost=1.25
+; Font for all text: Segoe UI Variable Display, or Segoe UI on Windows 10 or a
+; PC without the Variable font.
+FontFace=Segoe UI Variable Display
 ; 1 = follow the Windows accent colour, 0 = use AccentColor.
 AccentFollowWindows=1
 ; Custom accent (R,G,B). Also the start value before Windows is read.
@@ -45,17 +48,18 @@ HoverAccent=1
 ; check follows the foreground window on any monitor, so a game or video on
 ; the main monitor would also hide skins sitting on a second one.
 HideFullScreen=0
+; How long revealed detail stays after the mouse leaves (ms).
+HideDelay=500
 ; Stop skins from being dragged (Settings applies it with !DraggableGroup).
 LockPositions=0
-
-; ---- Per skin, set by the skin before it includes Core.inc ----
-; Fallbacks for a skin that does not arrange itself (Core.lua reads these).
-SkinSide=left
-SkinDetails=hover
-SkinTheme=auto
 
 ; ---- Runtime, not settings ----
 ; A skin sets SelfHidden=1 (then !UpdateMeasure mVisible) to hide itself.
 SelfHidden=0
 ; Hover fade level, 0 to 1, driven by mFade.
 Reveal=0
+; Per skin, set by the skin before it includes Core.inc:
+; Fallbacks for a skin that does not arrange itself (Core.lua reads these).
+SkinSide=left
+SkinDetails=hover
+SkinTheme=auto
