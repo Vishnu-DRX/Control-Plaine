@@ -20,7 +20,7 @@ The mode is named after the wallpaper:
 | `HoverBrightness` | 30 to 100 | `98` | Hover level, never below rest. |
 | `LightBoost` | 0 to 40 | `10` | Percentage points added to the rest level in light mode. |
 
-Settings rows for these arrive in WP-G (brightness) and WP-L3 (mode, boost). Until then edit `User.inc`.
+Settings rows: brightness on General (WP-G); SKINS FOR (`Theme`), LIGHT MODE BOOST and ACCENT DARKENING (`AccentLight`, `AccentLightK`) as one-line rows at the bottom of General (WP-L3). Each skin's COLOURS row (`<Skin>Theme`: AUTO / WHITE / BLACK) comes from `@Resources\Settings\Theme.inc`, included by the skin's page with `ThemeKey` and `ThemeY` set; WP-L2 adds it per skin, and lint fails a skin that sets `SkinTheme` without it. `ThemeFollow` has no row yet (edit `User.inc`).
 
 **Default is `dark`, not `auto`.** The plan decided `auto`, but also needs "defaults leave everything as today" (L8) and says which Windows setting `auto` follows is to be settled on the PC. Shipping `auto` first would turn his skins black if Windows is on its light theme while his wallpaper is dark. Flip `Theme=dark` to `auto` in `Defaults.inc` once the registry choice is confirmed at gate G1.
 
@@ -42,7 +42,7 @@ Settings rows for these arrive in WP-G (brightness) and WP-L3 (mode, boost). Unt
 
 Mode resolution, in order: a locked skin is always dark; a `<Skin>Theme` of `dark` or `light` wins; else `Theme` if it is `dark` or `light`; else, for `auto`, the Windows setting (`mWinTheme`, a Registry measure; a missing value reads 0, which is dark); anything else is dark.
 
-**The Settings window is always dark.** A skin is locked when it sets `ThemeLock=1` or names a page in `Tab`, which every Settings page does, so no page needed editing. WP-L3 may add the explicit `ThemeLock=1`.
+**The Settings window is always dark.** A skin is locked when it sets `ThemeLock=1` or names a page in `Tab`, which every Settings page does, so no page needed editing. `Settings\Chrome.inc` also sets `ThemeLock=1` explicitly.
 
 White icons stay tintable: every skin draws icons with `ImageTint=#Ink#`, so a white PNG tinted by black is black with its own alpha and anti-aliasing. The two icons with coloured pixels are WP-L1's job.
 
@@ -64,4 +64,4 @@ A skin that has not opted in still follows `Theme` (it includes `Core.inc`), but
 1. SignalRGB in both modes on a real light wallpaper: legible black ink at the boosted level, sharp and without haloing (L1, L2, L12), accent readable (L3), layout and hit areas unchanged (L9).
 2. `Theme=auto` follows Windows within a few seconds in both directions, and a skin with its own `dark` / `light` does not change (L10). Which of `SystemUsesLightTheme` and `AppsUseLightTheme` fits his setup.
 3. The Settings window looks the same in every mode (L5).
-4. Test by adding `Theme=light` (or `SignalRGBTheme=light`) to `@Resources\User.inc`: the COLOURS rows are WP-L3.
+4. Test by adding `Theme=light` (or `SignalRGBTheme=light`) to `@Resources\User.inc`: use the COLOURS row on SignalRGB's page and SKINS FOR on General.

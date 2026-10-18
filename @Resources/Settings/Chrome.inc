@@ -10,6 +10,9 @@ ColL=248
 ColR=872
 TabY0=128
 TabStep=28
+; The Settings window ignores Theme and every <Skin>Theme: always the dark
+; panel with white ink (specs/theme.md, Core.lua locks on Tab as well).
+ThemeLock=1
 
 ; ---------- Panel ----------
 

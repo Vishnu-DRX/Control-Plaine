@@ -35,7 +35,7 @@ Use this to add one new skin. Each step names the file to change and what enforc
 
 - [ ] Every user-facing key is here with the `<Name>` prefix and a comment above it; runtime keys go under a `---- Runtime, not settings ----` comment. Lint: Settings pages may only use keys that have a default; B10 (warning today) wants a Settings row for every setting.
 - [ ] The four standard keys exist: `<Name>Align=left`, `<Name>Details=hover`, `<Name>Theme=auto`, `<Name>Tooltips=1`. Lint: A-checks, L-checks, T4.
-- [ ] `<Name>Theme` has no Settings row until the COLOURS row exists (after WP-L2 lands; check `ls @Resources/Settings` for a Theme include). Until then B10 prints a warning for it, as it does for the other themed skins. When the row exists, add it to the page (step 5) using that include's header comment.
+- [ ] `<Name>Theme` has its COLOURS row on the Settings page (step 5) through `@Resources/Settings/Theme.inc`; lint fails a themed skin without it.
 
 ## 4. Register the skin (shared files, one owner at a time)
 
@@ -49,8 +49,8 @@ Do these as small appends and check ownership first ([change-a-shared-file.md](c
 
 ## 5. Settings page (`Settings/<Name>.ini`)
 
-- [ ] Includes in order: Theme, Defaults, `<Name>\Defaults.inc`, User, `Tab=<Name>`, Core, Styles, Controls, Chrome, then `AlignKey`, `DetailsKey` and `Align.inc`, then `TipKey`, `TipY`, `Tooltips.inc`. Lint: `SETTINGS_ORDER`, the `AlignKey`/`DetailsKey` rule, T4.
-- [ ] Own rows start at Y=128 (below the ALIGN and DETAILS rows); set `TipY` below the last own row. Recipes for each control are in the comment block at the top of `@Resources/Settings/Controls.inc`. Lint: every `Fill`/`Knob`/`Toggle`/`Set`/`Step`/`Show`/`ChoiceAlpha`/`ChoiceLine`/`EditPath` key must have a default.
+- [ ] Includes in order: Theme, Defaults, `<Name>\Defaults.inc`, User, `Tab=<Name>`, Core, Styles, Controls, Chrome, then `AlignKey`, `DetailsKey` and `Align.inc`, then `ThemeKey`, `ThemeY`, `Theme.inc` (the COLOURS row), then `TipKey`, `TipY`, `Tooltips.inc`. Lint: `SETTINGS_ORDER`, the `AlignKey`/`DetailsKey` rule, T4, the COLOURS row, and the row layout check.
+- [ ] Own rows start at Y=180 (below the ALIGN and DETAILS rows); set `ThemeY` and `TipY` below the last own row. Lint fails rows that overlap or end below Y=592; use a pitch of 52 or one-line rows if the page is full. Recipes for each control are in the comment block at the top of `@Resources/Settings/Controls.inc`. Lint: every `Fill`/`Knob`/`Toggle`/`Set`/`Step`/`Show`/`ChoiceAlpha`/`ChoiceLine`/`EditPath` key must have a default.
 - [ ] More options: follow [add-a-setting.md](add-a-setting.md).
 
 ## 6. Icon

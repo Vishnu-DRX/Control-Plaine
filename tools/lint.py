@@ -86,6 +86,14 @@ def check_themed(rel, text):
     defaults = (ROOT / skin / 'Defaults.inc').read_text('ascii', 'replace')
     if not re.search(rf'^{theme}=auto\s*$', defaults, re.M):
         problems.append(f'{skin}/Defaults.inc: needs {theme}=auto')
+    page = ROOT / 'Settings' / f'{skin}.ini'
+    if page.exists():
+        ptext = page.read_text('ascii', 'replace')
+        if not (re.search(rf'^ThemeKey={theme}\s*$', ptext, re.M)
+                and re.search(r'^ThemeY=\d+\s*$', ptext, re.M)
+                and '#@#Settings\\Theme.inc' in includes(ptext)):
+            problems.append(f'Settings/{skin}.ini: needs ThemeKey={theme}, ThemeY and '
+                            f'@include of #@#Settings\\Theme.inc (the COLOURS row)')
     # White or black with a visible alpha (or none) is ink; 0,0,0,0 and 0,0,0,1 are
     # the invisible and the hit-test backing colours.
     for n, line in enumerate(text.splitlines(), 1):
@@ -95,6 +103,50 @@ def check_themed(rel, text):
             if m.group(1) == '0,0,0' and m.group(2) is not None and int(m.group(2)) <= 1:
                 continue
             problems.append(f'{rel}:{n}: hard-coded {m.group(1)}; use #Ink#, #InkContrast# or #Dark#: {line.strip()}')
+
+
+# Settings page layout: every row on a page has a Y, the rows must not overlap
+# and the last must end inside the panel. Rows are the meters styled sRowLabel
+# or sSection with a plain Y=(n*#PS#) and no X of their own, plus the rows the
+# shared includes place (Align.inc at 52 and 116, Theme.inc at ThemeY,
+# Tooltips.inc at TipY). A row with a description (the sRowDesc meter right
+# after its label) is ROW_FULL px high, any other ROW_LINE. Controls inside a
+# row are placed relative to its label and are not checked, and neither is
+# General's grid of skin toggles.
+ROW_FULL, ROW_LINE, PANEL_ROWS_END = 44, 16, 592
+
+
+def check_layout(rel, text):
+    secs = re.findall(r'^\[(\w+)\]\s*\n(.*?)(?=^\[|\Z)', text, re.M | re.S)
+    rows = []
+    for i, (name, body) in enumerate(secs):
+        style = re.search(r'^MeterStyle=(\w+)', body, re.M)
+        y = re.search(r'^Y=\(\s*(\d+)\*#PS#\)\s*$', body, re.M)
+        if not style or style.group(1) not in ('sRowLabel', 'sSection') or not y:
+            continue
+        if re.search(r'^X=', body, re.M):
+            continue
+        nxt = secs[i + 1][1] if i + 1 < len(secs) else ''
+        full = style.group(1) == 'sRowLabel' and 'MeterStyle=sRowDesc' in nxt
+        rows.append((int(y.group(1)), ROW_FULL if full else ROW_LINE, name))
+    inc = includes(text)
+
+    def var(key):
+        m = re.search(rf'^{key}=(\d+)\s*$', text, re.M)
+        return int(m.group(1)) if m else None
+    if '#@#Settings\\Align.inc' in inc:
+        rows += [(52, ROW_FULL, 'ALIGN'), (116, ROW_FULL, 'DETAILS')]
+    if '#@#Settings\\Theme.inc' in inc and var('ThemeY') is not None:
+        rows.append((var('ThemeY'), ROW_FULL, 'COLOURS'))
+    if '#@#Settings\\Tooltips.inc' in inc and var('TipY') is not None:
+        rows.append((var('TipY'), ROW_LINE if var('TipCompact') == 1 else ROW_FULL, 'TOOLTIPS'))
+    rows.sort()
+    for (y, h, name), (y2, _, name2) in zip(rows, rows[1:]):
+        if y + h > y2:
+            problems.append(f'{rel}: row {name} (Y={y}, {h} high) overlaps {name2} (Y={y2})')
+    if rows and rows[-1][0] + rows[-1][1] > PANEL_ROWS_END:
+        y, h, name = rows[-1]
+        problems.append(f'{rel}: row {name} (Y={y}, {h} high) ends below Y={PANEL_ROWS_END}, outside the panel')
 
 
 for path in sorted(ROOT.rglob('*')):
@@ -126,7 +178,8 @@ for path in sorted(ROOT.rglob('*')):
     if rel.parts[0] == 'Settings':
         if not in_order(found, SETTINGS_ORDER):
             problems.append(f'{rel}: Settings page must include {", ".join(SETTINGS_ORDER)} in that order')
-        for key in re.findall(r'^(?:Align|Details|Tip)Key=(\w+)\s*$', text, re.M):
+        check_layout(rel, text)
+        for key in re.findall(r'^(?:Align|Details|Tip|Theme)Key=(\w+)\s*$', text, re.M):
             if key not in defined:
                 problems.append(f'{rel}: setting {key} has no default in a Defaults.inc')
         for key in re.findall(KEY_CALLS, text):
@@ -169,7 +222,7 @@ rowkeys = set()
 for page in (ROOT / 'Settings').glob('*.ini'):
     ptext = page.read_text('ascii', 'replace')
     rowkeys |= set(re.findall(KEY_CALLS, ptext))
-    rowkeys |= set(re.findall(r'^(?:Align|Details|Tip)Key=(\w+)\s*$', ptext, re.M))
+    rowkeys |= set(re.findall(r'^(?:Align|Details|Tip|Theme)Key=(\w+)\s*$', ptext, re.M))
 rowkeys = {k.lower() for k in rowkeys}
 for f in sorted(ROOT.glob('*/Defaults.inc')):
     runtime = False

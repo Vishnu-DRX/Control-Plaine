@@ -24,6 +24,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | Key | Default | What it does |
 | --- | --- | --- |
 | `SignalRGBPath` | `auto` | What the logo opens: `auto` (the launcher, found through its `signalrgb://` registration), a program path or a link. |
+| `SignalRGBTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin, `light` = black skin. |
 | `SignalRGBStep` | `5` | Brightness change per scroll notch (%). |
 | `SignalRGBApi` | `auto` | `auto` uses the local API when it answers (Pro), else just opens the app. 0 = never use the API. |
 | `SignalRGBPort` | `16038` | Port of SignalRGB's local API. |
