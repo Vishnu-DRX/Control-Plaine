@@ -36,3 +36,7 @@ Windows 10/11, no admin rights. Hibernate must be available (`powercfg /a`). Hib
 ## Known limits
 
 A task missed while the PC was asleep or off does not run later. Restarting the PC clears a pending shut down or restart. The schedule itself lives in `State.inc` (runtime keys `PowerScheduled*`, not settings).
+
+## When something is missing
+
+SCHEDULE needs Windows' task scheduler. If it is not available, the SCHEDULE link is left out and the four icons stay as they are. A schedule that is already pending can still be cancelled. It comes back by itself within about a minute once the scheduler is found.

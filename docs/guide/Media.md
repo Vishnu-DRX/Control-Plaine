@@ -39,3 +39,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 ## Known limits
 
 Some sources (certain websites) report no position, so the ring stays empty. When several apps play, Windows decides which is shown.
+
+## When something is missing
+
+If the plugin for the chosen source is missing (`MediaPlayer.dll`, or `WebNowPlaying.dll` when `MediaPlugin=WebNowPlaying`), the skin hides itself instead of sitting on the desktop broken, and Settings shows what to install. Once it is in place (restart Rainmeter once after installing a plugin) the skin comes back by itself.

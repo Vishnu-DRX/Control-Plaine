@@ -38,3 +38,7 @@ Rainmeter's bundled Win7AudioPlugin; nothing to install.
 ## Known limits
 
 The device name is the name in Windows Sound settings: rename the device there. With no playback device the plugin reports an error string.
+
+## When something is missing
+
+If the Windows audio plugin is missing, the skin cannot read the volume and hides itself until it is found. If the mixer target (`VolumeMixer`) cannot be opened, only the speaker click is turned off: no tooltip, no click, and the ring, %, mute and device switch keep working. Both come back within about a minute once fixed, no refresh needed.

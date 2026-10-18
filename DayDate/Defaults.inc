@@ -20,3 +20,8 @@ DayDateDetails=hover
 ; show: the small date line is always visible. hover: hidden until the mouse is
 ; over the skin. (DayDateDetails=always or DetailsAll=always also show it.)
 DayDateDateLine=show
+
+; ---- Runtime, not settings ----
+; 1 while the click target can be opened. Set by the needs check (Needs.lua);
+; 0 turns the click off (no tooltip, no click).
+DayDateHasClick=1
