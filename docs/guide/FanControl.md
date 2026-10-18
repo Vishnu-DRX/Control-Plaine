@@ -7,7 +7,8 @@ Average fan speed and a one-click MAX switch, through Fan Control.
 ## At rest and on hover
 
 - **At rest:** A fan icon.
-- **On hover:** FANS and the average speed, and a snowflake.
+- **On hover:** FANS and the average speed, and a snowflake. With `FanControlDetails` set to `always` they stay visible.
+- **Left or right:** `FanControlAlign` mirrors the skin inside its box. On the right the icon is last, the text comes first, and the snowflake, SPEEDING UP / SLOWING DOWN and the spinner sit on the inner side of the text. The box and hit area are the same on both sides.
 
 ## Actions
 
@@ -23,6 +24,8 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 
 | Key | Default | What it does |
 | --- | --- | --- |
+| `FanControlAlign` | `left` | `left` or `right`: which screen edge the skin sits on. The ALIGN row on this page; `AlignAll` on General overrides it. |
+| `FanControlDetails` | `hover` | `hover` shows the text and snowflake only on hover, `always` keeps them visible. The DETAILS row; `DetailsAll` overrides it. |
 | `FanControlPath` | `C:\Program Files (x86)\FanControl\FanControl.exe` | Fan Control program; its configs are in the `Configurations` folder beside it. |
 | `FanControlNormal` | `userConfig.json` | Profile used when MAX is off. |
 | `FanControlMax` | `Max.json` | Profile with every fan at 100%. |
@@ -35,4 +38,4 @@ Fan Control by Rem0o (V277 was tested). Fan Control and its sensor feed need adm
 
 ## Known limits
 
-Runtime key `FanControlMaxOn` is kept in `State.inc`, not a setting.
+Runtime key `FanControlMaxOn` is kept in `State.inc`, not a setting (it sits under a "Runtime, not settings" heading in `FanControl/Defaults.inc`). `FanControlTooltips` has no Settings row yet; it is added with the shared tooltips row.

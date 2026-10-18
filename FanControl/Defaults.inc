@@ -3,6 +3,12 @@
 ; Owned by the FanControl skin; add keys here with the FanControl prefix.
 
 [Variables]
+; Which screen edge the skin sits on: left puts the fan icon first, right
+; mirrors it (text first, icon last). AlignAll in Settings can override it.
+FanControlAlign=left
+; hover shows the text and snowflake only while hovered, always keeps them
+; visible. DetailsAll in Settings can override it.
+FanControlDetails=hover
 ; 1 shows this skin's tooltips, 0 hides them all.
 FanControlTooltips=1
 ; Fan Control program (FanControl.exe). Its configs are in the Configurations
@@ -18,6 +24,7 @@ FanControlIgnoreStopped=1
 ; so there is no UAC prompt. 0 launches FanControl.exe directly.
 FanControlUseTasks=1
 
-; ---- Runtime, not settings (State.inc overrides) ----
+; ---- Runtime, not settings ----
+; Written to State.inc by FanControl.lua; State.inc overrides this default.
 ; 1 while the MAX profile is active.
 FanControlMaxOn=0
