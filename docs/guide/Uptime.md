@@ -6,12 +6,13 @@ How long Windows has been running; orange when a restart is due.
 
 ## At rest and on hover
 
-- **At rest:** Invisible until hovered (unless `UptimeAlways` is on).
+- **At rest:** Invisible until hovered (unless `UptimeDetails` is `always`).
 - **On hover:** UPTIME over the running time. Past `UptimeWarnDays` it shows itself in orange: RESTART RECOMMENDED.
+- **Side:** `UptimeAlign` left grows the text rightwards from the edge; right grows it leftwards. The box is the same size either way.
 
 ## Actions
 
-- Click: opens Task Manager.
+- Click: opens `UptimeClick` (default Task Manager).
 - Right-click: **Control-Plaine settings** opens this skin's Settings tab.
 
 ## Settings
@@ -23,7 +24,9 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | Key | Default | What it does |
 | --- | --- | --- |
 | `UptimeWarnDays` | `5` | Days before the orange reminder. |
-| `UptimeAlways` | `0` | 1 = visible at rest, not only on hover. |
+| `UptimeClick` | `taskmgr.exe` | What a click opens: a program, file or link. |
+| `UptimeAlign` | `left` | `left` or `right`: which screen edge it sits on. `AlignAll` can override it. |
+| `UptimeDetails` | `hover` | `hover` or `always`: when the text shows. `DetailsAll` can override it. Replaces the old `UptimeAlways`. The orange reminder shows itself either way. |
 
 ## Requirements
 

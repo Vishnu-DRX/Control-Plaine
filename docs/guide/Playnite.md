@@ -7,7 +7,8 @@ A controller icon that opens Playnite.
 ## At rest and on hover
 
 - **At rest:** The controller icon.
-- **On hover:** Brightens and shows PLAYNITE.
+- **On hover:** Brightens and shows PLAYNITE (always, when `PlayniteDetails` is `always`).
+- **Side:** `PlayniteAlign` left puts the art first; right mirrors it (label first, art last). The box is the same size either way.
 
 ## Actions
 
@@ -24,6 +25,8 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | --- | --- | --- |
 | `PlaynitePath` | `%LOCALAPPDATA%\Playnite\Playnite.DesktopApp.exe` | The program to start. Any other `.exe` launches that instead. |
 | `PlayniteSkipSplash` | `1` | Start without Playnite's splash screen. |
+| `PlayniteAlign` | `left` | `left` or `right`: which screen edge it sits on. `AlignAll` can override it. |
+| `PlayniteDetails` | `hover` | `hover` or `always`: when PLAYNITE shows. `DetailsAll` can override it. |
 
 ## Requirements
 
