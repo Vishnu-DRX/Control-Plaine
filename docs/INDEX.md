@@ -34,6 +34,7 @@ A map of the repo's docs. "Read this when" says why to open each one. Docs here 
 | --- | --- |
 | [DESIGN-V1.md](DESIGN-V1.md) | You need the original design intent and per-skin behaviour. |
 | [../specs/foundation-settings.md](../specs/foundation-settings.md) | You are touching shared files, the skin template or the Settings window. |
+| [../specs/tooltips.md](../specs/tooltips.md) | You are changing tooltips, `TooltipsAll`, or a skin's `ToolTipHidden` line. |
 | [../specs/power-uptime.md](../specs/power-uptime.md), [volume-media](../specs/volume-media.md), [wifi](../specs/wifi.md), [app-skins](../specs/app-skins.md) (Fan Control, SignalRGB, DeepCool), [controllers](../specs/controllers.md), [daydate-bin-playnite](../specs/daydate-bin-playnite.md) | You are changing that skin and want the reasoning and what was checked on a real PC. |
 | [icons/](icons/) | You are adding or changing an icon (SVG sources). |
 
