@@ -21,3 +21,6 @@ PowerPickerStart=60
 PowerScheduledAction=
 PowerScheduledAt=0
 PowerScheduledBoot=0
+; 1 while Windows' task scheduler is available. Set by the needs check
+; (Needs.lua); 0 hides SCHEDULE.
+PowerHasSchedule=1

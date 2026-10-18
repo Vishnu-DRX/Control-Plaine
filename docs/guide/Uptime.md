@@ -36,3 +36,7 @@ Nothing to install.
 ## Known limits
 
 The count matches Task Manager and includes time asleep. With Fast Startup on, Shut down does not reset it (only Restart does).
+
+## When something is missing
+
+The click that opens Task Manager needs a target. If `UptimeClick` points at something that cannot be opened, the click is turned off: no tooltip, no click, and the text looks the same. Fix the target in Settings and it comes back within about a minute, no refresh needed.

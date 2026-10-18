@@ -36,3 +36,7 @@ Rainmeter's bundled RecycleManager plugin; covers all drives.
 ## Known limits
 
 -
+
+## When something is missing
+
+If the Recycle Bin plugin is missing, the skin hides itself until it is found. If emptying is not available, only the EMPTY link is left out; the size, the icon and opening the bin keep working. It comes back within about a minute once fixed, no refresh needed.

@@ -19,3 +19,10 @@ RecycleBinTooltips=1
 RecycleBinConfirm=1
 ; The size turns orange above this many GB.
 RecycleBinWarnGB=10
+
+; ---- Runtime, not settings ----
+; Set by the needs check (Needs.lua). RecycleBinHasEmpty: 1 while EMPTY can
+; work, 0 hides the EMPTY link. RecycleBinNeedBlocked: 1 hides the skin (the
+; Recycle Bin plugin is missing).
+RecycleBinHasEmpty=1
+RecycleBinNeedBlocked=0
