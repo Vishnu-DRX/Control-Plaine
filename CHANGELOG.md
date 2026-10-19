@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1
+
+A small follow-up to 2.0.0.
+
+- **Setup placement follows the edge.** Choosing the right edge in the PLACEMENT step now also sets ALIGN ALL SKINS to right, so the column ends flush; choosing left only overrides a right setting.
+- **MediaPlayer plugin download is checked.** The helper compares the downloaded package with a pinned SHA-256 and installs nothing if it differs.
+
 ## 2.0.0
 
 Control-Plaine 2.0.0 is the suite rebuilt on one shared design system and one Settings window.
