@@ -19,13 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-What is not covered
--------------------
-This licence covers the project's own work: skin files, the Settings window,
-scripts, documentation, the site and the icon artwork drawn for the suite.
-Third-party material keeps its own licence and owner. See
-THIRD-PARTY-NOTICES.md: icon sources (Lucide, ISC), the plugins and programs
-the installer downloads (never committed here), and app logos (SignalRGB,
-DeepCool, Playnite artwork) that belong to their owners and are not licensed
-under the MIT licence.

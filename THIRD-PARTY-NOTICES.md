@@ -1,6 +1,6 @@
 # Third-party notices
 
-Control-Plaine's own work is licensed as stated in [LICENSE](LICENSE). The items below belong to other people and keep their own terms. Status marks what the maintainer still has to confirm before the repository goes public.
+Control-Plaine's own work is licensed as stated in [LICENSE](LICENSE). The items below belong to other people and keep their own terms. These items are not covered by the MIT licence: the SignalRGB, DeepCool and Playnite artwork belongs to its owners and is used only to label the buttons that open those programs. Status notes what is still being confirmed.
 
 ## Bundled in this repository
 
