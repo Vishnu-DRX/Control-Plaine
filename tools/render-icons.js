@@ -36,8 +36,11 @@ function lightSvg(svg) {
     const cut = '<defs><mask id="cut" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">' +
       '<rect width="24" height="24" fill="#fff" stroke="none"/>' +
       '<circle cx="19" cy="18" r="5" fill="#000" stroke="none"/></mask></defs><g mask="url(#cut)">';
-    s = s.replace(' fill="#1a1d22"', '').replace('<circle cx="19"', '</g><circle cx="19"')
-      .replace('<circle cx="11"', cut + '<circle cx="11"');
+    s = s.replace(' fill="#1a1d22"', '').replace('<circle cx="19"', '</g><circle cx="19"');
+    // Everything before the badge (after any metadata) sits under the mask.
+    const meta = s.indexOf('</metadata>');
+    const start = meta >= 0 ? meta + '</metadata>'.length : s.indexOf('>') + 1;
+    s = s.slice(0, start) + cut + s.slice(start);
   }
   return s;
 }   // the Controllers canvas below is boosted too
