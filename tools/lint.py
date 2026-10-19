@@ -113,7 +113,7 @@ def check_themed(rel, text):
 # after its label) is ROW_FULL px high, any other ROW_LINE. Controls inside a
 # row are placed relative to its label and are not checked, and neither is
 # General's grid of skin toggles.
-ROW_FULL, ROW_LINE, PANEL_ROWS_END = 44, 16, 592
+ROW_FULL, ROW_LINE, PANEL_ROWS_END = 44, 16, 652
 
 
 def check_layout(rel, text):

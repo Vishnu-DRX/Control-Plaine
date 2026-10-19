@@ -11,7 +11,8 @@ Needs lupa (pip install lupa), which embeds Lua.
    what #Mir# was when it was defined: Core.inc's placeholder), so a variable
    that depends on the side would leave the ring on the left: that is checked.
    Also: title, artist and hairline are invisible at Reveal=0 (details on
-   hover) and shown at Reveal=1 (always), as on Volume.
+   hover) and shown at Reveal=1 (always), as on Volume. The chevrons follow
+   Hov instead, so they show on hover only, whatever MediaDetails says.
 2. Scripts\\Media.lua, run against a fake SKIN, scrolls a long title for both
    sides: it starts with the first letter at the box's left edge, moves
    leftwards only, stops with the last letter flush with the right edge,
@@ -156,9 +157,13 @@ def test_reveal():
             check(vals[0] == 0, f'{name} is invisible at rest with details on hover (Dim {dim})')
             check(vals[1] > 0, f'{name} is shown at Reveal=1 (Dim {dim})')
     for name in ('Prev', 'Next'):
-        check('#Reveal#' in section(ini, name)['Shape'], f'{name} chevron follows Reveal')
+        shape = section(ini, name)['Shape']
+        check('#Hov#' in shape and '#Reveal#' not in shape, f'{name} chevron follows Hov (hover only), not Reveal')
+        check('Hover' in section(ini, name).get('Group', ''), f'{name} is in group Hover')
     for name in ('TitleBox', 'ArtistBox'):
-        check('#Dark#' not in section(ini, name)['SolidColor'], f'{name} container is not a visible box')
+        # A container with a near-transparent colour (alpha 1) left the text unseen.
+        col = section(ini, name)['SolidColor']
+        check('#Reveal#' in col and col.split(',', 1)[1].strip() != '1', f'{name} container is opaque while the text shows')
     # Bug guard: no [Variables] entry may use the side helpers (baked at load).
     in_vars = False
     for line in ini.splitlines():

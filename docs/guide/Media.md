@@ -5,7 +5,7 @@ The song playing in any app, with progress ring and controls.
 ## At rest and on hover
 
 - **At rest:** A progress ring with play/pause (ring first by default; `MediaAlign=right` puts the ring last, the mirror image in the same box). Hidden while nothing is playing (`MediaHideIdle`).
-- **On hover:** The title, artist and a hairline appear next to the ring, with previous and next chevrons at the ends of the line (Previous at the left end, Next at the right end, on both sides), and the ring turns accent. With `MediaDetails=always` they stay shown. A title too long for the line slides on hover, and once when the song changes while the text is always shown (`MediaScrollTitles`): it starts at its first letter, moves left and stops with the last letter at the edge of the line, then goes back.
+- **On hover:** The title, artist and a hairline appear next to the ring, with previous and next chevrons at the ends of the line (Previous at the left end, Next at the right end, on both sides), and the ring turns accent. With `MediaDetails=always` the title, artist and hairline stay shown; the chevrons always appear on hover only. A title too long for the line slides on hover, and once when the song changes while the text is always shown (`MediaScrollTitles`): it starts at its first letter, moves left and stops with the last letter at the edge of the line, then goes back.
 
 ## Actions
 
@@ -23,7 +23,7 @@ Open it from the right-click menu, or edit `@Resources\User.inc` by hand. Beside
 | Key | Default | What it does |
 | --- | --- | --- |
 | `MediaAlign` | `left` | `left`: ring first, text after it. `right`: text first, ring last (how it was drawn before). The skin's box and hit area are the same on both sides. `AlignAll` overrides it. |
-| `MediaDetails` | `hover` | `hover`: title, artist, hairline and chevrons show on hover. `always`: they stay shown. `DetailsAll` overrides it. |
+| `MediaDetails` | `hover` | `hover`: title, artist and hairline show on hover. `always`: they stay shown. The chevrons show on hover only either way. `DetailsAll` overrides it. |
 | `MediaTheme` | `auto` | COLOURS row: `auto` follows SKINS FOR on General, `dark` = white skin (for dark wallpapers), `light` = black skin (for light wallpapers). |
 | `MediaHideIdle` | `1` | The skin disappears when no app is playing. |
 | `MediaSource` | `any` | Which players it follows: `any` (Windows media session) or `wnp` (WebNowPlaying Redux). |

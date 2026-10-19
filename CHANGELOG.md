@@ -13,6 +13,7 @@ Fixes after the first full test on a real PC.
 - The Fan Control sensor task runs a protected copy of its script from the common data folder.
 - The licence is MIT.
 - Media follows Volume: with Media aligned right the ring and text column now mirror correctly, and with details on hover only the ring and play/pause show at rest (title, artist and chevrons appear on hover).
+- Media: the previous and next chevrons show on hover only, even with MediaDetails=always, and the title and artist show again (their clip boxes are opaque while the text shows).
 
 ## 2.0.0
 
