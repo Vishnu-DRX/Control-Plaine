@@ -188,8 +188,19 @@ def test_ringclick():
         check(not [a for a in sent if a[0] == '!CommandMeasure'], 'click in the ring centre does nothing')
 
 
+def test_text_top_aligned():
+    # Their text Y is the top of the line (Y=0, Y=2*Scale, ...), so it must use
+    # the top-aligned #TAT#. #TA# centres vertically on Y: the top half of the
+    # line falls outside the skin and is clipped, on either side.
+    for ini in ('Volume/Volume.ini', 'RecycleBin/RecycleBin.ini'):
+        text = (ROOT / ini).read_text()
+        check('StringAlign=#TA#' not in text.replace('\r', '').replace('#TAT#', ''), f'{ini}: text uses #TA# (vertically centred)')
+        check('StringAlign=#TAT#' in text, f'{ini}: text uses #TAT#')
+
+
 test_volume()
 test_bin()
 test_ringclick()
+test_text_top_aligned()
 print(f'{failed} failure(s)')
 sys.exit(1 if failed else 0)
