@@ -317,9 +317,13 @@ for name in SKIN_FOLDERS:
         continue
     head = itext.split('\n[', 2)
     rainmeter = head[1] if len(head) > 1 and head[1].startswith('Rainmeter]') else ''
-    if not re.search(rf'^ToolTipHidden=#TipHidden\[#{name}Tooltips\]#\s*$', rainmeter, re.M):
-        problems.append(f'{name}/{name}.ini: T3 [Rainmeter] needs ToolTipHidden=#TipHidden[#{name}Tooltips]# '
-                        f'(a skin with tooltips must hide them through the shared lookup)')
+    if not re.search(r'^ToolTipHidden=#TipHide#\s*$', rainmeter, re.M):
+        problems.append(f'{name}/{name}.ini: T3 [Rainmeter] needs ToolTipHidden=#TipHide#')
+    if not re.search(rf'^TipHide=#TipHidden\[#{name}Tooltips\]#\s*$', itext, re.M):
+        problems.append(f'{name}/{name}.ini: T3 needs TipHide=#TipHidden[#{name}Tooltips]# in [Variables], after the Core.inc include')
+    for mm in re.finditer(r'^ToolTipHidden=(.*)$', itext, re.M):
+        if '#TipHidden[' in mm.group(1):
+            problems.append(f'{name}/{name}.ini: T3 ToolTipHidden must be #TipHide#, not a nested lookup (it is not read on a meter)')
     if not re.search(rf'^{name}Tooltips=1\s*$', (ROOT / name / 'Defaults.inc').read_text('ascii', 'replace'), re.M):
         problems.append(f'{name}/Defaults.inc: T4 needs {name}Tooltips=1')
     page = ROOT / 'Settings' / f'{name}.ini'

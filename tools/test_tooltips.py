@@ -74,6 +74,10 @@ def load(skin, user, mode):
     pairs = [kv for f in files for kv in variables_of(f)]
     pairs += list(user.items())
     pairs += variables_of(ROOT / '@Resources' / 'Core.inc')
+    ini = (ROOT / skin / f'{skin}.ini').read_text('ascii')
+    tip = re.search(r'^(TipHide)=(.+)$', ini, re.M)
+    if tip:
+        pairs.append((tip.group(1), tip.group(2)))
     store = {}
     for k, v in pairs:
         store[k.lower()] = replace(v, store) if mode == 'define' else v

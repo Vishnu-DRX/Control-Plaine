@@ -22,7 +22,7 @@ TipHidden1=#TipHide1_[#TooltipsAll]#
 TipHidden0=#TipHide0_[#TooltipsAll]#
 ```
 
-Every skin keeps its single line `ToolTipHidden=#TipHidden[#<Skin>Tooltips]#`; `<Skin>Tooltips` picks `TipHidden1` or `TipHidden0`, and those pick the value from `TooltipsAll`. The tables are defined before `TipHidden1/0` because Rainmeter replaces a variable as it is defined. `ToolTipHidden` hides every tooltip of the skin, including the ones scripts set with `!SetOption`.
+Every skin defines `TipHide=#TipHidden[#<Skin>Tooltips]#` in its `[Variables]` after the Core.inc include, and uses `ToolTipHidden=#TipHide#` in `[Rainmeter]` and on every meter with a tooltip (a nested lookup written on a meter is not read by Rainmeter: PC probe 2026-10-19). `<Skin>Tooltips` picks `TipHidden1` or `TipHidden0`, and those pick the value from `TooltipsAll`. The tables are defined before `TipHidden1/0` because Rainmeter replaces a variable as it is defined. `ToolTipHidden` hides every tooltip of the skin, including the ones scripts set with `!SetOption`.
 
 Changing a switch refreshes the affected skins (`'all'` for `TooltipsAll`, the skin for its own row), which is when the line is read again.
 
@@ -32,7 +32,7 @@ Changing a switch refreshes the affected skins (`'all'` for `TooltipsAll`, the s
 
 ## Lint and test
 
-- T3: a skin with any `ToolTipText` (ini or script) has `ToolTipHidden=#TipHidden[#<Skin>Tooltips]#` in `[Rainmeter]`; `TipHidden1/0` in Core.inc look up `[#TooltipsAll]`.
+- T3: a skin with any `ToolTipText` (ini or script) has `TipHide` and `ToolTipHidden=#TipHide#` as above; `TipHidden1/0` in Core.inc look up `[#TooltipsAll]`.
 - T4: such a skin has `<Skin>Tooltips=1` in its Defaults.inc and a Settings page that sets `TipKey` and includes `Tooltips.inc`; `TooltipsAll=skin` is in the root Defaults.inc; Advanced has the three `Set('TooltipsAll',...)` choices.
 - `python tools/test_tooltips.py` evaluates every skin's real line for every `TooltipsAll` x `<Skin>Tooltips` combination, with variables replaced at definition and at read.
 

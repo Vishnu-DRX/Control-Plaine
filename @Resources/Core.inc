@@ -36,7 +36,9 @@
 ; including this file: Sz=(#Scale#*#SizeBoost#)
 Sz=#Scale#
 ; Tooltips. A skin's [Rainmeter] section sets
-;   ToolTipHidden=#TipHidden[#<Skin>Tooltips]#
+;   ToolTipHidden=#TipHide#   (and the same on every meter with a tooltip)
+; with, right after the Core.inc include in its [Variables]:
+;   TipHide=#TipHidden[#<Skin>Tooltips]#
 ; <Skin>Tooltips is 1 or 0, so that reads TipHidden1 or TipHidden0. Those two
 ; pick their value from the global TooltipsAll (skin, on, off):
 ;   skin  the skin's own setting rules (1 shows, 0 hides)
