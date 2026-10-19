@@ -13,7 +13,7 @@ ContextAction=[!DeactivateConfig]
 Name=Control-Plaine | Settings
 Author=Vishnu A
 Information=Settings for the Control-Plaine suite. Opened from any skin's right-click menu.
-Version=2.0.0
+Version=2.0.1
 License=MIT
 
 [Variables]

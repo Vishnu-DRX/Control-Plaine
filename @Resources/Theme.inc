@@ -11,7 +11,7 @@
 ; Multiply every size by #Scale#.
 
 [Variables]
-Version=2.0.0
+Version=2.0.1
 RepoURL=https://github.com/Vishnu-DRX/Control-Plaine
 
 ; ---- Colour (R,G,B) ----
