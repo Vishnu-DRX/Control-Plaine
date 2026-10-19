@@ -14,7 +14,7 @@ Name=Control-Plaine | Settings
 Author=Vishnu A
 Information=Settings for the Control-Plaine suite. Opened from any skin's right-click menu.
 Version=2.0.0
-License=CC BY-NC-SA 4.0
+License=MIT
 
 [Variables]
 @include=#@#Theme.inc

@@ -60,7 +60,7 @@ MouseLeaveAction=[!CommandMeasure mFade "Stop 1"][!CommandMeasure mFade "Execute
 Name=Control-Plaine | <Skin>
 Author=Vishnu A
 Version=2.0.0
-License=CC BY-NC-SA 4.0
+License=MIT
 
 [Variables]
 @include=#@#Theme.inc
