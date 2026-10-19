@@ -477,6 +477,19 @@ local function chosenEdge()
 	return var('AlignAll') == 'right' and 'right' or 'left'
 end
 
+-- The column ends flush only if the skins face the edge they are stacked on (a
+-- left-facing skin on the right edge keeps its icon at the window's left end).
+-- Clicking an edge therefore sets ALIGN ALL SKINS to it, the same call the LOOK
+-- step's buttons make. The left edge only overrides a right setting: skins set
+-- to "skin" already default to the left.
+local function faceEdge(edge)
+	local now = var('AlignAll')
+	if now ~= edge and (edge == 'right' or now == 'right') then
+		SKIN:Bang('!CommandMeasure', 'mSettings', "Set('AlignAll','" .. edge .. "','all')")
+		SKIN:Bang('!SetVariable', 'AlignAll', edge)
+	end
+end
+
 -- True when the last stacking had to pull a skin back onto the screen.
 local placeClamped = false
 
@@ -518,6 +531,7 @@ function PlaceEdge(edge)
 	save('OnbScreen', n)
 	save('OnbEdge', edge)
 	save('OnbPlaced', 1)
+	faceEdge(edge)
 	placeSkins()
 	redraw()
 end
@@ -631,7 +645,7 @@ function Intro()
 	elseif id == 'look' then
 		return 'Applies to every skin now. Each skin can differ later on its own page.'
 	elseif id == 'place' then
-		return 'Stack the skins you kept in a column on one edge of a screen. Drag them anywhere afterwards.'
+		return 'Stack the skins you kept in a column on one edge of a screen. Their left or right arrangement follows the edge you pick. Drag them anywhere afterwards.'
 	elseif id == 'done' then
 		return 'Setup is saved. Change anything later in Settings.'
 	end

@@ -254,6 +254,8 @@ with tempfile.TemporaryDirectory() as tmp:
     check(len(moves) >= 1 and all(b[3].startswith('Control-Plaine\\') for b in moves),
           f'clicking an edge moves the loaded skins by config name: {moves!r}')
     check('OnbEdge=right' in state_text(base) and 'OnbPlaced=1' in state_text(base), 'the edge choice is saved')
+    check(onb.sent('!CommandMeasure', 'mSettings', "Set('AlignAll','right','all')"),
+          'choosing the right edge makes the skins face right (ALIGN ALL SKINS = right)')
     onb.g.Next()
     check(onb.g.Title() == 'DONE' and onb.g.NextLabel() == 'FINISH', 'NEXT goes to DONE')
     summary = onb.g.Summary()
