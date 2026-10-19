@@ -24,7 +24,7 @@ MouseLeaveAction=[!CommandMeasure mFade "Stop 1"][!CommandMeasure mFade "Execute
 Name=Control-Plaine | {{Name}}
 Author=Vishnu A
 Information={{Summary}}
-Version=2.0.0
+Version=2.0.1
 License=MIT
 
 [Variables]

@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.1
+
+Fixes after the first full test on a real PC.
+
+- The Wi-Fi no-internet icon now shows the Wi-Fi shape with the orange badge (it was the badge only).
+- Left-aligned Volume and Recycle Bin text is no longer cut off.
+- Setup: the placement step finds every monitor and defaults to the main screen, and choosing an edge also sets ALIGN ALL SKINS so the column sits flush on a right edge.
+- Setup: the button rows are tidier.
+- Theme now defaults to auto (follow Windows light or dark).
+- The MediaPlayer plugin download is checked against a pinned SHA-256 before it is installed.
+- The Fan Control sensor task runs a protected copy of its script from the common data folder.
+- The licence is MIT.
+
 ## 2.0.0
 
 Control-Plaine 2.0.0 is the suite rebuilt on one shared design system and one Settings window.
