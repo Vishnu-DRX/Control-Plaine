@@ -25,7 +25,7 @@ HoverBrightness=98
 ; light = black skins (for light wallpapers), auto = follow the Windows
 ; light/dark setting. Each skin's <Skin>Theme (auto, dark, light) overrides it;
 ; auto there means "follow this".
-Theme=dark
+Theme=auto
 ; Light mode: percentage points added to the rest level (black on a light
 ; wallpaper needs more weight to read the same).
 LightBoost=10
