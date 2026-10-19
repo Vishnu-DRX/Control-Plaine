@@ -25,7 +25,7 @@ Name=Control-Plaine | {{Name}}
 Author=Vishnu A
 Information={{Summary}}
 Version=2.0.0
-License=CC BY-NC-SA 4.0
+License=MIT
 
 [Variables]
 @include=#@#Theme.inc

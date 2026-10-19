@@ -1,36 +1,31 @@
-Control-Plaine
+MIT License
+
 Copyright (c) 2026 Vishnu A
 
-DRAFT, WAITING FOR THE OWNER TO CONFIRM THE LICENCE CHOICE. Before the
-repository goes public, replace the "Licence text" section below with the
-verbatim legal code of the licence the owner picks. Nothing else in this
-file needs to change if the choice stays CC BY-NC-SA 4.0.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-What is licensed
-----------------
-Unless a file or the notices in THIRD-PARTY-NOTICES.md say otherwise, the
-Control-Plaine skins and everything in this repository that is the project's
-own work (skin files, Settings window, scripts, documentation, the site and
-the icon artwork drawn for the suite) are licensed under:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-    Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
-    (CC BY-NC-SA 4.0)
-    https://creativecommons.org/licenses/by-nc-sa/4.0/
-
-This is the value of the "License" line in the [Metadata] section of every
-skin. You may share and adapt the work for non-commercial purposes if you
-give credit, say what you changed, and distribute your changes under the
-same licence.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 What is not covered
 -------------------
+This licence covers the project's own work: skin files, the Settings window,
+scripts, documentation, the site and the icon artwork drawn for the suite.
 Third-party material keeps its own licence and owner. See
-THIRD-PARTY-NOTICES.md for the list: icon sources (Lucide, ISC), the plugins
-and programs the installer downloads (never committed here), and app logos
-that belong to their owners.
-
-Licence text
-------------
-The full legal code is published at
-https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
-(REPLACE THIS SECTION WITH THE VERBATIM TEXT BEFORE GOING PUBLIC.)
+THIRD-PARTY-NOTICES.md: icon sources (Lucide, ISC), the plugins and programs
+the installer downloads (never committed here), and app logos (SignalRGB,
+DeepCool, Playnite artwork) that belong to their owners and are not licensed
+under the MIT licence.
