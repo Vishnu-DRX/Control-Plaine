@@ -307,7 +307,7 @@ Tab=<Skin>
 Settings is in its own group so `!RefreshGroup ControlPlaine` does not reload it mid-edit.
 
 ### 7.2 Chrome (from the canvas Settings board)
-- Panel 912 x 620 at scale 1, scaled by `PanelScale=(Min(#Scale#,#SCREENAREAHEIGHT#*0.85/620))` so 250-300% never overflows the screen.
+- Panel 912 x 680 at scale 1 (`PH`), scaled by `PS=(Min(#Scale#,#SCREENAREAHEIGHT#*0.85/#PH#))` so 250-300% never overflows the screen.
 - Shape rectangle, radius 12, fill `#Dark#,219` (0.86), 1px stroke `#Ink#,20`. Optional FrostedGlass blur behind it: off by default, verify rounded corners on Win11 first.
 - Left column: `CONTROL` / `PLAINE` wordmark (18px, 400, 0.30em, drag handle), then 13 tabs (10px semibold, 0.25em, 3px padding; inactive 50% alpha; active 100% with a 2px accent bar on the left). Tab list order: GENERAL, DAY-DATE, POWER, UPTIME, VOLUME, RECYCLE BIN, PLAYNITE, MEDIA, WI-FI, FAN CONTROL, SIGNALRGB, DEEPCOOL, CONTROLLERS.
 - Footer: `VERSION #Version#`, `OPEN ON GITHUB` (link style, opens `#RepoURL#`).

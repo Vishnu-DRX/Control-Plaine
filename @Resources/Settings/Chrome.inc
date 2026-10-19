@@ -1,11 +1,12 @@
 ;  Control-Plaine Settings: window chrome shared by every page.
-;  Panel 912 x 620 at scale 1 (canvas Settings board), left tab column,
+;  Panel 912 x 680 at scale 1 (canvas Settings board), left tab column,
 ;  footer, close button. Every size is (n*#PS#); PS is Scale, capped so the
 ;  panel never exceeds 85% of the screen height.
-;  Content area for rows: x 248 to 872 (#ColL# to #ColR#), y 48 to 588.
+;  Content area for rows: x 248 to 872 (#ColL# to #ColR#), y 48 to 648.
 
 [Variables]
-PS=(Min(#Scale#,#SCREENAREAHEIGHT#*0.85/620))
+PH=680
+PS=(Min(#Scale#,#SCREENAREAHEIGHT#*0.85/#PH#))
 ColL=248
 ColR=872
 TabY0=128
@@ -20,7 +21,7 @@ ThemeLock=1
 Meter=Shape
 X=0
 Y=0
-Shape=Rectangle 0.5,0.5,(912*#PS#-1),(620*#PS#-1),(12*#PS#) | Fill Color #Dark#,219 | StrokeWidth 1 | Stroke Color #Ink#,20
+Shape=Rectangle 0.5,0.5,(912*#PS#-1),(#PH#*#PS#-1),(12*#PS#) | Fill Color #Dark#,219 | StrokeWidth 1 | Stroke Color #Ink#,20
 DynamicVariables=1
 
 ; ---------- Wordmark (drag here) ----------
@@ -365,7 +366,7 @@ DynamicVariables=1
 [Version]
 Meter=String
 MeterStyle=sTab
-Y=(560*#PS#)
+Y=((#PH#-60)*#PS#)
 FontColor=#Ink#,115
 MouseActionCursor=0
 Text=VERSION #Version#
@@ -382,7 +383,7 @@ LeftMouseUpAction=["#RepoURL#"]
 Meter=String
 MeterStyle=sTab
 X=(#ColL#*#PS#)
-Y=(596*#PS#)
+Y=((#PH#-24)*#PS#)
 FontColor=#Ink#,153
 Text=REFRESH ALL
 LeftMouseUpAction=[!RefreshGroup ControlPlaine][!Refresh]
