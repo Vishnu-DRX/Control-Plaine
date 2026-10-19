@@ -262,7 +262,7 @@ Every skin follows the same rules, so the wording reads as one suite:
 - Verb first, sentence case, no article, no "Click to" and no full stop: "Open Task Manager", "Mute or unmute", "Scroll to change brightness". Scroll-only controls start with "Scroll to".
 - Elements that do the same click share one text. A toggle names what the click does next ("Set all fans to 100%" then "Restore normal fan speeds").
 - Rainmeter's own tooltip style and delay are left alone; there is no delay option to match.
-- Each skin has a `<Skin>Tooltips` key in its Defaults.inc (1 on, 0 off). Core.inc maps it through `TipHidden1`/`TipHidden0`, and the skin's [Rainmeter] section sets `ToolTipHidden=#TipHidden[#<Skin>Tooltips]#`, so one key hides every tooltip of that skin, including ones set by its script. The global `TooltipsAll` (skin, on, off) overrides it through the same lookup; see `specs/tooltips.md`.
+- Each skin has a `<Skin>Tooltips` key in its Defaults.inc (1 on, 0 off). Core.inc maps it through `TipHidden1`/`TipHidden0`, and the skin's [Rainmeter] section sets `ToolTipHidden=#TipHide#` (`TipHide=#TipHidden[#<Skin>Tooltips]#` in its [Variables]), so one key hides every tooltip of that skin, including ones set by its script. The global `TooltipsAll` (skin, on, off) overrides it through the same lookup; see `specs/tooltips.md`.
 
 ## 6. Typography, scale, icons: how close Rainmeter gets
 

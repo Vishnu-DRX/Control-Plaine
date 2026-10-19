@@ -10,7 +10,7 @@
 ;   {{Name}}Tooltips=1 or 0   show or hide this skin's tooltips
 [Rainmeter]
 ; {{Name}}Tooltips=0 hides every tooltip of this skin (see Core.inc).
-ToolTipHidden=#TipHidden[#{{Name}}Tooltips]#
+ToolTipHidden=#TipHide#
 Update=1000
 AccurateText=1
 DynamicWindowSize=1
@@ -38,6 +38,8 @@ SkinSide=#{{Name}}Align#
 SkinDetails=#{{Name}}Details#
 SkinTheme=#{{Name}}Theme#
 @include6=#@#Core.inc
+; One resolved tooltip switch (a nested lookup is not read on a meter).
+TipHide=#TipHidden[#{{Name}}Tooltips]#
 ; TODO keep this line only if the skin sits with the app skins (boosted size);
 ; otherwise use Sz=(#Scale#) and say so in the guide.
 Sz=(#Scale#*#SizeBoost#)
