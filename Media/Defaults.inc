@@ -6,7 +6,8 @@
 ; left: ring first, text after it. right: text first, ring last.
 ; The chevrons keep their order on both sides.
 MediaAlign=left
-; hover: chevrons and brighter text only on hover. always: they stay shown.
+; hover: title, artist, hairline and chevrons only on hover (the ring and
+; play/pause stay). always: they stay shown. DetailsAll in Settings can override it.
 MediaDetails=hover
 ; Colours for this skin: auto follows the global Theme, dark = white,
 ; light = black.

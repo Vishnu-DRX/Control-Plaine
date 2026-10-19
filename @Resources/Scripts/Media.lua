@@ -1,7 +1,9 @@
 -- Control-Plaine | Media
 -- 1. Long titles and artists (wider than the line between the chevrons):
---    at rest they are cut with an ellipsis. When the song changes they slide
---    once to show the rest, then go back; while hovered they keep sliding.
+--    at rest they are cut with an ellipsis. While hovered they slide to show
+--    the rest and go back, and keep sliding. When the song changes they slide
+--    once, but only while the text is shown (MediaDetails=always); with
+--    details on hover the text is invisible at rest, so there is nothing to see.
 --    MediaScrollTitles=0 turns sliding off (ellipsis only).
 -- 2. Click on the ring jumps to that point in the song.
 
@@ -106,7 +108,8 @@ function TrackChanged()
 	-- exist; the OnRefreshAction call comes after and does the work.
 	if not enabled or not SKIN:GetMeter('Title') then return end
 	for _, l in ipairs(LINES) do rest(l) end
-	startAll()
+	-- RevealMin is 1 when the details are always shown (Core.lua).
+	if hovering or num('RevealMin', 0) == 1 then startAll() end
 end
 
 function Hover(on)
