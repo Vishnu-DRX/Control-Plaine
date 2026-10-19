@@ -6,7 +6,12 @@ Needs lupa (pip install lupa), which embeds Lua.
    for both sides at scale 100, 125 and 150%: same box and hit width on both
    sides, ring and text column inside the box and not overlapping, the ring at
    the outer edge, chevrons in the same order (Prev left of Next) and the same
-   place in the column on both sides, clip boxes inside the text column.
+   place in the column on both sides, clip boxes inside the text column. The
+   variables are baked the way Rainmeter does it (a [Variables] value keeps
+   what #Mir# was when it was defined: Core.inc's placeholder), so a variable
+   that depends on the side would leave the ring on the left: that is checked.
+   Also: title, artist and hairline are invisible at Reveal=0 (details on
+   hover) and shown at Reveal=1 (always), as on Volume.
 2. Scripts\\Media.lua, run against a fake SKIN, scrolls a long title for both
    sides: it starts with the first letter at the box's left edge, moves
    leftwards only, stops with the last letter flush with the right edge,
@@ -49,6 +54,33 @@ def load_vars(paths):
     return out
 
 
+PLACEHOLDERS = {'Mir': '0', 'Lead': '0', 'Trail': '1', 'Side': 'left', 'TA': 'LeftCenter',
+                'TAT': 'Left', 'RevealMin': '0'}
+
+
+def bake(paths, scale):
+    """[Variables] as Rainmeter reads them: each value has its #Name# parts
+    replaced when it is defined, so it keeps the value they had then. Core.inc's
+    side placeholders are in place before the skin's own variables."""
+    out = {'Scale': str(scale), 'Sz': str(scale), **PLACEHOLDERS}
+    for p in paths:
+        in_vars = False
+        for line in (ROOT / p).read_text().splitlines():
+            if line.startswith('['):
+                in_vars = line.strip() == '[Variables]'
+            elif in_vars and re.match(r'^\w+=', line) and not line.startswith('@include'):
+                k, v = line.split('=', 1)
+                if k == 'Scale':
+                    continue
+                for _ in range(20):
+                    new = re.sub(r'#(\w+)#', lambda m: out.get(m.group(1), m.group(0)), v)
+                    if new == v:
+                        break
+                    v = new
+                out[k] = v
+    return out
+
+
 def evaluate(expr, variables):
     for _ in range(20):
         new = re.sub(r'#(\w+)#', lambda m: variables.get(m.group(1), m.group(0)), expr)
@@ -66,7 +98,7 @@ def section(text, name):
 
 def test_layout():
     ini = (ROOT / 'Media' / 'Media.ini').read_text()
-    base = load_vars(['@Resources/Theme.inc', '@Resources/Defaults.inc', 'Media/Defaults.inc', 'Media/Media.ini'])
+    files = ['@Resources/Theme.inc', '@Resources/Defaults.inc', 'Media/Defaults.inc', 'Media/Media.ini']
     names = ('Back', 'TitleBox', 'ArtistBox', 'Hairline', 'PrevHit', 'Prev', 'NextHit', 'Next',
              'TitleHit', 'ArtistHit', 'Ring', 'RingHit', 'PlayPause')
     meters = {n: section(ini, n) for n in names}
@@ -75,20 +107,21 @@ def test_layout():
         got = {}
         for side in ('left', 'right'):
             mir = 1 if side == 'right' else 0
-            v = {**base, 'Scale': str(scale), 'Mir': str(mir), 'Lead': str(mir), 'Trail': str(1 - mir)}
+            v = {**bake(files, scale), 'Mir': str(mir), 'Lead': str(mir), 'Trail': str(1 - mir)}
             tag = f'scale {scale} {side}'
             box = evaluate('#BoxW#', v)
             x = {n: evaluate(meters[n]['X'], v) for n in names if n != 'Back'}
             w = {n: evaluate(meters[n]['W'], v) for n in names if 'W' in meters[n]}
-            col = evaluate('#ColX#', v)
+            col = evaluate(meters['PrevHit']['X'], v)
             colw = evaluate('#ColP#', v)
-            ring = evaluate('#RingX#', v)
+            ring = evaluate(meters['RingHit']['X'], v)
             ringw = evaluate('#RingP#', v)
             check(w['Back'] == box, f'Back is the box ({tag})')
             check(all(a == int(a) for a in (box, col, colw, ring, ringw)), f'whole pixels ({tag})')
             check(col >= 0 and col + colw <= box and ring >= 0 and ring + ringw <= box, f'inside the box ({tag})')
             check(col + colw <= ring or ring + ringw <= col, f'ring and column do not overlap ({tag})')
             check(ring == (0 if side == 'left' else box - ringw), f'ring at the outer edge ({tag}): {ring}')
+            check(col == (ringw + evaluate('#GapP#', v) if side == 'left' else 0), f'column on the far side ({tag}): {col}')
             for n in ('TitleBox', 'ArtistBox', 'Hairline', 'TitleHit', 'ArtistHit'):
                 check(col <= x[n] and x[n] + w[n] <= col + colw, f'{n} inside the column ({tag})')
             tb = x['TitleBox'] - col
@@ -104,6 +137,38 @@ def test_layout():
     return rows
 
 
+def test_reveal():
+    """Title, artist and hairline: nothing at Reveal=0, the hover level at 1."""
+    ini = (ROOT / 'Media' / 'Media.ini').read_text()
+    files = ['@Resources/Theme.inc', '@Resources/Defaults.inc', 'Media/Defaults.inc', 'Media/Media.ini']
+    for name, opt in (('Title', 'FontColor'), ('Artist', 'FontColor'), ('Hairline', 'SolidColor')):
+        expr = section(ini, name)[opt]
+        alpha = expr.split(',', 1)[1]
+        check('#Reveal#' in alpha, f'{name} follows Reveal')
+        if name == 'Hairline':
+            check('Reveal' in section(ini, name).get('Group', ''), 'Hairline is in group Reveal')
+        for dim in (1, 0.7):
+            v = {**bake(files, 1), 'AlphaHover': '250', 'AlphaTrack': '60', 'Dim': str(dim)}
+            vals = {}
+            for reveal in (0, 1):
+                v['Reveal'] = str(reveal)
+                vals[reveal] = evaluate(alpha, v)
+            check(vals[0] == 0, f'{name} is invisible at rest with details on hover (Dim {dim})')
+            check(vals[1] > 0, f'{name} is shown at Reveal=1 (Dim {dim})')
+    for name in ('Prev', 'Next'):
+        check('#Reveal#' in section(ini, name)['Shape'], f'{name} chevron follows Reveal')
+    for name in ('TitleBox', 'ArtistBox'):
+        check('#Dark#' not in section(ini, name)['SolidColor'], f'{name} container is not a visible box')
+    # Bug guard: no [Variables] entry may use the side helpers (baked at load).
+    in_vars = False
+    for line in ini.splitlines():
+        if line.startswith('['):
+            in_vars = line.strip() == '[Variables]'
+        elif in_vars and re.match(r'^\w+=', line):
+            check(not re.search(r'#(Mir|Lead|Trail|TA|TAT|Side|RevealMin|HoverTint)#', line),
+                  f'a [Variables] value uses a side helper: {line}')
+
+
 # ---------- Media.lua scroll direction ----------
 
 class Meter:
@@ -115,12 +180,12 @@ class Meter:
         return self.w
 
 
-def run_scroll(mir, text_w=400, box_w=190):
+def run_scroll(mir, text_w=400, box_w=190, reveal_min=1):
     lua = LuaRuntime(unpack_returned_tuples=True)
     meters = {'Title': Meter(), 'TitleBox': Meter(box_w), 'Artist': Meter(), 'ArtistBox': Meter(box_w)}
     full = {'Title': text_w, 'Artist': max(0, text_w - 100)}
     log = []
-    variables = {'Mir': str(mir), 'Scale': '1', 'MediaScrollTitles': '1'}
+    variables = {'Mir': str(mir), 'Scale': '1', 'MediaScrollTitles': '1', 'RevealMin': str(reveal_min)}
 
     class Measure:
         def GetValue(self):
@@ -190,6 +255,14 @@ def test_scroll():
         g.TrackChanged()
         check(at_rest(meters['Title']) and ('!CommandMeasure', 'mScroll', 'Execute 1') not in log,
               f'short title stays at rest ({tag})')
+        # Details on hover: the text is invisible at rest, so a track change
+        # does not slide; hovering does.
+        g, meters, log, full = run_scroll(mir, reveal_min=0)
+        g.TrackChanged()
+        check(at_rest(meters['Title']) and ('!CommandMeasure', 'mScroll', 'Execute 1') not in log,
+              f'no slide on a track change while the text is hidden ({tag})')
+        g.Hover(1)
+        check(not at_rest(meters['Title']), f'hover slides it ({tag})')
         # Hover keeps it going; leaving rests.
         g, meters, log, full = run_scroll(mir)
         g.Hover(1)
@@ -201,6 +274,7 @@ def test_scroll():
 
 def main():
     rows = test_layout()
+    test_reveal()
     test_scroll()
     print('| scale | side | box W | column X | ring X | title box X in column | title box W |')
     print('| --- | --- | --- | --- | --- | --- | --- |')
