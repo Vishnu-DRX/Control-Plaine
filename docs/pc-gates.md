@@ -32,7 +32,7 @@ Things the cloud cannot check because they need Rainmeter or a Windows PC. Each 
 ## Tools and installer (R4)
 
 - [ ] `tools\install.ps1` on Windows PowerShell 5.1 and on pwsh 7: fresh install, second run the same day, existing non-repo `Skins\Control-Plaine` (R4-T3, R4-T4, R4-T5).
-- [ ] Compute the SHA-256 of the MediaPlayer release asset and pin it in the helper script (R4-T2; GitHub downloads were not reachable from the cloud session).
+- [x] Compute the SHA-256 of the MediaPlayer release asset and pin it in the helper script (R4-T2; done 2026-10-19: both v1.4 assets pinned, a mismatch deletes the download and installs nothing).
 - [ ] `Helpers.txt` entries with a quoted `{ROOT}` when the repo path has an apostrophe, e.g. `C:\O'Neil\...` (onboarding re-check).
 - [ ] GitHub Actions: `lint` still passes with the `permissions:` block and pinned actions (R4-T10).
 
