@@ -29,6 +29,7 @@ The installed layout puts the skins in one column at the left of your main scree
 
 - **SCREEN.** Shows the usable size of the screen (the work area, without the taskbar). With more than one display, click it to use the next screen.
 - **EDGE.** LEFT or RIGHT. The skins stack top to bottom in a fixed order (date and clock, uptime, power, volume, media, recycle bin, then the app skins, with Controllers last because it grows with the number of controllers) in a column along that edge, 24 px in from the edge and 16 px apart. Only skins that are switched on are moved.
+- **LEFT or RIGHT also sets ALIGN ALL SKINS** to that edge, so the icons sit flush against it. Choosing LEFT only changes a right setting; skins set to their own value ("skin") are left alone.
 - **STACK.** Does it again, for example after you dragged things about or switched a skin on.
 
 Nothing moves until you click a screen or an edge; going on without clicking keeps every skin where it is. Choosing moves the skins at once, so you see the result. If the column does not fit the screen height (a large size on a small screen), it continues in a second column next to the first. Drag any skin afterwards (General > LOCK POSITIONS must be off).
