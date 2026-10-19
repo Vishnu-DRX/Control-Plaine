@@ -184,6 +184,7 @@ Text=[&mSettings:Banner()]
 LeftMouseUpAction=[!CommandMeasure mSettings "Fix('#Tab#')"]
 
 [MarkDayDate]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+2*#TabStep#+1)*#PS#)
@@ -197,6 +198,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('DayDate')"]
 DynamicVariables=1
 
 [MarkPower]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+3*#TabStep#+1)*#PS#)
@@ -210,6 +212,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Power')"]
 DynamicVariables=1
 
 [MarkUptime]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+4*#TabStep#+1)*#PS#)
@@ -223,6 +226,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Uptime')"]
 DynamicVariables=1
 
 [MarkVolume]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+5*#TabStep#+1)*#PS#)
@@ -236,6 +240,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Volume')"]
 DynamicVariables=1
 
 [MarkRecycleBin]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+6*#TabStep#+1)*#PS#)
@@ -249,6 +254,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('RecycleBin')"]
 DynamicVariables=1
 
 [MarkPlaynite]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+7*#TabStep#+1)*#PS#)
@@ -262,6 +268,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Playnite')"]
 DynamicVariables=1
 
 [MarkMedia]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+8*#TabStep#+1)*#PS#)
@@ -275,6 +282,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Media')"]
 DynamicVariables=1
 
 [MarkWiFi]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+9*#TabStep#+1)*#PS#)
@@ -288,6 +296,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('WiFi')"]
 DynamicVariables=1
 
 [MarkFanControl]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+10*#TabStep#+1)*#PS#)
@@ -301,6 +310,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('FanControl')"]
 DynamicVariables=1
 
 [MarkSignalRGB]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+11*#TabStep#+1)*#PS#)
@@ -314,6 +324,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('SignalRGB')"]
 DynamicVariables=1
 
 [MarkDeepCool]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+12*#TabStep#+1)*#PS#)
@@ -327,6 +338,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('DeepCool')"]
 DynamicVariables=1
 
 [MarkControllers]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+13*#TabStep#+1)*#PS#)
@@ -340,6 +352,7 @@ LeftMouseUpAction=[!CommandMeasure mSettings "Fix('Controllers')"]
 DynamicVariables=1
 
 [MarkSettingsButton]
+ToolTipHidden=#TipHide#
 Meter=Shape
 X=(214*#PS#)
 Y=((#TabY0#+14*#TabStep#+1)*#PS#)
@@ -409,6 +422,7 @@ LeftMouseUpAction=["#@#User.inc"]
 ; ---------- Close ----------
 
 [CloseHit]
+ToolTipHidden=#TipHide#
 Meter=Image
 X=(868*#PS#)
 Y=(20*#PS#)
