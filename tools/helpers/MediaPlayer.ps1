@@ -2,7 +2,14 @@
 # Listed in @Resources\Setup\Helpers.txt (id mediaplayer); run by tools\install.ps1
 # and by the first-run setup (RUN IT FOR ME). i2002/RainmeterMediaPlayer v1.4
 # (GPL-3.0), 64-bit build, downloaded into Rainmeter's own Plugins folder.
+# The package is checked against the SHA-256 pinned below before anything is
+# unpacked; a different file is deleted and nothing is installed.
 $ErrorActionPreference = 'Stop'
+# SHA-256 of the v1.4 release assets (matches the digest GitHub lists for them).
+$pinned = @{
+    'MediaPlayer_v1.4_static.rmskin' = '096317d6a73b9b66342e3860e9bb94439ea872190e8d90fc161a1669bb8dc607'
+    'MediaPlayer_v1.4.rmskin'        = '8a21d9709e76f4737831935e34ab24eaf061002837e2330cc602a993ecc0a42f'
+}
 $plugins = Join-Path $env:APPDATA 'Rainmeter\Plugins'
 $mediaDll = Join-Path $plugins 'MediaPlayer.dll'
 
@@ -27,8 +34,15 @@ try {
         $n = $_.name.ToLower()
         -(([int]($n -match 'static')) * 2 + ([int]($n -match '\.(dll|zip|rmskin)$')))
     } | Select-Object -First 1
+    $expected = $pinned[$asset.name]
+    if (-not $expected) { throw "$($asset.name) is not a release asset this script knows (no pinned hash)" }
     $tmp = Join-Path $env:TEMP $asset.name
     Invoke-WebRequest $asset.browser_download_url -OutFile $tmp -UseBasicParsing
+    $actual = (Get-FileHash $tmp -Algorithm SHA256).Hash.ToLower()
+    if ($actual -ne $expected) {
+        Remove-Item $tmp -Force
+        throw "$($asset.name) does not match the pinned SHA-256 (got $actual), so it was deleted and nothing was installed"
+    }
     if ($asset.name -match '\.(zip|rmskin)$') {
         # Expand-Archive only accepts a .zip extension.
         $zip = [IO.Path]::ChangeExtension($tmp, '.zip')
