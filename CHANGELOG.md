@@ -12,6 +12,7 @@ Fixes after the first full test on a real PC.
 - The MediaPlayer plugin download is checked against a pinned SHA-256 before it is installed.
 - The Fan Control sensor task runs a protected copy of its script from the common data folder.
 - The licence is MIT.
+- Media follows Volume: with Media aligned right the ring and text column now mirror correctly, and with details on hover only the ring and play/pause show at rest (title, artist and chevrons appear on hover).
 
 ## 2.0.0
 
