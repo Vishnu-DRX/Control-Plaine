@@ -49,17 +49,31 @@ function P.size(name, scale, boost)
 end
 
 -- Screens from a getter(name) -> string, the way Rainmeter exposes them:
--- NUMOFMONITORS and SCREENAREAX/Y/WIDTH/HEIGHT@n (work area, taskbar left out),
--- or without @n for the primary screen. Returns { {x,y,w,h}, ... } and the
--- index of the primary screen. Always at least one screen.
+-- SCREENAREAX/Y/WIDTH/HEIGHT@n (work area, taskbar left out), or without @n for
+-- the primary screen. Rainmeter has no variable for the number of monitors
+-- (NUMOFMONITORS stays as written), so @1, @2 ... are read until one is not a
+-- number. Rainmeter answers @n beyond the last monitor with the primary
+-- screen's values (and leaves @n as written from 11), so a screen that repeats
+-- an earlier one is skipped: two screens never share a work area.
+-- Returns { {x,y,w,h}, ... } and the index of the primary screen. Always at
+-- least one screen.
+P.MAX_SCREENS = 16
+
 function P.screens(get)
 	local out = {}
-	local n = math.floor(tonumber(get('NUMOFMONITORS')) or 1)
-	for i = 1, math.max(1, n) do
+	local n = math.floor(tonumber(get('NUMOFMONITORS')) or 0)
+	local known = n > 0
+	for i = 1, known and n or P.MAX_SCREENS do
 		local x, y = tonumber(get('SCREENAREAX@' .. i)), tonumber(get('SCREENAREAY@' .. i))
 		local w, h = tonumber(get('SCREENAREAWIDTH@' .. i)), tonumber(get('SCREENAREAHEIGHT@' .. i))
+		local same = false
+		for _, s in ipairs(out) do
+			if s.x == x and s.y == y and s.w == w and s.h == h then same = true end
+		end
 		if x and y and w and h and w > 0 and h > 0 then
-			out[#out + 1] = { x = x, y = y, w = w, h = h, index = i }
+			if not same then out[#out + 1] = { x = x, y = y, w = w, h = h, index = i } end
+		elseif not known then
+			break
 		end
 	end
 	local px, py = tonumber(get('SCREENAREAX')), tonumber(get('SCREENAREAY'))

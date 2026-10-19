@@ -642,8 +642,10 @@ function Facts()
 	local rows = {}
 	local os = SKIN:GetMeasure('mOS')
 	rows[#rows + 1] = 'WINDOWS  ' .. (os and os:GetStringValue() or '')
-	local count = SKIN:ReplaceVariables('#NUMOFMONITORS#')
-	local screens = (count:sub(1, 1) ~= '#' and count ~= '') and (count .. ' DISPLAYS, ') or ''
+	local list = Place and Place.screens(function(name)
+		return SKIN:ReplaceVariables('#' .. name .. '#')
+	end)
+	local screens = (list and #list > 1) and (#list .. ' DISPLAYS, ') or ''
 	rows[#rows + 1] = 'DISPLAYS  ' .. screens .. 'MAIN ' .. SKIN:ReplaceVariables('#SCREENAREAWIDTH#') ..
 		' X ' .. SKIN:ReplaceVariables('#SCREENAREAHEIGHT#')
 	local found, total = 0, 0
