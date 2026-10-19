@@ -143,6 +143,7 @@ DynamicVariables=1
 
 ; Value text inside a box: 16px light, right-aligned.
 [sValueText]
+ToolTipHidden=#TipHide#
 FontFace=#FontFace#
 FontSize=(12*#PS#)
 FontWeight=300
@@ -158,6 +159,7 @@ DynamicVariables=1
 
 ; Path text inside a box: 12px, right-aligned, clipped to 280px.
 [sPathText]
+ToolTipHidden=#TipHide#
 FontFace=#FontFace#
 FontSize=(9*#PS#)
 FontWeight=400
