@@ -80,9 +80,9 @@ def test_layout():
             box = evaluate('#BoxW#', v)
             x = {n: evaluate(meters[n]['X'], v) for n in names if n != 'Back'}
             w = {n: evaluate(meters[n]['W'], v) for n in names if 'W' in meters[n]}
-            col = evaluate('#ColX#', v)
+            col = evaluate('((1-#Mir#)*(#RingP#+#GapP#))', v)
             colw = evaluate('#ColP#', v)
-            ring = evaluate('#RingX#', v)
+            ring = evaluate('(#Mir#*(#ColP#+#GapP#))', v)
             ringw = evaluate('#RingP#', v)
             check(w['Back'] == box, f'Back is the box ({tag})')
             check(all(a == int(a) for a in (box, col, colw, ring, ringw)), f'whole pixels ({tag})')
