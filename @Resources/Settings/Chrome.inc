@@ -378,15 +378,6 @@ FontColor=#Ink#,200
 Text=OPEN ON GITHUB
 LeftMouseUpAction=["#RepoURL#"]
 
-[GitHubLine]
-Meter=Image
-X=[GitHub:X]
-Y=(1*#PS#)R
-W=([GitHub:W]-12*#PS#)
-H=(1*#PS#)
-SolidColor=#Accent#,255
-DynamicVariables=1
-
 [LinkRefresh]
 Meter=String
 MeterStyle=sTab
