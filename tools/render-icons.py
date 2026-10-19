@@ -92,8 +92,11 @@ def light_svg(svg):
         cut = ('<defs><mask id="cut" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">'
                '<rect width="24" height="24" fill="#fff" stroke="none"/>'
                '<circle cx="19" cy="18" r="5" fill="#000" stroke="none"/></mask></defs><g mask="url(#cut)">')
-        s = (s.replace(' fill="#1a1d22"', '').replace('<circle cx="19"', '</g><circle cx="19"', 1)
-             .replace('<circle cx="11"', cut + '<circle cx="11"', 1))
+        s = s.replace(' fill="#1a1d22"', '').replace('<circle cx="19"', '</g><circle cx="19"', 1)
+        # Everything before the badge (after any metadata) sits under the mask.
+        start = s.find('</metadata>')
+        start = start + len('</metadata>') if start >= 0 else s.find('>') + 1
+        s = s[:start] + cut + s[start:]
     return s
 
 
