@@ -253,6 +253,8 @@ local function render()
 	-- Footer buttons.
 	if idx == 1 then SKIN:Bang('!HideMeter', 'NavBack') else SKIN:Bang('!ShowMeter', 'NavBack') end
 	if fixMode() or step.id == 'done' then SKIN:Bang('!HideMeter', 'NavSkip') else SKIN:Bang('!ShowMeter', 'NavSkip') end
+	-- SKIP SETUP sits right after BACK; on the first step (no BACK) it takes BACK's place.
+	SKIN:Bang('!SetOption', 'NavSkip', 'X', idx == 1 and '(#ColL#*#PS#)' or '(24*#PS#)R')
 
 	-- Skins step: the note under each name.
 	if step.id == 'skins' then
@@ -289,6 +291,8 @@ local function render()
 		for _, n in ipairs({ 'BtnRun', 'BtnCopy' }) do
 			if runs and not asking then SKIN:Bang('!ShowMeter', n) else SKIN:Bang('!HideMeter', n) end
 		end
+		-- SKIP follows COPY COMMAND; with no helper to run it starts the row.
+		SKIN:Bang('!SetOption', 'BtnSkip', 'X', runs and '(24*#PS#)R' or '(#ColL#*#PS#)')
 		if canFix and not asking and not skipped(it) then
 			SKIN:Bang('!ShowMeter', 'BtnSkip')
 		else
