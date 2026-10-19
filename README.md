@@ -1,6 +1,41 @@
-# Control-Plaine
+<div align="center">
 
-A quiet Rainmeter suite for Windows: thirteen skins and one Settings window that share a single design system. Quiet at rest, detail on hover, key information always visible, the Windows accent colour, and a layout that works on the left or the right edge of the screen.
+<img src="docs/images/banner.svg" alt="Control-Plaine" width="100%">
+
+<br>
+
+[![Release](https://img.shields.io/github/v/release/Vishnu-DRX/Control-Plaine?style=for-the-badge&color=00e5ff&labelColor=121418)](https://github.com/Vishnu-DRX/Control-Plaine/releases)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-00e5ff?style=for-the-badge&labelColor=121418)](LICENSE)
+[![Lint](https://img.shields.io/github/actions/workflow/status/Vishnu-DRX/Control-Plaine/lint.yml?style=for-the-badge&label=lint&labelColor=121418)](https://github.com/Vishnu-DRX/Control-Plaine/actions/workflows/lint.yml)
+![Rainmeter 4.5+](https://img.shields.io/badge/Rainmeter-4.5%2B-00e5ff?style=for-the-badge&labelColor=121418)
+![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-00e5ff?style=for-the-badge&labelColor=121418)
+
+**Thirteen skins. One Settings window. One design system.**
+<br>
+Quiet at rest, detail on hover, key information always visible.
+
+[Install](#install) &middot; [Skins](#skins) &middot; [Settings](#what-you-can-set) &middot; [Guides](docs/guide/) &middot; [Live preview](https://vishnu-drx.github.io/Control-Plaine/)
+
+</div>
+
+---
+
+## Design in a glance
+
+<p align="center">
+  <img src="docs/images/at-rest-and-hover.svg" alt="Skins at rest and on hover (illustration)" width="100%">
+</p>
+
+| | |
+| --- | --- |
+| **Quiet at rest** | Dim icons and rings. Nothing shouts on your desktop. |
+| **Detail on hover** | Values, names and actions fade in when you point at a skin. Or keep them always on. |
+| **Windows accent** | Follows your Windows accent colour (cyan by default), or pick your own. |
+| **Left or right** | Every skin except Power can sit on either edge with the same footprint. |
+| **Light or dark** | Colours for dark wallpapers, light wallpapers, or follow Windows. |
+| **One Settings window** | A tab per skin plus General and Advanced. Changes apply at once. |
+
+The pictures above are illustrations drawn from the design rules. The [live preview](https://vishnu-drx.github.io/Control-Plaine/) lets you try hover, side and theme in a browser.
 
 ## Skins
 
@@ -29,6 +64,8 @@ Each guide says what the skin shows at rest and on hover, what clicking and scro
 - Some skins need an app or a plugin (Media, the Wi-Fi speed test, Fan Control, SignalRGB, DeepCool, Playnite, Controllers). The installer and the first-time setup handle the plugins; each guide lists what its skin needs. A skin whose app is missing says so instead of sitting broken on the desktop.
 
 ## Install
+
+> Requires Windows 10 or 11 and Rainmeter 4.5 or newer. Current release: **v2.0.1**.
 
 From the repo folder in PowerShell:
 
