@@ -73,6 +73,17 @@ check(len(s) == 1 and s[0]['w'] == 1600, 'fallback to the primary area when @n i
 s, p = screens({})
 check(len(s) == 1 and s[0]['w'] > 0, 'fallback to a default area')
 
+# Rainmeter has no NUMOFMONITORS: it stays as written, and @n is read until one is missing.
+real = {k: v for k, v in two.items() if k != 'NUMOFMONITORS'}
+# Rainmeter 4.5 answers @3 to @10 with the primary screen's values.
+for i in range(3, 11):
+    for name in ('SCREENAREAX', 'SCREENAREAY', 'SCREENAREAWIDTH', 'SCREENAREAHEIGHT'):
+        real[f'{name}@{i}'] = two[f'{name}@2']
+s, p = screens(real)
+check(len(s) == 2 and p == 2 and s[1]['w'] == 2560, 'two monitors found without NUMOFMONITORS, repeats skipped')
+s, p = screens({k: v for k, v in one.items() if k != 'NUMOFMONITORS'} | {f'{n}@{i}': one[f'{n}@1'] for i in range(2, 11) for n in ('SCREENAREAX', 'SCREENAREAY', 'SCREENAREAWIDTH', 'SCREENAREAHEIGHT')})
+check(len(s) == 1, 'one monitor stays one when @2 to @10 repeat it')
+
 # ---------- stacking ----------
 
 AREAS = {
