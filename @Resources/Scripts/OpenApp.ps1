@@ -14,8 +14,9 @@ param(
 )
 
 if ($Process) {
-    $script:name = $Process
-    $script:pids = @(Get-Process -Name $Process -ErrorAction SilentlyContinue | ForEach-Object { [uint32]$_.Id })
+    $script:procs = @(Get-Process -Name $Process -ErrorAction SilentlyContinue)
+    $script:names = @($script:procs | ForEach-Object { $_.Name })
+    $script:pids = @($script:procs | ForEach-Object { [uint32]$_.Id })
     if ($script:pids.Count -gt 0) {
         Add-Type -Namespace CP -Name Win -MemberDefinition @'
 public delegate bool EnumProc(System.IntPtr h, System.IntPtr l);
@@ -31,7 +32,7 @@ public delegate bool EnumProc(System.IntPtr h, System.IntPtr l);
 [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, System.UIntPtr extra);
 '@
         # The app's main window: top level (no owner), titled, and a taskbar window
-        # (WS_EX_APPWINDOW) or named like the process, whether or not it is visible.
+        # (WS_EX_APPWINDOW) or named like a matching process (-Process may be a wildcard), whether or not it is visible.
         # Helper windows (notification, DDE, GDI+) are none of those. Visible ones
         # win over hidden ones.
         $script:found = New-Object System.Collections.ArrayList
@@ -43,7 +44,7 @@ public delegate bool EnumProc(System.IntPtr h, System.IntPtr l);
                 $sb = New-Object System.Text.StringBuilder 256
                 $null = [CP.Win]::GetWindowTextW($h, $sb, 256)
                 $app = ([CP.Win]::GetWindowLongW($h, -20) -band 0x40000) -ne 0
-                if ($sb.Length -gt 0 -and ($app -or $sb.ToString() -eq $script:name)) {
+                if ($sb.Length -gt 0 -and ($app -or $script:names -contains $sb.ToString())) {
                     [void]$script:found.Add([pscustomobject]@{ H = $h; Title = $sb.ToString(); Visible = [CP.Win]::IsWindowVisible($h) })
                 }
             }
