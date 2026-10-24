@@ -59,7 +59,7 @@ local function target(kind)
 	if kind == 'dualsense' and dualsense ~= '' then
 		return dualsense, '', 'DSX'
 	elseif kind == 'moza' and wheel ~= '' then
-		return wheel, '', ''
+		return wheel, '', 'MOZA*'
 	end
 	if other:lower() == 'ms-settings:bluetooth' then
 		return other, 'Open Bluetooth settings', ''
