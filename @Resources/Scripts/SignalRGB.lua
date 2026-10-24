@@ -248,13 +248,15 @@ function Open()
 		target = cmd:match('^"([^"]+)"') or cmd:match('^(%S+)') or ''
 	end
 	if target == '' then return end
-	if target:lower():match('%.exe$') then
-		SKIN:Bang('!SetOption', 'mOpen', 'Program', target)
-		SKIN:Bang('!UpdateMeasure', 'mOpen')
-		SKIN:Bang('!CommandMeasure', 'mOpen', 'Run')
-	else
-		SKIN:Bang('"' .. target .. '"')
-	end
+	-- OpenApp.ps1 brings a running SignalRGB to the front (also from the tray)
+	-- and only starts the target when it is not running, so a click never
+	-- toggles or closes it.
+	local script = SKIN:GetVariable('@') .. 'Scripts\\OpenApp.ps1'
+	SKIN:Bang('!SetOption', 'mOpen', 'Program', 'powershell.exe')
+	SKIN:Bang('!SetOption', 'mOpen', 'Parameter',
+		'-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "' .. script .. '" -Target "' .. target .. '" -Process "SignalRgb"')
+	SKIN:Bang('!UpdateMeasure', 'mOpen')
+	SKIN:Bang('!CommandMeasure', 'mOpen', 'Run')
 end
 
 -- The double arrow: switch between the solid color and the move effect
